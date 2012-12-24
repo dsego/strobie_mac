@@ -1,0 +1,19 @@
+
+SDL       = --pkg sdl -X -I/usr/include/SDL
+CAIRO     = --pkg cairo -X -I/usr/local/include/cairo -X -lcairo
+PANGO     = --pkg pango --pkg pangocairo -X -I/usr/local/include/pango -X -lpango-1.0 -X -lpangocairo-1.0
+CAIRO_SDL = ../vapi/cairosdl.vapi -X -I../cairosdl ../cairosdl/cairosdl.c
+PORTAUDIO = ../vapi/portaudio.vapi ../vapi/pa_ringbuffer.vapi ../portaudio/src/common/pa_ringbuffer.c -X -I../portaudio/include -X -I../portaudio/src/common -X -lportaudio
+KISS_FFT  = ../vapi/kiss_fft.vapi -X -I../kiss_fft130 ../kiss_fft130/kiss_fft.c ../kiss_fft130/tools/kiss_fftr.c
+SNDFILE   = ../vapi/sndfile.vapi -X -I../libsndfile-1.0.25/src -X -lsndfile
+
+all:
+	valac -o strobie strobie.vala sdl_cairo_window.vala biquad.vala pitch_estimation.vala tuning.vala \
+	../src/src.vala ../fir/window.vala ../fir/simple_filter.vala \
+	--pkg posix \
+	$(PORTAUDIO) $(KISS_FFT) $(CAIRO) $(PANGO) $(SDL) $(CAIRO_SDL)
+
+test_lowpass:
+	valac -o test_lowpass test_lowpass.vala biquad.vala \
+	--pkg posix \
+	$(SNDFILE)
