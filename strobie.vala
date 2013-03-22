@@ -278,7 +278,7 @@ public class Strobie : SDLCairoWindow {
     screen.flip();
   }
 
-  private void draw_stripes() {
+  private void draw_stripes(float gain = 1f) {
     context.save();
     paint_background();
     context.restore();
@@ -290,8 +290,6 @@ public class Strobie : SDLCairoWindow {
     // var peak = find_peak(output);
     // stdout.printf("%f %f \n", peak, level_to_dbfs(peak));
 
-    var k = 10f;
-
     var gradient = new Pattern.linear(0, 0, 1, 0);
 
     var x     = 1.0;
@@ -300,7 +298,7 @@ public class Strobie : SDLCairoWindow {
 
     /* signal -> gradient */
     foreach (float sample in output) {
-      gradient.add_color_stop_rgba(x, 1, 1, 1, k * sample);
+      gradient.add_color_stop_rgba(x, 1, 1, 1, gain * sample);
       x -= dx;
       count++;
     }
@@ -342,6 +340,14 @@ public class Strobie : SDLCairoWindow {
     // strobie.set_target_freq(146.832f);
     strobie.set_target_freq(329.628f);
 
+
+    // strobie.set_target_freq(659.255f); // E4
+    // strobie.set_target_freq(493.883f); // B4
+    // strobie.set_target_freq(391.995f); // G4
+    // strobie.set_target_freq(293.665f); // D4
+    // strobie.set_target_freq(440.000f); // A4
+    // strobie.set_target_freq(329.628f); // E4
+
     while (!strobie.quit) {
       // strobie.find_pitch();
       strobie.read_output();
@@ -349,7 +355,7 @@ public class Strobie : SDLCairoWindow {
       // strobie.draw_signal(strobie.pitch_estimation.autocorrelation, 0.1f);
       // strobie.draw_signal(strobie.smoothing_kernel, 100f);
       // strobie.draw_signal(strobie.pitch_estimation.padded_data, 1000f);
-      strobie.draw_stripes();
+      strobie.draw_stripes(500f);
       strobie.process_events();
     }
     return 0;
