@@ -1,3 +1,6 @@
+#
+# Copyright (C) 2013 Davorin Šego
+#
 
 JSON      = --pkg json-glib-1.0 -X -I/usr/local/include/json-glib-1.0 -X -ljson-glib-1.0
 
