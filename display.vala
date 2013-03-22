@@ -7,12 +7,11 @@ using Pango;
 
 public class Display : SDLCairoWindow {
 
-  string text = "";
   FontDescription font;
   ImageSurface background;
   int bg_width;
   int bg_height;
-
+  string markup = "%s<span size='50000' rise='25000'>%s</span><span size='50000'>%i</span>\n%.1f";
 
   public Display(int width, int height) {
     base(width, height);
@@ -33,6 +32,7 @@ public class Display : SDLCairoWindow {
     font = new Pango.FontDescription();
     font.set_size(100000);
     font.set_family("sans");
+    font.set_weight(Weight.LIGHT);
     font.set_style(Pango.Style.NORMAL);
   }
 
@@ -49,7 +49,7 @@ public class Display : SDLCairoWindow {
 
     var note = Tuning.12TET.find(pitch);
     // layout.set_text("%s%s %i \n%.1f".printf(note.letter, note.sign, note.octave, pitch), -1);
-    layout.set_markup("%s<sub>%s%i</sub>\n%.1f".printf(note.letter, note.sign, note.octave, pitch), -1);
+    layout.set_markup(markup.printf(note.letter, note.sign, note.octave, pitch), -1);
 
     // int width, height;
     // layout.get_size(out width, out height);
