@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012 Davorin Šego
+  Copyright (C) 2013 Davorin Šego
 */
 
 using PortAudio;
