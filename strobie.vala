@@ -8,11 +8,7 @@ using Pango;
 
 public class Strobie : SDLCairoWindow {
 
-  const int SAMPLE_RATE        = 44100;
-  const int BUFFER_LENGTH      = 1024;
-  const int SAMPLES_PER_PERIOD = 512;
-  const int PERIODS_PER_FRAME  = 2;
-
+  Config config;
   Biquad bandpass_filter;
   double[] bandpass_coeffs;
   float[] bandpassed_data;
@@ -42,8 +38,12 @@ public class Strobie : SDLCairoWindow {
   int bg_height;
 
   public Strobie() {
-    /* create the display */
+
+    /* create the display (call this method first or it will segfault) */
     base(500, 400);
+
+    /* load configuration */
+    config = new Config("");
 
     /* load background */
     background = new ImageSurface.from_png("pattern.png");
@@ -59,7 +59,7 @@ public class Strobie : SDLCairoWindow {
     /* sample rate converter, filters, pitch estimator */
     src              = new SRC(1, 1);
     bandpass_filter  = new Biquad(3);
-    pitch_estimation = new PitchEstimation(SAMPLE_RATE, 1024);
+    pitch_estimation = new PitchEstimation(config.sample_rate, 1024);
 
     /* Smoothing filter */
     // float[] coeffs = { 1f, 1f, 1f, 1f, 1f };
@@ -77,9 +77,9 @@ public class Strobie : SDLCairoWindow {
 
     /* flat buffers */
     raw_data         = new float[1024];
-    bandpassed_data  = new float[BUFFER_LENGTH];
-    resampled_data   = new float[BUFFER_LENGTH * 4];
-    output           = new float[SAMPLES_PER_PERIOD * PERIODS_PER_FRAME];
+    bandpassed_data  = new float[config.buffer_length];
+    resampled_data   = new float[config.buffer_length * 4];
+    output           = new float[config.samples_per_period * config.periods_per_frame];
 
     /* circular buffers */
     _ringbuffer2 = new float[32768];
@@ -89,7 +89,7 @@ public class Strobie : SDLCairoWindow {
 
     /* start PortAudio and open the input stream*/
     PortAudio.initialize();
-    Stream.open_default(out stream, 1, 0, FLOAT_32, SAMPLE_RATE, FRAMES_PER_BUFFER_UNSCPECIFIED, stream_callback);
+    Stream.open_default(out stream, 1, 0, FLOAT_32, config.sample_rate, FRAMES_PER_BUFFER_UNSCPECIFIED, stream_callback);
     stream.start();
   }
 
@@ -104,12 +104,12 @@ public class Strobie : SDLCairoWindow {
     unowned float[] finput;
     int i = 0;
 
-    while (nframes > BUFFER_LENGTH) {
+    while (nframes > config.buffer_length) {
       finput = (float[]) (&input[i]);
-      finput.length = BUFFER_LENGTH;
+      finput.length = config.buffer_length;
       process_signal(finput);
-      nframes -= BUFFER_LENGTH;
-      i += BUFFER_LENGTH;
+      nframes -= config.buffer_length;
+      i += config.buffer_length;
     }
 
     if (nframes > 0) {
@@ -320,9 +320,9 @@ public class Strobie : SDLCairoWindow {
   }
 
   public void set_target_freq(float freq) {
-    src.set_ratio(freq * SAMPLES_PER_PERIOD, SAMPLE_RATE);
+    src.set_ratio(freq * config.samples_per_period, config.sample_rate);
     src.reset();
-    bandpass_coeffs = Biquad.bandpass(freq, SAMPLE_RATE, 10);
+    bandpass_coeffs = Biquad.bandpass(freq, config.sample_rate, 10);
   }
 
   public static double level_to_dbfs(double level) {
