@@ -43,32 +43,17 @@ public class Strobie : Display {
     base(500, 400);
 
     /* load configuration */
-    config = new Config("");
-
+    config = new Config("config.json");
 
     /* sample rate converter, filter, pitch estimator */
     src              = new SRC(1, 1);
     bandpass_filter  = new Biquad(3);
     pitch_estimation = new PitchEstimation(config.sample_rate, config.fft_length);
 
-    /* Smoothing filter */
-    // float[] coeffs = { 1f, 1f, 1f, 1f, 1f };
-    // float[] coeffs = { 0.25f, 0.5f, 0.25f };
-    // Window.gaussian(coeffs);
-    // smoothing_kernel = gaussian(11);
-    // fir = new Filter(smoothing_kernel);
-
-    // var gain = 0f;
-    // foreach (float x in smoothing_kernel) {
-    //   gain += x;
-    // }
-
-    // stdout.printf("%f \n", gain);
-
     /* flat buffers */
-    raw_data         = new float[config.raw_buffer_length];
-    bandpassed_data  = new float[config.src_buffer_length];
-    src_data         = new float[config.src_buffer_length * 4];
+    raw_data         = new float[config.buffer_length];
+    bandpassed_data  = new float[config.buffer_length];
+    src_data         = new float[config.buffer_length * 4];
     output           = new float[config.samples_per_period * config.periods_per_frame];
 
     /* circular buffers */
@@ -108,19 +93,16 @@ public class Strobie : Display {
    */
   private int stream_callback(void* input, void* output, ulong nframes, Stream.CallbackTimeInfo time, Stream.CallbackFlags flags) {
     unowned float[] finput;
-
-    raw_rb.write((float[]) input, (int) nframes);
-
     int count = (int) nframes;
     int index = 0;
 
     /* process in batches because nframes is variable */
-    while (count > config.src_buffer_length) {
+    while (count > config.buffer_length) {
       finput = (float[]) (&input[index]);
-      finput.length = (int) config.src_buffer_length;
+      finput.length = (int) config.buffer_length;
       process_signal(finput);
-      count -= config.src_buffer_length;
-      index += config.src_buffer_length;
+      count -= config.buffer_length;
+      index += config.buffer_length;
     }
 
     /* anything left over */
@@ -134,17 +116,20 @@ public class Strobie : Display {
   }
 
   private void process_signal(float[] input) {
-    // unowned float[] bp_data = bandpassed_data;
-    // bp_data.length = input.length;
+    unowned float[] bp_data = bandpassed_data;
+    bp_data.length = input.length;
+
+
+    raw_rb.write(input, input.length);
 
     /* IIR band pass */
     bandpass_filter.filter(bandpass_coeffs, input, bandpassed_data);
 
     /* convert sample rate  */
-    // var count = src.linear_convert(bp_data, src_data);
+    var count = src.linear_convert(bp_data, src_data);
 
     /* write to ring buffer */
-    // src_rb.write(src_data, count);
+    src_rb.write(src_data, count);
   }
 
 
