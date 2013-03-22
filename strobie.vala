@@ -196,7 +196,7 @@ public class Strobie : Display {
 
     while (!strobie.quit) {
       // strobie.set_target_freq(329.628f);
-      strobie.read_output(); /* will segfault if this line is missing - why ? */
+      // strobie.read_output();
 
       pitch = strobie.find_pitch();
 
