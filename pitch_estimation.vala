@@ -1,22 +1,28 @@
 /*
-  Copyright (C) 2012 Davorin Šego
+  Copyright (C) 2013 Davorin Šego
 */
 
 public class PitchEstimation {
 
   KissFFT.Cpx[] fft1;
   KissFFT.Cpx[] fft2;
+
   KissFFTR.Cfg fft1_cfg;
   KissFFTR.Cfg fft2_cfg;
   KissFFTR.Cfg ffti_cfg;
+
   int sample_rate;
   int fft1_length;
+
   public float[] padded_data;
   public float[] autocorr_data;
 
   public weak float[] autocorrelation;
   public float[] cepstrum;
   public float[] spectrum;
+
+
+
 
   public PitchEstimation(int sample_rate, int data_length) {
     this.sample_rate = sample_rate;
@@ -35,26 +41,25 @@ public class PitchEstimation {
     autocorr_data = new float[data_length];
   }
 
-  public float pitch_from_autocorrelation(float[] data) {
 
+
+  public float pitch_from_autocorrelation(float[] data) {
     autocorrelation        = autocorr_data;
     autocorrelation.length = autocorr_data.length / 2;
 
-    weak float[] autocorr = autocorr_data;
-    autocorr.length       = autocorr_data.length / 2;
+    weak float[] autocorr  = autocorr_data;
+    autocorr.length        = autocorr_data.length / 2;
 
-    /* Center clip */
-
+    /* center clip */
     center_clip(data);
 
-    /* Pad with zeros */
+    /* pad with zeros */
     Posix.memcpy(padded_data, data, data.length * sizeof(float));
 
     /* FFT the time domain signal */
     KissFFTR.transform(fft1_cfg, padded_data, fft1);
 
-    /* power spectrum */
-    /* (a + bi)(a - bi) = (aa + bb) + (ab - ab)i */
+    /* power spectrum  (a + bi)(a - bi) = (aa + bb) + (ab - ab)i */
     for (int i = 0; i < fft1.length; ++i) {
       fft1[i].r = fft1[i].r * fft1[i].r + fft1[i].i * fft1[i].i;
       fft1[i].i = 0;
@@ -87,16 +92,13 @@ public class PitchEstimation {
       }
     }
 
-    // return x1;
-
-    if (x == 0) {
+    if (x == 0)
       return 0;
-    } else {
-      return (float) (44100.0 / x);
-    }
-
-    return 0;
+    else
+      return (float) (this.sample_rate / x);
   }
+
+
 
   public float pitch_from_fft(float[] data) {
     Window.gaussian(data);
@@ -125,26 +127,28 @@ public class PitchEstimation {
   }
 
 
+
+
+
   private void center_clip(float[] data) {
     var amp = 0f;
     for (int i = 1; i < data.length; ++i) {
-      if (data[i] > amp) {
+      if (data[i] > amp)
         amp = data[i];
-      } else if (data[i] < -amp) {
+      else if (data[i] < -amp)
         amp = -data[i];
-      }
     }
 
     amp *= 0.5f;
-    for (int i = 1; i < data.length; ++i) {
-      if (data[i] > amp) {
+    for (int i = 1; i < data.length; ++i)
+      if (data[i] > amp)
         data[i] -= amp;
-      } else if (data[i] < -amp) {
+      else if (data[i] < -amp)
         data[i] += amp;
-      } else {
+      else {
         data[i] = 0;
-      }
     }
   }
+
 
 }
