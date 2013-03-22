@@ -7,14 +7,14 @@ using Cairo;
 
 public class SDLCairoWindow {
 
-  protected const int SCREEN_BPP     = 32;
-  protected const int DELAY          = 10;
-  protected const uint32 VIDEO_FLAGS = SurfaceFlag.DOUBLEBUF | SurfaceFlag.HWACCEL | SurfaceFlag.HWSURFACE | SurfaceFlag.RESIZABLE;
-  protected unowned SDL.Screen screen;
-  protected SDL.Surface surface;
-  protected Cairo.Surface cairo_surface;
-  protected Cairo.Context context;
-  protected bool quit;
+  public const int SCREEN_BPP     = 32;
+  public const int DELAY          = 10;
+  public const uint32 VIDEO_FLAGS = SurfaceFlag.DOUBLEBUF | SurfaceFlag.HWACCEL | SurfaceFlag.HWSURFACE | SurfaceFlag.RESIZABLE;
+  public unowned SDL.Screen screen;
+  public SDL.Surface surface;
+  public Cairo.Surface cairo_surface;
+  public Cairo.Context context;
+  public bool quit;
 
   public SDLCairoWindow(int width = 400, int height = 300) {
     SDL.init(InitFlag.VIDEO);
@@ -35,7 +35,7 @@ public class SDLCairoWindow {
     this.context       = new Context(this.cairo_surface);
   }
 
-  protected void process_events() {
+  public void process_events() {
     Event event;
     while (Event.poll(out event) == 1) {
       switch (event.type) {

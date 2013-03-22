@@ -26,12 +26,13 @@ SNDFILE   = ../../vala-extra-vapis/sndfile.vapi -X -I../libsndfile-1.0.25/src -X
 
 
 all:
-	valac -o strobie strobie.vala sdl_cairo_window.vala biquad.vala pitch_estimation.vala tuning.vala config.vala \
-	../src/src.vala ../fir/window.vala ../fir/simple_filter.vala \
-	--pkg posix \
-	$(PORTAUDIO) $(KISS_FFT) $(CAIRO) $(PANGO) $(SDL) $(CAIRO_SDL) $(JSON)
+	valac -o strobie strobie.vala sdl_cairo_window.vala biquad.vala \
+	         pitch_estimation.vala tuning.vala config.vala display.vala \
+	         ../src/src.vala ../fir/window.vala ../fir/simple_filter.vala \
+	         --pkg posix \
+	         $(PORTAUDIO) $(KISS_FFT) $(CAIRO) $(PANGO) $(SDL) $(CAIRO_SDL) $(JSON)
 
 test_lowpass:
 	valac -o test_lowpass test_lowpass.vala biquad.vala \
-	--pkg posix \
-	$(SNDFILE)
+	         --pkg posix \
+	         $(SNDFILE)
