@@ -13,24 +13,28 @@ public class Display : SDLCairoWindow {
   int bg_width;
   int bg_height;
 
-  public Display(int width, int height) {
-    /* create the window (call this method first or it will segfault) */
-    base(width, height);
 
-    /* load background */
-    background = new ImageSurface.from_png("pattern.png");
+  public Display(int width, int height) {
+    base(width, height);
+    load_background("pattern.png");
+    load_font();
+  }
+
+
+
+
+  public void load_background(string filename) {
+    background = new ImageSurface.from_png(filename);
     bg_width   = background.get_width();
     bg_height  = background.get_height();
+  }
 
-    /* load font */
+  public void load_font() {
     font = new Pango.FontDescription();
     font.set_size(100000);
     font.set_family("sans");
     font.set_style(Pango.Style.NORMAL);
   }
-
-
-
 
   public void paint_background() {
     context.scale((double )screen.w / bg_width, (double) screen.h / bg_height);
@@ -38,21 +42,29 @@ public class Display : SDLCairoWindow {
     context.paint();
   }
 
-  public  void render_text(float peak) {
+  public void render_text(float pitch) {
     var layout = Pango.cairo_create_layout(context);
     layout.set_font_description(font);
-    layout.set_text("%.1f".printf(peak), -1);
+    // layout.set_text("%.1f".printf(pitch), -1);
 
-    // var note = Tuning.12TET.find(peak);
-    // layout.set_text("%s%s %i".printf(note.letter, note.sign, note.octave), -1);
+    var note = Tuning.12TET.find(pitch);
+    // layout.set_text("%s%s %i \n%.1f".printf(note.letter, note.sign, note.octave, pitch), -1);
+    layout.set_markup("%s<sub>%s%i</sub>\n%.1f".printf(note.letter, note.sign, note.octave, pitch), -1);
 
     // int width, height;
     // layout.get_size(out width, out height);
-    context.move_to(0, 0);
 
+    context.set_source_rgb(0.0, 0.0, 0.0);
+    context.paint();
+
+    context.move_to(0, 0);
     context.set_source_rgba(1.0, 1.0, 1.0, 0.9);
     Pango.cairo_update_layout(context, layout);
     Pango.cairo_show_layout(context, layout);
+
+    CairoSDL.surface_flush(cairo_surface);
+    surface.blit(null, screen, null);
+    screen.flip();
   }
 
 
