@@ -40,6 +40,8 @@ class Biquad {
   double[] z2;
 
   public void filter(double[] biquad, float[] input, float[] output) {
+    if (biquad.length < 5) return;
+
     var y  = 0.0, x = 0.0;
 
     /* IIR filtering - cascaded biquads */
