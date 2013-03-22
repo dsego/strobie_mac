@@ -6,10 +6,12 @@ using Json;
 
 public class Config {
 
-  public int sample_rate        = 44100;
-  public int buffer_length      = 1024;
-  public int samples_per_period = 512;
-  public int periods_per_frame  = 2;
+  public int sample_rate           = 44100;
+  public int fft_length            = 4096;
+  public int raw_buffer_length     = 1024;
+  public int src_buffer_length     = 1024;
+  public int samples_per_period    = 512;
+  public int periods_per_frame     = 2;
 
   public Config(string filename) {
     Parser parser   = new Json.Parser();
@@ -28,8 +30,14 @@ public class Config {
       if (root_obj.has_member("sample_rate"))
         sample_rate = (int) root_obj.get_int_member("sample_rate");
 
-      if (root_obj.has_member("buffer_length"))
-        buffer_length = (int) root_obj.get_int_member("buffer_length");
+      if (root_obj.has_member("fft_length"))
+        fft_length = (int) root_obj.get_int_member("fft_length");
+
+      if (root_obj.has_member("raw_buffer_length"))
+        raw_buffer_length = (int) root_obj.get_int_member("raw_buffer_length");
+
+      if (root_obj.has_member("src_buffer_length"))
+        src_buffer_length = (int) root_obj.get_int_member("src_buffer_length");
 
       if (root_obj.has_member("samples_per_period"))
         samples_per_period = (int) root_obj.get_int_member("samples_per_period");
