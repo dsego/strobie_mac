@@ -11,7 +11,8 @@ public class Display : SDLCairoWindow {
   ImageSurface background;
   int bg_width;
   int bg_height;
-  string markup = "%s<span size='50000' rise='25000'>%s</span><span size='50000'>%i</span>\n%.1f";
+
+  string markup = "%s<span size='40000' rise='40000'>%s</span><span size='40000'>%i</span>\n%.1f";
 
   public Display(int width, int height) {
     base(width, height);
@@ -19,16 +20,55 @@ public class Display : SDLCairoWindow {
     load_font();
   }
 
+  public void draw(float[] data, float pitch) {
+    context.save();
+    paint_background();
+    context.restore();
+
+    context.save();
+    // draw_signal(data, 1f);
+    draw_stripes(data, 10f);
+    context.restore();
+
+    var note = Tuning.12TET.find(pitch);
+    // layout.set_text("%s%s %i \n%.1f".printf(note.letter, note.sign, note.octave, pitch), -1);
+    context.save();
+    render_text(markup.printf(note.letter, note.sign, note.octave, pitch));
+    context.restore();
+
+    flush();
+  }
+
+  public void draw_strobe(float[] data) {
+    context.save();
+    paint_background();
+    context.restore();
+
+    context.save();
+    draw_stripes(data, 500f);
+    context.restore();
+
+    flush();
+  }
 
 
 
-  public void load_background(string filename) {
+
+
+
+  private void flush() {
+    CairoSDL.surface_flush(cairo_surface);
+    surface.blit(null, screen, null);
+    screen.flip();
+  }
+
+  private void load_background(string filename) {
     background = new ImageSurface.from_png(filename);
     bg_width   = background.get_width();
     bg_height  = background.get_height();
   }
 
-  public void load_font() {
+  private void load_font() {
     font = new Pango.FontDescription();
     font.set_size(100000);
     font.set_family("sans");
@@ -36,50 +76,42 @@ public class Display : SDLCairoWindow {
     font.set_style(Pango.Style.NORMAL);
   }
 
-  public void paint_background() {
+
+  private void paint_background() {
     context.scale((double )screen.w / bg_width, (double) screen.h / bg_height);
     context.set_source_surface(background, 0, 0);
     context.paint();
   }
 
-  public void render_text(float pitch) {
+
+  private void render_text(string markup) {
     var layout = Pango.cairo_create_layout(context);
     layout.set_font_description(font);
+    layout.set_markup(markup, -1);
     // layout.set_text("%.1f".printf(pitch), -1);
-
-    var note = Tuning.12TET.find(pitch);
-    // layout.set_text("%s%s %i \n%.1f".printf(note.letter, note.sign, note.octave, pitch), -1);
-    layout.set_markup(markup.printf(note.letter, note.sign, note.octave, pitch), -1);
-
     // int width, height;
     // layout.get_size(out width, out height);
-
-    context.set_source_rgb(0.0, 0.0, 0.0);
-    context.paint();
 
     context.move_to(0, 0);
     context.set_source_rgba(1.0, 1.0, 1.0, 0.9);
     Pango.cairo_update_layout(context, layout);
     Pango.cairo_show_layout(context, layout);
+  }
 
-    CairoSDL.surface_flush(cairo_surface);
-    surface.blit(null, screen, null);
-    screen.flip();
+  private void draw_level(float level) {
+    context.scale(surface.w, surface.h);
+    context.translate(0, 0.5);
+    context.rectangle(0, -0.1, level, 0.2);
+    // context.set_source(gradient);
+    context.set_source_rgb(0.4, 0.8, 0.7);
+    context.fill();
   }
 
 
-
-
-
-
-
-  public void draw_signal(float[] signal, float gain = 1f) {
+  private void draw_signal(float[] signal, float gain = 1f) {
     float x  = 0;
-    float y  = surface.h / 2;
+    float y  = surface.h - 10; // / 2;
     float dx = (float) surface.w / (signal.length - 1);
-
-    context.set_source_rgb(0.0, 0.0, 0.0);
-    context.paint();
     context.set_line_width(1);
     context.set_source_rgb(0.4, 0.8, 0.7);
 
@@ -89,24 +121,13 @@ public class Display : SDLCairoWindow {
       context.line_to(x, y - signal[i] * gain);
     }
     context.stroke();
-
-    CairoSDL.surface_flush(cairo_surface);
-    surface.blit(null, screen, null);
-    screen.flip();
   }
 
 
 
-  public void draw_wheel(float[] signal) {
-
+  private void draw_wheel(float[] signal) {
     const double RADIUS_1 = 0.36;
     const double RADIUS_2 = 0.42;
-
-    context.save();
-    paint_background();
-    context.restore();
-
-    context.save();
 
     /* center */
     context.translate(surface.w / 2, surface.h / 2);
@@ -150,23 +171,13 @@ public class Display : SDLCairoWindow {
       context.rotate(angle);
       context.stroke();
     }
-
-    context.restore();
-
-    CairoSDL.surface_flush(cairo_surface);
-    surface.blit(null, screen, null);
-    screen.flip();
   }
 
 
 
 
 
-  public void draw_stripes(float[] signal, float gain = 1f) {
-    context.save();
-    paint_background();
-    context.restore();
-
+  private void draw_stripes(float[] signal, float gain = 1f) {
     /* Clipping the signal */
     // var peak = find_peak(signal);
     // var k = (peak > 0.01) ? 4.0 / peak : 1.0 / peak ;
@@ -194,11 +205,7 @@ public class Display : SDLCairoWindow {
     context.rectangle(0, -0.1, 1, 0.2);
     context.set_source(gradient);
     context.fill();
-    context.restore();
-
-    CairoSDL.surface_flush(cairo_surface);
-    surface.blit(null, screen, null);
-    screen.flip();
   }
+
 
 }

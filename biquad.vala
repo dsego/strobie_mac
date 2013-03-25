@@ -7,11 +7,28 @@
  */
 class Biquad {
 
+  public Biquad(int sectionCount) {
+    this.z1 = new double[sectionCount];
+    this.z2 = new double[sectionCount];
+  }
+
+
   public static double[] lowpass(double cutoff, double samplerate, double Q) {
     var K    = Math.tan(Math.PI * cutoff / samplerate);
     var norm = 1 / (1 + K / Q + K * K);
     var a0   = K * K * norm;
     var a1   = 2 * a0;
+    var a2   = a0;
+    var b1   = 2 * (K * K - 1) * norm;
+    var b2   = (1 - K / Q + K * K) * norm;
+    return { a0, a1, a2, b1, b2 };
+  }
+
+  public static double[] highpass(double cutoff, double samplerate, double Q) {
+    var K    = Math.tan(Math.PI * cutoff / samplerate);
+    var norm = 1 / (1 + K / Q + K * K);
+    var a0   = 1 * norm;
+    var a1   = -2 * a0;
     var a2   = a0;
     var b1   = 2 * (K * K - 1) * norm;
     var b2   = (1 - K / Q + K * K) * norm;
@@ -29,10 +46,7 @@ class Biquad {
     return { a0, a1, a2, b1, b2 };
   }
 
-  public Biquad(int sectionCount) {
-    this.z1 = new double[sectionCount];
-    this.z2 = new double[sectionCount];
-  }
+
 
 
   /* Delay line */
@@ -42,7 +56,7 @@ class Biquad {
   public void filter(double[] biquad, float[] input, float[] output) {
     if (biquad.length < 5) return;
 
-    var y  = 0.0, x = 0.0;
+    var y = 0.0, x = 0.0;
 
     /* IIR filtering - cascaded biquads */
     for (var i = 0; i < input.length; ++i) {

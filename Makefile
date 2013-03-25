@@ -26,7 +26,7 @@ SNDFILE   = ../../vala-extra-vapis/sndfile.vapi -X -I../libsndfile-1.0.25/src -X
 
 all:
 	valac -g -o \
-        strobie strobie.vala sdl_cairo_window.vala biquad.vala \
+        strobie app.vala converter.vala strobe.vala sdl_cairo_window.vala biquad.vala \
 	      pitch_estimation.vala tuning.vala config.vala display.vala \
 	      ../src/src.vala ../fir/window.vala ../fir/simple_filter.vala \
 	      --pkg posix \

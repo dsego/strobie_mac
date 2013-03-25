@@ -4,6 +4,8 @@
 
 public class PitchEstimation {
 
+  float pitch = 0.0f;
+
   KissFFT.Cpx[] fft1;
   KissFFT.Cpx[] fft2;
 
@@ -106,9 +108,10 @@ public class PitchEstimation {
     KissFFTR.transform(fft1_cfg, data, fft1);
 
     /* spectrum */
-    for (int i = 1; i < fft1.length; ++i) {
+    // for (int i = 1; i < fft1.length; ++i) {
+    for (int i = 0; i < fft1.length; ++i) {
       // spectrum[i] = (float) Math.log10(Math.sqrt(fft1[i].r * fft1[i].r + fft1[i].i * fft1[i].i));
-      // spectrum[i] = (float) (fft1[i].r * fft1[i].r + fft1[i].i * fft1[i].i);
+      spectrum[i] = (float) (fft1[i].r * fft1[i].r + fft1[i].i * fft1[i].i);
     }
 
     int p = 0;
