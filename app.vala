@@ -30,7 +30,8 @@ public class App : Display {
   Strobe strobe;
   float[] strobe_signal;
 
-  bool polyphonic = false;
+  // bool polyphonic = false;
+  bool polyphonic = true;
 
 
   public App() {
@@ -143,30 +144,21 @@ public class App : Display {
   }
 
   public void draw_polyphonic() {
-    // context.save();
-    // paint_background();
-    // context.restore();
+    context.save();
+    paint_background();
+    context.restore();
 
-    // // context.save();
-    // // draw_signal(data, 0.000005f);
-    // // draw_stripes(data, 10f);
-    // // context.restore();
+    context.save();
+    draw_strobes(strobe_signals);
+    context.restore();
 
-
-    // // layout.set_text("%s%s %i \n%.1f".printf(note.letter, note.sign, note.octave, pitch), -1);
-    // context.save();
-    // render_text(markup.printf(note.letter, note.sign, note.octave));
-    // context.restore();
-
-    // flush();
+    flush();
   }
 
   public void do_work () {
     // converter.read(ref audio_signal);
 
-    // for (var i = 0; i < strobes.length; ++i) {
-    //   strobes[i].read(ref strobe_signals[i].data);
-    // }
+
 
     // var peak = find_peak(converter.output);
     // draw_level(peak);
@@ -174,9 +166,11 @@ public class App : Display {
 
     // draw_strobes(strobe_signals);
 
-
     if (polyphonic) {
-      // show all
+      for (var i = 0; i < strobes.length; ++i) {
+        strobes[i].read(ref strobe_signals[i].data);
+      }
+      draw_polyphonic();
     } else {
       converter.read(ref audio_signal);
       pitch = pitch_estimation.pitch_from_autocorrelation(audio_signal);

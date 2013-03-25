@@ -33,7 +33,7 @@ public class Display : SDLCairoWindow {
 
     foreach (var signal in signals) {
       context.save();
-      draw_stripes(signal.data, 50f, 1f, height, 0f, top);
+      draw_stripes(signal.data, 500f, 1f, height, 0f, top);
       context.restore();
       top += height;
     }
