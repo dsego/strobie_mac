@@ -92,7 +92,7 @@ public class App : Display {
   }
 
   void process_signal(float[] input) {
-    // converter.process_signal(input);
+    converter.process_signal(input);
     foreach (var strobe in strobes) {
       strobe.process_signal(input);
     }
@@ -135,24 +135,22 @@ public class App : Display {
   }
 
   public void do_work () {
-    // converter.read(ref audio_signal);
-    // strobe.read(ref strobe_signal);
-    //
-    for (var i = 0; i < strobes.length; ++i) {
-      strobes[i].read(ref strobe_signals[i].data);
-    }
+    converter.read(ref audio_signal);
+
+    // for (var i = 0; i < strobes.length; ++i) {
+    //   strobes[i].read(ref strobe_signals[i].data);
+    // }
 
     // var peak = find_peak(converter.output);
     // draw_level(peak);
 
-    // draw_strobe(strobe_signal);
-    draw_strobes(strobe_signals);
+    // draw_strobes(strobe_signals);
 
-    // pitch = pitch_estimation.pitch_from_autocorrelation(audio_signal);
+    pitch = pitch_estimation.pitch_from_autocorrelation(audio_signal);
     // pitch = pitch_estimation.pitch_from_fft(audio_signal);
 
-    // draw(pitch_estimation.spectrum, pitch);
-    // draw(pitch_estimation.autocorrelation, pitch);
+    // draw(audio_signal, pitch);
+    draw(pitch_estimation.autocorr_data, pitch);
   }
 
 

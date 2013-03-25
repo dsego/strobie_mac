@@ -65,7 +65,7 @@ public class Config {
       if (root_obj.has_member("highpass_cutoff"))
         highpass_cutoff  = (int) root_obj.get_int_member("highpass_cutoff");
 
-      if (root_obj.has_member("strobes")) { stdout.puts("yes\n");
+      if (root_obj.has_member("strobes")) {
         var json_strobes = root_obj.get_array_member("strobes");
         var length       = json_strobes.get_length();
         if (length > 0) {

@@ -50,13 +50,16 @@ public class Converter {
    * Process the audio input and write into the ring buffer
    */
   public void process_signal(float[] input) {
-    // lowpass.filter(lowpass_coeffs, input, filtered_buffer);              /* IIR low pass  */
-    // highpass.filter(highpass_coeffs, filtered_buffer, filtered_buffer);  /* IIR high pass */
+    /* input can be smaller than the filter buffer (we don't want to read junk data) */
+    weak float[] fb = filtered_buffer;
+    fb.length = input.length;
+
+    // lowpass.filter(lowpass_coeffs, input, fb); /* IIR low pass  */
+    // highpass.filter(highpass_coeffs, fb, fb);  /* IIR high pass */
 
     // var count = src.linear_convert(input, resampled_buffer);             /* re-sample     */
     // ringbuffer.write(resampled_buffer, count);                           /* write to ring buffer */
 
     ringbuffer.write(input, input.length);
   }
-
 }

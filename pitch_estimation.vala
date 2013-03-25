@@ -18,8 +18,6 @@ public class PitchEstimation {
 
   public float[] padded_data;
   public float[] autocorr_data;
-
-  public weak float[] autocorrelation;
   public float[] cepstrum;
   public float[] spectrum;
 
@@ -46,14 +44,11 @@ public class PitchEstimation {
 
 
   public float pitch_from_autocorrelation(float[] data) {
-    autocorrelation        = autocorr_data;
-    autocorrelation.length = autocorr_data.length / 2;
+    // weak float[] autocorr  = autocorr_data;
+    // autocorr.length        = autocorr_data.length / 2;
 
-    weak float[] autocorr  = autocorr_data;
-    autocorr.length        = autocorr_data.length / 2;
-
-    /* center clip */
-    center_clip(data);
+    /* normalize & center clip */
+    normalize_and_center_clip(data);
 
     /* pad with zeros */
     Posix.memcpy(padded_data, data, data.length * sizeof(float));
@@ -70,39 +65,50 @@ public class PitchEstimation {
     /* inverse FFT */
     KissFFTR.transform_inverse(ffti_cfg, fft1, autocorr_data);
 
-    for (int i = 1; i < autocorr.length; ++i) {
-      /* apply positive ramp */
-      autocorr[i] *= 1f + (float) i / autocorr.length;
+    /* ramp */
+    for (int i = 1; i < autocorr_data.length; ++i) {
+      autocorr_data[i] *= 1f + (float) (autocorr_data.length - i) / autocorr_data.length;
     }
 
-    int x1 = 0, x2 = 0, low = 0;
-    float x = 0f;
+    int low = 0, x = 0;
 
-    for (int i = 1; i < autocorr.length; ++i) {
-      if (autocorr[i] > autocorr[i - 1]) {
+    for (int i = 2; i < autocorr_data.length; ++i) {
+      if (autocorr_data[i] > autocorr_data[i - 1]) {
         low = i - 1;
         break;
       }
     }
 
-    var threshold = 0.5 * autocorr[0];
+    var threshold = 0.7 * autocorr_data[0];
 
-    for (int i = low; i < autocorr.length - 1; ++i) {
-      if (autocorr[i] >= threshold && autocorr[i + 1] < autocorr[i]) {
-        x = i + 0.5f * (autocorr[i - 1] - autocorr[i + 1]) / (autocorr[i - 1] - 2 * autocorr[i] + autocorr[i + 1]);
-        break;
+    for (int i = low; i < autocorr_data.length - 1; ++i) {
+      // if (autocorr_data[i] >= threshold && autocorr_data[i + 1] < autocorr_data[i]) {
+      if (autocorr_data[i] > threshold) {
+        threshold = autocorr_data[i];
+        x = i;
+        // x = i + 0.5f * (autocorr_data[i - 1] - autocorr_data[i + 1]) / (autocorr_data[i - 1] - 2 * autocorr_data[i] + autocorr_data[i + 1]);
+        // break;
       }
     }
+    if (x != 0) {
+      pitch = (float) (x + 0.5f * (autocorr_data[x - 1] - autocorr_data[x + 1]) / (autocorr_data[x - 1] - 2 * autocorr_data[x] + autocorr_data[x + 1]));
+      pitch = (float) (this.sample_rate / pitch);
+    }
 
-    if (x == 0)
-      return 0;
-    else
-      return (float) (this.sample_rate / x);
+    return pitch;
   }
 
 
+  public float pitch_from_hps(float[] data) {
+    return 0.0f;
+  }
+
 
   public float pitch_from_fft(float[] data) {
+
+    /* normalize & center clip */
+    normalize_and_center_clip(data);
+
     Window.gaussian(data);
     // Window.hann(data);
     KissFFTR.transform(fft1_cfg, data, fft1);
@@ -133,25 +139,22 @@ public class PitchEstimation {
 
 
 
-  private void center_clip(float[] data) {
-    var amp = 0f;
-    for (int i = 1; i < data.length; ++i) {
-      if (data[i] > amp)
-        amp = data[i];
-      else if (data[i] < -amp)
-        amp = -data[i];
-    }
+  private void normalize_and_center_clip(float[] data) {
+    var max = 0f;
 
-    amp *= 0.5f;
-    for (int i = 1; i < data.length; ++i)
-      if (data[i] > amp)
-        data[i] -= amp;
-      else if (data[i] < -amp)
-        data[i] += amp;
-      else {
-        data[i] = 0;
+    /* find absolute max */
+    for (int i = 1; i < data.length; ++i) {
+      if (data[i] > max)
+        max = data[i];
+      else if (data[i] < -max)
+        max = -data[i];
+    }
+    var k = 1f / max;
+
+    for (int i = 1; i < data.length; ++i) {
+      data[i] *= k;
+      if (-0.5f < data[i] < 0.5f) data[i] = 0;
     }
   }
-
 
 }

@@ -28,7 +28,7 @@ public class Display : SDLCairoWindow {
     context.restore();
 
     context.save();
-    // draw_signal(data, 1f);
+    draw_signal(data, 0.000005f);
     // draw_stripes(data, 10f);
     context.restore();
 
