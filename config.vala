@@ -38,7 +38,12 @@ public class Config {
     }
 
     if (file_parsed) {
-      var root     = parser.get_root();
+      var root = parser.get_root();
+      if (root == null) {
+        stderr.printf("Configuration file missing root object.\n");
+        return;
+      }
+
       var root_obj = root.get_object();
 
       if (root_obj.has_member("sample_rate"))
