@@ -31,7 +31,7 @@ public class Strobe {
     bandpass                = new Biquad(3);
     src                     = new SRC(1, 1);
     filtered_buffer         = new float[buffer_length];
-    resampled_buffer        = new float[buffer_length * 4];
+    resampled_buffer        = new float[buffer_length * 6];
     _ringbuffer             = new float[32768];
     ringbuffer.initialize((Util.size_t) sizeof(float), _ringbuffer.length, _ringbuffer);
   }

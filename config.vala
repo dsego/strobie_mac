@@ -3,20 +3,31 @@
 */
 
 using Json;
+using Gee;
 
 public class Config {
 
-  public int sample_rate        = 44100;
-  public int fft_sample_rate    = 44100;
-  // public int fft_sample_rate    = 4000;
-  public int fft_length         = 4096;
-  public int buffer_length      = 1024;
-  public int samples_per_period = 512;
-  public int periods_per_frame  = 2;
-  public int lowpass_cutoff     = 2000;
-  public int highpass_cutoff    = 60;
+  public int sample_rate           = 44100;
+  public int fft_sample_rate       = 44100;
+  // public int fft_sample_rate       = 4000;
+  public int fft_length            = 4096;
+  public int buffer_length         = 1024;
+  public int samples_per_period    = 512;
+  public int periods_per_frame     = 2;
+  public int lowpass_cutoff        = 2000;
+  public int highpass_cutoff       = 60;
+  public ArrayList<double?> strobes = new ArrayList<double?>();
+
 
   public Config(string filename) {
+
+    strobes.add(329.628); /* E4 - high E */
+    strobes.add(246.942); /* B3 */
+    strobes.add(195.998); /* G3 */
+    strobes.add(146.832); /* D3 */
+    strobes.add(110.000); /* A2 */
+    strobes.add(82.4069); /* E2 - low E */
+
     Parser parser   = new Json.Parser();
     var file_parsed = false;
 
@@ -53,6 +64,18 @@ public class Config {
 
       if (root_obj.has_member("highpass_cutoff"))
         highpass_cutoff  = (int) root_obj.get_int_member("highpass_cutoff");
+
+      if (root_obj.has_member("strobes")) { stdout.puts("yes\n");
+        var json_strobes = root_obj.get_array_member("strobes");
+        var length       = json_strobes.get_length();
+        if (length > 0) {
+          strobes = new ArrayList<double?>();
+          for (var i = 0; i < length; ++i) {
+            var el =  json_strobes.get_double_element(i);
+            if (el != 0) strobes.add(el);
+          }
+        }
+      }
     }
   }
 

@@ -3,11 +3,12 @@
 */
 
 using PortAudio;
+using Gee;
+
 
 public class App : Display {
 
   Config config;
-  Strobe strobe;
   Display display;
   Converter converter;
   PitchEstimation pitch_estimation;
@@ -16,18 +17,40 @@ public class App : Display {
   Stream stream;
   float pitch = 0.0f;
 
-  float[] strobe_signal;
+  // float[] strobe_signal;
   float[] audio_signal;
+
+
+  /* Multiple strobe outputs */
+  // ArrayList<StrobeSignal?> strobe_signals = new ArrayList<StrobeSignal?>();
+  // ArrayList<Strobe?> strobes = new ArrayList<Strobe?>();
+
+  Display.StrobeSignal[] strobe_signals;
+  Strobe[] strobes;
 
 
   public App() {
     base(500, 400);
     config           = new Config("config.json");
     converter        = new Converter(config.buffer_length, config.fft_sample_rate, config.lowpass_cutoff, config.highpass_cutoff, config.sample_rate);
-    strobe           = new Strobe( config.buffer_length, config.sample_rate, config.samples_per_period);
     pitch_estimation = new PitchEstimation(config.fft_sample_rate, config.fft_length);
 
-    strobe_signal = new float[config.samples_per_period * config.periods_per_frame];
+
+    /* Create a strobe for each frequency defined in the configuration file */
+    strobe_signals = new Display.StrobeSignal[config.strobes.size];
+    strobes        = new Strobe[config.strobes.size];
+
+    for (var i = 0; i < config.strobes.size; ++i) {
+      var strobe = new Strobe(config.buffer_length, config.sample_rate, config.samples_per_period);
+      strobe.set_target_freq((float) config.strobes[i]);
+      strobes[i]        = strobe;
+      strobe_signals[i] = { new float[config.samples_per_period * config.periods_per_frame] };
+      // strobe_signals.add(new float[config.samples_per_period * config.periods_per_frame]);
+    }
+
+    // strobe = new Strobe( config.buffer_length, config.sample_rate, config.samples_per_period);
+
+    // strobe_signal = new float[config.samples_per_period * config.periods_per_frame];
     audio_signal  = new float[config.fft_length];
     // audio_signal  = new float[128];
 
@@ -69,8 +92,11 @@ public class App : Display {
   }
 
   void process_signal(float[] input) {
-    converter.process_signal(input);
-    strobe.process_signal(input);
+    // converter.process_signal(input);
+    foreach (var strobe in strobes) {
+      strobe.process_signal(input);
+    }
+    // strobe.process_signal(input);
   }
 
   float find_peak(float[] buffer) {
@@ -105,17 +131,22 @@ public class App : Display {
       // app.draw_level(app.level);
 
   public void init() {
-    strobe.set_target_freq(329.628f);
+    // strobe.set_target_freq(329.628f);
   }
 
   public void do_work () {
     // converter.read(ref audio_signal);
-    strobe.read(ref strobe_signal);
+    // strobe.read(ref strobe_signal);
+    //
+    for (var i = 0; i < strobes.length; ++i) {
+      strobes[i].read(ref strobe_signals[i].data);
+    }
 
     // var peak = find_peak(converter.output);
     // draw_level(peak);
 
-    draw_strobe(strobe_signal);
+    // draw_strobe(strobe_signal);
+    draw_strobes(strobe_signals);
 
     // pitch = pitch_estimation.pitch_from_autocorrelation(audio_signal);
     // pitch = pitch_estimation.pitch_from_fft(audio_signal);
