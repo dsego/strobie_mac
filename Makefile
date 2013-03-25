@@ -29,7 +29,7 @@ all:
         strobie app.vala converter.vala strobe.vala sdl_cairo_window.vala biquad.vala \
 	      pitch_estimation.vala tuning.vala config.vala display.vala \
 	      ../src/src.vala ../fir/window.vala ../fir/simple_filter.vala \
-	      --pkg posix \
+	      --pkg posix --pkg gee-0.8 \
 	      $(PORTAUDIO) $(KISS_FFT) $(CAIRO) $(PANGO) $(SDL) $(CAIRO_SDL) $(JSON)
 
 test_lowpass:
