@@ -4,7 +4,7 @@
 
 using PortAudio;
 using Gee;
-
+using Tuning;
 
 public class App : Display {
 
@@ -15,18 +15,22 @@ public class App : Display {
   Filter smoothing_filter;
   float[] smoothing_kernel;
   Stream stream;
+  12TET.Note note;
   float pitch = 0.0f;
 
-  // float[] strobe_signal;
   float[] audio_signal;
 
+  // string markup = "%s<span size='40000' rise='40000'>%s</span><span size='40000'>%i</span>\n%.1f";
+  string markup = "%s<span size='40000' rise='40000'>%s</span><span size='40000'>%i</span>";
 
-  /* Multiple strobe outputs */
-  // ArrayList<StrobeSignal?> strobe_signals = new ArrayList<StrobeSignal?>();
-  // ArrayList<Strobe?> strobes = new ArrayList<Strobe?>();
 
   Display.StrobeSignal[] strobe_signals;
   Strobe[] strobes;
+
+  Strobe strobe;
+  float[] strobe_signal;
+
+  bool polyphonic = false;
 
 
   public App() {
@@ -35,8 +39,11 @@ public class App : Display {
     converter        = new Converter(config.buffer_length, config.fft_sample_rate, config.lowpass_cutoff, config.highpass_cutoff, config.sample_rate);
     pitch_estimation = new PitchEstimation(config.fft_sample_rate, config.fft_length);
 
+    /* Strobe for monophonic mode */
+    strobe        = new Strobe(config.buffer_length, config.sample_rate, config.samples_per_period);
+    strobe_signal = new float[config.samples_per_period * config.periods_per_frame];
 
-    /* Create a strobe for each frequency defined in the configuration file */
+    /* Polyphonic mode: create a strobe for each frequency defined in the configuration file */
     strobe_signals = new Display.StrobeSignal[config.strobes.size];
     strobes        = new Strobe[config.strobes.size];
 
@@ -92,11 +99,14 @@ public class App : Display {
   }
 
   void process_signal(float[] input) {
-    converter.process_signal(input);
-    foreach (var strobe in strobes) {
+    if (polyphonic) {
+      foreach (var strobe in strobes) {
+        strobe.process_signal(input);
+      }
+    } else {
+      converter.process_signal(input);
       strobe.process_signal(input);
     }
-    // strobe.process_signal(input);
   }
 
   float find_peak(float[] buffer) {
@@ -115,27 +125,44 @@ public class App : Display {
   }
 
 
+  public void draw_monophonic() {
+    context.save();
+    paint_background();
+    context.restore();
 
-    /* smooth the level measurements */
-    // smoothing_kernel = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-    // Window.gaussian(smoothing_kernel);
-    // smoothing_filter = new Filter(smoothing_kernel);
+    // layout.set_text("%s%s %i \n%.1f".printf(note.letter, note.sign, note.octave, pitch), -1);
+    context.save();
+    render_text(markup.printf(note.letter, note.sign, note.octave));
+    context.restore();
 
-      // app.set_target_freq(329.628f);
-      // app.read_strobe_signal();
+    context.save();
+    draw_strobe(strobe_signal);
+    context.restore();
 
-      // app.draw_signal(app.strobe_signal, 500f);
+    flush();
+  }
 
-      // app.draw_stripes(app.strobe_signal, 500f);
+  public void draw_polyphonic() {
+    // context.save();
+    // paint_background();
+    // context.restore();
 
-      // app.draw_level(app.level);
+    // // context.save();
+    // // draw_signal(data, 0.000005f);
+    // // draw_stripes(data, 10f);
+    // // context.restore();
 
-  public void init() {
-    // strobe.set_target_freq(329.628f);
+
+    // // layout.set_text("%s%s %i \n%.1f".printf(note.letter, note.sign, note.octave, pitch), -1);
+    // context.save();
+    // render_text(markup.printf(note.letter, note.sign, note.octave));
+    // context.restore();
+
+    // flush();
   }
 
   public void do_work () {
-    converter.read(ref audio_signal);
+    // converter.read(ref audio_signal);
 
     // for (var i = 0; i < strobes.length; ++i) {
     //   strobes[i].read(ref strobe_signals[i].data);
@@ -143,20 +170,26 @@ public class App : Display {
 
     // var peak = find_peak(converter.output);
     // draw_level(peak);
+    //
 
     // draw_strobes(strobe_signals);
 
-    pitch = pitch_estimation.pitch_from_autocorrelation(audio_signal);
-    // pitch = pitch_estimation.pitch_from_fft(audio_signal);
 
-    // draw(audio_signal, pitch);
-    draw(pitch_estimation.autocorr_data, pitch);
+    if (polyphonic) {
+      // show all
+    } else {
+      converter.read(ref audio_signal);
+      pitch = pitch_estimation.pitch_from_autocorrelation(audio_signal);
+      note = Tuning.12TET.find(pitch);
+      strobe.set_target_freq((float) note.frequency);
+      strobe.read(ref strobe_signal);
+      draw_monophonic();
+    }
   }
 
 
   public static int main(string[] args) {
     var app = new App();
-    app.init();
     while (!app.quit) {
       app.do_work();
       app.process_events();

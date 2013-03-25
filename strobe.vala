@@ -6,6 +6,9 @@ using PortAudio;
 
 public class Strobe {
 
+  /* strobing frequency */
+  float freq;
+
   /* Buffers for processing data before writing to the ring buffer */
   float[] filtered_buffer;
   float[] resampled_buffer;
@@ -31,7 +34,7 @@ public class Strobe {
     bandpass                = new Biquad(3);
     src                     = new SRC(1, 1);
     filtered_buffer         = new float[buffer_length];
-    resampled_buffer        = new float[buffer_length * 6];
+    resampled_buffer        = new float[buffer_length * 10];
     _ringbuffer             = new float[32768];
     ringbuffer.initialize((Util.size_t) sizeof(float), _ringbuffer.length, _ringbuffer);
   }
@@ -50,9 +53,12 @@ public class Strobe {
    * Set the filter band and the sample rate to a multiple of the target frequency
    */
   public void set_target_freq(float freq) {
-    src.set_ratio(freq * samples_per_period, sample_rate);
-    src.reset();
-    bandpass_coeffs = Biquad.bandpass(freq, sample_rate, 10);
+    if (freq != this.freq) {
+      this.freq = freq;
+      src.set_ratio(freq * samples_per_period, sample_rate);
+      src.reset();
+      bandpass_coeffs = Biquad.bandpass(freq, sample_rate, 10);
+    }
   }
 
   /**

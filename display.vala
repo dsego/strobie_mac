@@ -14,7 +14,6 @@ public class Display : SDLCairoWindow {
   int bg_width;
   int bg_height;
 
-  string markup = "%s<span size='40000' rise='40000'>%s</span><span size='40000'>%i</span>\n%.1f";
 
   public Display(int width, int height) {
     base(width, height);
@@ -22,42 +21,13 @@ public class Display : SDLCairoWindow {
     load_font();
   }
 
-  public void draw(float[] data, float pitch) {
-    context.save();
-    paint_background();
-    context.restore();
 
-    context.save();
-    draw_signal(data, 0.000005f);
-    // draw_stripes(data, 10f);
-    context.restore();
 
-    var note = Tuning.12TET.find(pitch);
-    // layout.set_text("%s%s %i \n%.1f".printf(note.letter, note.sign, note.octave, pitch), -1);
-    context.save();
-    render_text(markup.printf(note.letter, note.sign, note.octave, pitch));
-    context.restore();
-
-    flush();
+  protected void draw_strobe(float[] data) {
+    draw_stripes(data, 500f, 1f, 0.2f, 0f, 0.4f);
   }
 
-  public void draw_strobe(float[] data) {
-    context.save();
-    paint_background();
-    context.restore();
-
-    context.save();
-    // draw_stripes(data, 500f);
-    context.restore();
-
-    flush();
-  }
-
-  public void draw_strobes(StrobeSignal[] signals) {
-    context.save();
-    paint_background();
-    context.restore();
-
+  protected void draw_strobes(StrobeSignal[] signals) {
     float top    = 0f;
     float height = 1f / signals.length;
 
@@ -67,8 +37,6 @@ public class Display : SDLCairoWindow {
       context.restore();
       top += height;
     }
-
-    flush();
   }
 
 
@@ -76,7 +44,7 @@ public class Display : SDLCairoWindow {
 
 
 
-  private void render_text(string markup) {
+  protected void render_text(string markup) {
     var layout = Pango.cairo_create_layout(context);
     layout.set_font_description(font);
     layout.set_markup(markup, -1);
@@ -90,7 +58,7 @@ public class Display : SDLCairoWindow {
     Pango.cairo_show_layout(context, layout);
   }
 
-  private void draw_level(float level) {
+  protected void draw_level(float level) {
     context.scale(surface.w, surface.h);
     context.translate(0, 0.5);
     context.rectangle(0, -0.1, level, 0.2);
@@ -100,7 +68,7 @@ public class Display : SDLCairoWindow {
   }
 
 
-  private void draw_signal(float[] signal, float gain = 1f) {
+  protected void draw_signal(float[] signal, float gain = 1f) {
     float x  = 0;
     float y  = surface.h - 10; // / 2;
     float dx = (float) surface.w / (signal.length - 1);
@@ -117,7 +85,7 @@ public class Display : SDLCairoWindow {
 
 
 
-  private void draw_wheel(float[] signal) {
+  protected void draw_wheel(float[] signal) {
     const double RADIUS_1 = 0.36;
     const double RADIUS_2 = 0.42;
 
@@ -169,7 +137,7 @@ public class Display : SDLCairoWindow {
 
 
 
-  private void draw_stripes(float[] signal, float gain = 1f, float width, float height, float left, float top) {
+  protected void draw_stripes(float[] signal, float gain = 1f, float width, float height, float left, float top) {
     /* Clipping the signal */
     // var peak = find_peak(signal);
     // var k = (peak > 0.01) ? 4.0 / peak : 1.0 / peak ;
@@ -203,19 +171,19 @@ public class Display : SDLCairoWindow {
 
 
 
-  private void flush() {
+  protected void flush() {
     CairoSDL.surface_flush(cairo_surface);
     surface.blit(null, screen, null);
     screen.flip();
   }
 
-  private void load_background(string filename) {
+  protected void load_background(string filename) {
     background = new ImageSurface.from_png(filename);
     bg_width   = background.get_width();
     bg_height  = background.get_height();
   }
 
-  private void load_font() {
+  protected void load_font() {
     font = new Pango.FontDescription();
     font.set_size(100000);
     font.set_family("sans");
@@ -224,7 +192,7 @@ public class Display : SDLCairoWindow {
   }
 
 
-  private void paint_background() {
+  protected void paint_background() {
     context.scale((double )screen.w / bg_width, (double) screen.h / bg_height);
     context.set_source_surface(background, 0, 0);
     context.paint();
