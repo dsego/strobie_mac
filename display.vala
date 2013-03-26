@@ -5,19 +5,19 @@
 using Cairo;
 using Pango;
 
-public class Display : SDLCairoWindow {
+public class Display : GLCairoWindow {
 
   protected struct StrobeSignal { public float[] data; }
+  protected struct RGB {
+    public float r;
+    public float g;
+    public float b;
+  }
 
   FontDescription font;
-  ImageSurface background;
-  int bg_width;
-  int bg_height;
 
-
-  public Display(int width, int height) {
-    base(width, height);
-    load_background("pattern.png");
+  public Display(string title, int width, int height) {
+    base(title, width, height);
     load_font();
   }
 
@@ -28,8 +28,8 @@ public class Display : SDLCairoWindow {
   }
 
   protected void draw_strobes(StrobeSignal[] signals) {
-    float top    = 0f;
-    float height = 1f / signals.length;
+    float top    = 0.4f;
+    float height = 0.6f / signals.length;
 
     foreach (var signal in signals) {
       context.save();
@@ -59,7 +59,7 @@ public class Display : SDLCairoWindow {
   }
 
   protected void draw_level(float level) {
-    context.scale(surface.w, surface.h);
+    context.scale(width, height);
     context.translate(0, 0.5);
     context.rectangle(0, -0.1, level, 0.2);
     // context.set_source(gradient);
@@ -70,8 +70,8 @@ public class Display : SDLCairoWindow {
 
   protected void draw_signal(float[] signal, float gain = 1f) {
     float x  = 0;
-    float y  = surface.h - 10; // / 2;
-    float dx = (float) surface.w / (signal.length - 1);
+    float y  = height - 10; // / 2;
+    float dx = (float) width / (signal.length - 1);
     context.set_line_width(1);
     context.set_source_rgb(0.4, 0.8, 0.7);
 
@@ -90,13 +90,13 @@ public class Display : SDLCairoWindow {
     const double RADIUS_2 = 0.42;
 
     /* center */
-    context.translate(surface.w / 2, surface.h / 2);
+    context.translate(width / 2, height / 2);
 
     /* keep aspect ratio */
-    if (surface.h > surface.w)
-      context.scale(surface.w, surface.w);
+    if (height > width)
+      context.scale(width, width);
     else
-      context.scale(surface.h, surface.h);
+      context.scale(height, height);
 
 
     /* Circumference divided by the number of samples to display. */
@@ -153,13 +153,13 @@ public class Display : SDLCairoWindow {
     /* signal -> gradient */
     foreach (float sample in signal) {
       gradient.add_color_stop_rgba(x, 1, 1, 1, gain * sample);
+      // gradient.add_color_stop_rgba(x, 0.992, 0.965, 0.890, gain * sample);
       x -= dx;
       count++;
     }
 
     /* draw the gradient */
-    context.save();
-    context.scale(surface.w, surface.h);
+    context.scale(this.width, this.height);
     context.translate(left, top);
     context.rectangle(0, 0, width, height);
     context.set_source(gradient);
@@ -168,20 +168,6 @@ public class Display : SDLCairoWindow {
 
 
 
-
-
-
-  protected void flush() {
-    CairoSDL.surface_flush(cairo_surface);
-    surface.blit(null, screen, null);
-    screen.flip();
-  }
-
-  protected void load_background(string filename) {
-    background = new ImageSurface.from_png(filename);
-    bg_width   = background.get_width();
-    bg_height  = background.get_height();
-  }
 
   protected void load_font() {
     font = new Pango.FontDescription();
@@ -193,8 +179,9 @@ public class Display : SDLCairoWindow {
 
 
   protected void paint_background() {
-    context.scale((double )screen.w / bg_width, (double) screen.h / bg_height);
-    context.set_source_surface(background, 0, 0);
+    // context.scale((double )screen.w / bg_width, (double) screen.h / bg_height);
+    // context.set_source_surface(background, 0, 0);
+    context.set_source_rgb(0, 0.169, 0.212);
     context.paint();
   }
 }

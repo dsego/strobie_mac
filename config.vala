@@ -7,15 +7,16 @@ using Gee;
 
 public class Config {
 
-  public int sample_rate           = 44100;
-  public int fft_sample_rate       = 44100;
+  public int sample_rate            = 44100;
+  public int fft_sample_rate        = 44100;
   // public int fft_sample_rate       = 4000;
-  public int fft_length            = 4096;
-  public int buffer_length         = 1024;
-  public int samples_per_period    = 512;
-  public int periods_per_frame     = 2;
-  public int lowpass_cutoff        = 2000;
-  public int highpass_cutoff       = 60;
+  public int fft_length             = 4096;
+  public int buffer_length          = 1024;
+  public int samples_per_period     = 128;
+  // public int samples_per_period    = 512;
+  public int periods_per_frame      = 1;
+  public int lowpass_cutoff         = 2000;
+  public int highpass_cutoff        = 60;
   public ArrayList<double?> strobes = new ArrayList<double?>();
 
 

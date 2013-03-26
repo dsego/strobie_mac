@@ -8,7 +8,6 @@ using Cairo;
 public class SDLCairoWindow {
 
   public const int SCREEN_BPP     = 32;
-  public const int DELAY          = 10;
   public const uint32 VIDEO_FLAGS = SurfaceFlag.DOUBLEBUF | SurfaceFlag.HWACCEL | SurfaceFlag.HWSURFACE | SurfaceFlag.RESIZABLE;
   public unowned SDL.Screen screen;
   public SDL.Surface surface;
@@ -25,7 +24,7 @@ public class SDLCairoWindow {
     SDL.quit();
   }
 
-  void init_video(int width, int height) {
+  public void init_video(int width, int height) {
     this.screen = Screen.set_video_mode(width, height, SCREEN_BPP, VIDEO_FLAGS);
     if (this.screen == null) {
       stderr.printf ("Could not set video mode.\n");
@@ -34,6 +33,13 @@ public class SDLCairoWindow {
     this.cairo_surface = CairoSDL.surface_create(this.surface);
     this.context       = new Context(this.cairo_surface);
   }
+
+  public void flush() {
+    CairoSDL.surface_flush(cairo_surface);
+    surface.blit(null, screen, null);
+    screen.flip();
+  }
+
 
   public void process_events() {
     Event event;
