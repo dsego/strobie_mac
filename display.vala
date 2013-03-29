@@ -7,7 +7,10 @@ using Pango;
 
 public class Display : GLCairoWindow {
 
-  protected struct StrobeSignal { public float[] data; }
+  protected struct StrobeSignal {
+    public string name;
+    public float[] data;
+  }
   protected struct RGB {
     public float r;
     public float g;
@@ -16,47 +19,59 @@ public class Display : GLCairoWindow {
 
   FontDescription font;
 
+  Layout note_layout;
+  AttrList note_attr;
+
   public Display(string title, int width, int height) {
     base(title, width, height);
-    load_font();
+    font = Pango.FontDescription.from_string("sans light 100");
+    note_layout = Pango.cairo_create_layout(context);
+    note_layout.set_font_description(font);
+    note_attr = new AttrList();
+    note_attr.insert(Pango.attr_scale_new(0.4));
   }
 
 
 
   protected void draw_strobe(float[] data) {
-    draw_stripes(data, 500f, 1f, 0.2f, 0f, 0.4f);
+    // draw_stripes(data, 500f, 1f, 0.2f, 0f, 0.4f);
   }
+
+
 
   protected void draw_strobes(StrobeSignal[] signals) {
-    float top    = 0.4f;
-    float height = 0.6f / signals.length;
 
-    foreach (var signal in signals) {
-      context.save();
-      draw_stripes(signal.data, 500f, 1f, height, 0f, top);
-      context.restore();
-      top += height;
-    }
   }
 
 
 
+  protected void render_note(string letter, string sign, string octave) {
+    int width, height;
 
-
-
-  protected void render_text(string markup) {
-    var layout = Pango.cairo_create_layout(context);
-    layout.set_font_description(font);
-    layout.set_markup(markup, -1);
-    // layout.set_text("%.1f".printf(pitch), -1);
-    // int width, height;
-    // layout.get_size(out width, out height);
-
-    context.move_to(0, 0);
     context.set_source_rgba(1.0, 1.0, 1.0, 0.9);
-    Pango.cairo_update_layout(context, layout);
-    Pango.cairo_show_layout(context, layout);
+
+    context.move_to(10, 10);
+    note_layout.set_text(letter, -1);
+    note_layout.set_alignment(Alignment.CENTER);
+    note_layout.set_width(80000);
+    note_layout.set_attributes(null);
+    note_layout.get_pixel_size(out width, out height);
+    Pango.cairo_show_layout(context, note_layout);
+
+    note_layout.set_attributes(note_attr);
+    note_layout.set_alignment(Alignment.LEFT);
+
+    context.move_to(80, 10);
+    note_layout.set_text(sign, -1);
+    Pango.cairo_show_layout(context, note_layout);
+
+    context.move_to(90, 10 + height / 2 );
+    note_layout.set_text(octave, -1);
+    Pango.cairo_show_layout(context, note_layout);
+
   }
+
+
 
   protected void draw_level(float level) {
     context.scale(width, height);
@@ -69,16 +84,14 @@ public class Display : GLCairoWindow {
 
 
   protected void draw_signal(float[] signal, float gain = 1f) {
-    float x  = 0;
-    float y  = height - 10; // / 2;
-    float dx = (float) width / (signal.length - 1);
-    context.set_line_width(1);
-    context.set_source_rgb(0.4, 0.8, 0.7);
-
-    context.move_to(x, y - signal[0] * gain);
+    float dx = (float) 1f / (signal.length - 1);
+    float x  = 0f;
+    context.set_line_width(0.001);
+    context.set_source_rgb(1, 1, 1);
+    context.move_to(x, -signal[0] * gain);
     for (int i = 1; i < signal.length; ++i) {
       x += dx;
-      context.line_to(x, y - signal[i] * gain);
+      context.line_to(x, -signal[i] * gain);
     }
     context.stroke();
   }
@@ -137,7 +150,7 @@ public class Display : GLCairoWindow {
 
 
 
-  protected void draw_stripes(float[] signal, float gain = 1f, float width, float height, float left, float top) {
+  protected void draw_stripes(float[] signal, float gain = 1f, float width, float height) {
     /* Clipping the signal */
     // var peak = find_peak(signal);
     // var k = (peak > 0.01) ? 4.0 / peak : 1.0 / peak ;
@@ -159,8 +172,6 @@ public class Display : GLCairoWindow {
     }
 
     /* draw the gradient */
-    context.scale(this.width, this.height);
-    context.translate(left, top);
     context.rectangle(0, 0, width, height);
     context.set_source(gradient);
     context.fill();
@@ -168,20 +179,26 @@ public class Display : GLCairoWindow {
 
 
 
-
-  protected void load_font() {
-    font = new Pango.FontDescription();
-    font.set_size(100000);
-    font.set_family("sans");
-    font.set_weight(Weight.LIGHT);
-    font.set_style(Pango.Style.NORMAL);
-  }
-
-
   protected void paint_background() {
-    // context.scale((double )screen.w / bg_width, (double) screen.h / bg_height);
-    // context.set_source_surface(background, 0, 0);
     context.set_source_rgb(0, 0.169, 0.212);
     context.paint();
   }
+
+  private void normalize(float[] data) {
+    var max = 0f;
+
+    /* find absolute max */
+    for (int i = 1; i < data.length; ++i) {
+      if (data[i] > max)
+        max = data[i];
+      else if (data[i] < -max)
+        max = -data[i];
+    }
+    var k = 1f / max;
+
+    for (int i = 1; i < data.length; ++i) {
+      data[i] *= k;
+    }
+  }
+
 }

@@ -7,28 +7,104 @@ using Gee;
 
 public class Config {
 
+  public struct Note {
+    public string name;
+    public float frequency;
+    public Note (string name, float frequency) {
+      this.name      = name;
+      this.frequency = frequency;
+    }
+  }
+
+  public struct Tuning {
+    public string description;
+    public string scale;
+    public float concert_a;
+    public float cent_offset;
+    public float[]? partials;
+    public Note[]? notes;
+    public Tuning (string d, string s, float ca, float co, float[] part, Note[] notes) {
+      this.description = d;
+      this.scale       = s;
+      this.concert_a   = ca;
+      this.cent_offset = ca;
+      this.cent_offset = co;
+      this.partials    = part;
+      this.notes       = notes;
+    }
+  }
+
+
+
+  /* Default parameters */
+
   public int sample_rate            = 44100;
   public int fft_sample_rate        = 44100;
-  // public int fft_sample_rate       = 4000;
   public int fft_length             = 4096;
   public int buffer_length          = 1024;
   public int samples_per_period     = 128;
-  // public int samples_per_period    = 512;
-  public int periods_per_frame      = 1;
-  public int lowpass_cutoff         = 2000;
-  public int highpass_cutoff        = 60;
-  public ArrayList<double?> strobes = new ArrayList<double?>();
+  public int mono_periods_per_frame = 1;
+  public int poly_periods_per_frame = 5;
+  public string tuning_name         = null;
+
+  // public int lowpass_cutoff         = 2000;
+  // public int highpass_cutoff        = 60;
+
+  public Tuning tuning = Tuning(
+    "Standard guitar tuning", "12TET", 440.0f,  0.0f,
+    { 1, 2, 4, 8 },
+    { Note("e'", 329.628f), Note("b", 246.942f), Note("g", 195.998f),
+      Note("d",  146.832f), Note("A", 110.000f), Note("E", 82.4069f)}
+  );
+
+  // strobe speed ?
+  // audio level threshold
 
 
   public Config(string filename) {
+    var json_config = parse_config_file(filename);
+    if (json_config != null) {
+      load_from_json(json_config);
+    }
+    if (tuning_name != null) {
+      // load tuning file
+    }
+  }
 
-    strobes.add(329.628); /* E4 - high E */
-    strobes.add(246.942); /* B3 */
-    strobes.add(195.998); /* G3 */
-    strobes.add(146.832); /* D3 */
-    strobes.add(110.000); /* A2 */
-    strobes.add(82.4069); /* E2 - low E */
 
+  private void load_from_json(Json.Object json_object) {
+    if (json_object.has_member("sample_rate"))
+      sample_rate = (int) json_object.get_int_member("sample_rate");
+
+    if (json_object.has_member("fft_sample_rate"))
+      fft_sample_rate = (int) json_object.get_int_member("fft_sample_rate");
+
+    if (json_object.has_member("fft_length"))
+      fft_length = (int) json_object.get_int_member("fft_length");
+
+    if (json_object.has_member("buffer_length"))
+      buffer_length = (int) json_object.get_int_member("buffer_length");
+
+    if (json_object.has_member("samples_per_period"))
+      samples_per_period = (int) json_object.get_int_member("samples_per_period");
+
+    if (json_object.has_member("mono_periods_per_frame"))
+      mono_periods_per_frame = (int) json_object.get_int_member("mono_periods_per_frame");
+
+    if (json_object.has_member("poly_periods_per_frame"))
+      poly_periods_per_frame  = (int) json_object.get_int_member("poly_periods_per_frame");
+
+    if (json_object.has_member("tuning_name"))
+      tuning_name  = json_object.get_string_member("tuning_name");
+
+    // if (root_obj.has_member("lowpass_cutoff"))
+    //   lowpass_cutoff  = (int) root_obj.get_int_member("lowpass_cutoff");
+
+    // if (root_obj.has_member("highpass_cutoff"))
+    //   highpass_cutoff  = (int) root_obj.get_int_member("highpass_cutoff");
+  }
+
+  private Json.Object parse_config_file(string filename) {
     Parser parser   = new Json.Parser();
     var file_parsed = false;
 
@@ -36,53 +112,19 @@ public class Config {
       file_parsed = parser.load_from_file(filename);
     } catch (Error e) {
       stderr.printf("No configuration file. \n%s\n", e.message);
+      return null;
     }
 
     if (file_parsed) {
       var root = parser.get_root();
       if (root == null) {
         stderr.printf("Configuration file missing root object.\n");
-        return;
+        return null;
       }
-
-      var root_obj = root.get_object();
-
-      if (root_obj.has_member("sample_rate"))
-        sample_rate = (int) root_obj.get_int_member("sample_rate");
-
-      if (root_obj.has_member("fft_sample_rate"))
-        fft_sample_rate = (int) root_obj.get_int_member("fft_sample_rate");
-
-      if (root_obj.has_member("fft_length"))
-        fft_length = (int) root_obj.get_int_member("fft_length");
-
-      if (root_obj.has_member("buffer_length"))
-        buffer_length = (int) root_obj.get_int_member("buffer_length");
-
-      if (root_obj.has_member("samples_per_period"))
-        samples_per_period = (int) root_obj.get_int_member("samples_per_period");
-
-      if (root_obj.has_member("periods_per_frame"))
-        periods_per_frame  = (int) root_obj.get_int_member("periods_per_frame");
-
-      if (root_obj.has_member("lowpass_cutoff"))
-        lowpass_cutoff  = (int) root_obj.get_int_member("lowpass_cutoff");
-
-      if (root_obj.has_member("highpass_cutoff"))
-        highpass_cutoff  = (int) root_obj.get_int_member("highpass_cutoff");
-
-      if (root_obj.has_member("strobes")) {
-        var json_strobes = root_obj.get_array_member("strobes");
-        var length       = json_strobes.get_length();
-        if (length > 0) {
-          strobes = new ArrayList<double?>();
-          for (var i = 0; i < length; ++i) {
-            var el =  json_strobes.get_double_element(i);
-            if (el != 0) strobes.add(el);
-          }
-        }
-      }
+      return root.get_object();
     }
+
+    return null;
   }
 
 }

@@ -26,10 +26,7 @@ public class PitchEstimation {
 
   public PitchEstimation(int sample_rate, int data_length) {
     this.sample_rate = sample_rate;
-    // this.fft1_length  = data_length * 2;
     this.fft1_length  = data_length;
-    // spectrum         = new float[data_length + 1];
-    // fft              = new KissFFT.Cpx[data_length + 1];
     spectrum      = new float[data_length / 2 + 1];
     cepstrum      = new float[data_length / 4 + 1];
     fft1          = new KissFFT.Cpx[data_length / 2 + 1];
@@ -44,9 +41,6 @@ public class PitchEstimation {
 
 
   public float pitch_from_autocorrelation(float[] data) {
-    // weak float[] autocorr  = autocorr_data;
-    // autocorr.length        = autocorr_data.length / 2;
-
     /* normalize & center clip */
     normalize_and_center_clip(data);
 
@@ -66,13 +60,13 @@ public class PitchEstimation {
     KissFFTR.transform_inverse(ffti_cfg, fft1, autocorr_data);
 
     /* ramp */
-    for (int i = 1; i < autocorr_data.length; ++i) {
+    for (int i = 1; i < autocorr_data.length / 2; ++i) {
       autocorr_data[i] *= 1f + (float) (autocorr_data.length - i) / autocorr_data.length;
     }
 
     int low = 0, x = 0;
 
-    for (int i = 2; i < autocorr_data.length; ++i) {
+    for (int i = 2; i < autocorr_data.length / 2; ++i) {
       if (autocorr_data[i] > autocorr_data[i - 1]) {
         low = i - 1;
         break;
@@ -81,17 +75,18 @@ public class PitchEstimation {
 
     var threshold = 0.7 * autocorr_data[0];
 
-    for (int i = low; i < autocorr_data.length - 1; ++i) {
-      // if (autocorr_data[i] >= threshold && autocorr_data[i + 1] < autocorr_data[i]) {
+    for (int i = low; i < autocorr_data.length / 2; ++i) {
       if (autocorr_data[i] > threshold) {
         threshold = autocorr_data[i];
         x = i;
-        // x = i + 0.5f * (autocorr_data[i - 1] - autocorr_data[i + 1]) / (autocorr_data[i - 1] - 2 * autocorr_data[i] + autocorr_data[i + 1]);
-        // break;
       }
     }
+
     if (x != 0) {
-      pitch = (float) (x + 0.5f * (autocorr_data[x - 1] - autocorr_data[x + 1]) / (autocorr_data[x - 1] - 2 * autocorr_data[x] + autocorr_data[x + 1]));
+      /* Interpolation */
+      // pitch = SRC.cubic(autocorr_data[x - 2], autocorr_data[x - 1], autocorr_data[x], autocorr_data[x + 1], double t);
+
+      pitch = x + parabolic(autocorr_data[x - 1], autocorr_data[x], autocorr_data[x + 1]);
       pitch = (float) (this.sample_rate / pitch);
     }
 
@@ -105,7 +100,6 @@ public class PitchEstimation {
 
 
   public float pitch_from_fft(float[] data) {
-
     /* normalize & center clip */
     normalize_and_center_clip(data);
 
@@ -130,14 +124,17 @@ public class PitchEstimation {
       }
     }
 
-    /* Interpolated peak */
-    var ip = 0.5 * (spectrum[p - 1] - spectrum[p + 1]) / (spectrum[p - 1] - 2 * spectrum[p] + spectrum[p + 1]);
+    var ip = parabolic(spectrum[p - 1], spectrum[p], spectrum[p + 1]);
     return (float) (p + ip) * sample_rate / fft1_length;
   }
 
 
 
-
+  /* Quadratic Interpolation of Spectral Peaks
+      https://ccrma.stanford.edu/~jos/sasp/Quadratic_Interpolation_Spectral_Peaks.html */
+  private static float parabolic(float y0, float y1, float y2) {
+    return (float) (0.5 * (y0 - y2) / (y0 - 2 * y1 + y2));
+  }
 
   private void normalize_and_center_clip(float[] data) {
     var max = 0f;

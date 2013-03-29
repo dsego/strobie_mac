@@ -19,13 +19,13 @@ public class GLCairoWindow {
 
 
   public GLCairoWindow(string title = "", int width = 400, int height = 300) {
-    glfwSetWindowTitle(title);
-
     /* Initialize GLFW */
     if (! glfwInit()) {
       stderr.printf ("Could not create an OpenGL window.\n");
       Posix.exit(Posix.EXIT_FAILURE);
     }
+
+    glfwOpenWindowHint(Target.WINDOW_NO_RESIZE, GL_TRUE);
 
     /* Open an OpenGL window */
     if (! glfwOpenWindow(width, height, 8, 8, 8, 8, 0, 0, Mode.WINDOW)) {
@@ -34,10 +34,9 @@ public class GLCairoWindow {
       Posix.exit(Posix.EXIT_FAILURE);
     }
 
+    glfwSetWindowTitle(title);
+    glfwSwapInterval(1);
     init_video(width, height);
-    // glfwSetWindowSizeCallback ((width, height) => {
-      // .init_video(width, height);
-    // });
   }
 
   ~GLCairoWindow() {
@@ -73,13 +72,10 @@ public class GLCairoWindow {
     glDeleteTextures(1, textures);
     glDrawBuffer(GL_BACK);
     glfwSwapBuffers();
-
-    // glfwSwapInterval(1)
   }
 
   protected void process_events() {
     flush();
-    // glfwPollEvents();
     if (! (bool) glfwGetWindowParam(WindowParam.OPENED)) quit = true;
   }
 

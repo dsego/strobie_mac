@@ -23,10 +23,10 @@ public class Converter {
 
   public Converter(int buffer_length, int fft_sample_rate, int lowpass_cutoff, int highpass_cutoff, int sample_rate) {
     src              = new SRC(fft_sample_rate, sample_rate);
-    lowpass          = new Biquad(3);
-    highpass         = new Biquad(3);
-    lowpass_coeffs   = Biquad.lowpass(lowpass_cutoff, fft_sample_rate, 10);
-    highpass_coeffs  = Biquad.highpass(highpass_cutoff, fft_sample_rate, 10);
+    // lowpass          = new Biquad(3);
+    // highpass         = new Biquad(3);
+    // lowpass_coeffs   = Biquad.lowpass(lowpass_cutoff, fft_sample_rate, 10);
+    // highpass_coeffs  = Biquad.highpass(highpass_cutoff, fft_sample_rate, 10);
 
     /* flat buffers */
     filtered_buffer  = new float[buffer_length];

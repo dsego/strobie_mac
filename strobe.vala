@@ -53,8 +53,9 @@ public class Strobe {
    * Set the filter band and the sample rate to a multiple of the target frequency
    */
   public void set_target_freq(float freq) {
+    stdout.printf("freq %f, new rate %f \n", freq, freq * samples_per_period);
     if (freq != this.freq) {
-      this.freq = freq; stdout.printf("new rate %f \n", freq * samples_per_period);
+      this.freq = freq;
       src.set_ratio(freq * samples_per_period, sample_rate);
       src.reset();
       bandpass_coeffs = Biquad.bandpass(freq, sample_rate, 10);
