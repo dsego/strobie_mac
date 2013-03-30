@@ -15,94 +15,25 @@ public class App : Display {
   12TET.Note note;
   float pitch   = 0.0f;
   float[] audio_signal;
-  Strobe[] mono_strobes;
-  Strobe[] poly_strobes;
-  Display.StrobeSignal[] poly_strobe_signals;
-  Display.StrobeSignal[] mono_strobe_signals;
-  bool polyphonic = true;
-
+  Strobe[] strobes;
+  Display.StrobeSignal[] strobe_signals;
 
   public App() {
     base("Strobie", 500, 400);
+
     config           = new Config("config.json");
     converter        = new Converter(config.buffer_length, config.fft_sample_rate, 0, 0, config.sample_rate);
     pitch_estimation = new PitchEstimation(config.fft_sample_rate, config.fft_length);
+    strobes          = new Strobe[config.partials.length];
+    strobe_signals   = new Display.StrobeSignal[strobes.length];
 
-    // mono_strobes = new Strobe[config.tuning.partials.length];
-    // for (var i = 0; i < count; ++i) {
-    //   strobes[i] = new Strobe(config.buffer_length, config.sample_rate, config.samples_per_period);
-    // }
-
-    /* Polyphonic tuner - strobe for each note tracked */
-    poly_strobes        = new Strobe[config.tuning.notes.length];
-    poly_strobe_signals = new Display.StrobeSignal[config.tuning.notes.length];
-    for (var i = 0; i < poly_strobes.length; ++i) {
-      poly_strobes[i] = new Strobe(config.buffer_length, config.sample_rate, config.samples_per_period);
-      poly_strobes[i].set_target_freq(config.tuning.notes[i].frequency);
-      poly_strobe_signals[i] = { "", new float[config.samples_per_period * config.poly_periods_per_frame] };
+    var samples_per_period = config.samples_per_period;
+    for (var i = 0; i < strobes.length; ++i) {
+      strobes[i] = new Strobe(config.buffer_length, config.sample_rate, config.samples_per_period[i]);
+      strobe_signals[i] = { "", new float[config.samples_per_period[i] * config.periods_per_frame * config.partials[i]] };
     }
 
-
-
-
-    // /* buffers for strobe outputs */
-    // mono_strobe_signals = new Display.StrobeSignal[config.tuning.partials.length];
-
-    // int len;
-    // for (var i = 0; i < mono_strobe_signals.length; ++i) {
-    //   len = (int) Math.floor(config.samples_per_period * config.tuning.partials[i] * config.mono_periods_per_frame);
-    //   stdout.printf("%i \n", len);
-    //   mono_strobe_signals[i] = { new float[len] };
-    // }
-
-    // for (var i = 0; i < poly_strobe_signals.length; ++i) {
-    //   len = config.samples_per_period * config.poly_periods_per_frame;
-    //   poly_strobe_signals[i] = { new float[len] };
-    // }
-
-
-
-    // void init_strobes(StrobeInit[] strobe_inits) {
-    //   strobe_signals = new Display.StrobeSignal[strobe_inits.length];
-    //
-    //   for (var i = 0; i < strobe_inits.length; ++) {
-    //     strobes[i] = new Strobe(strobe_inits[i].buffer_length, strobe_inits[i].sample_rate, strobe_inits[i].samples_per_period);
-    //     strobes[i].set_target_freq(strobe_inits[i].frequency);
-    //     strobe_signals[i] = { new float[strobe_inits[i].samples_per_period * strobe_inits[i].periods] };
-    //   }
-    // }
-
-
-
-
-    // int len;
-    // for (var i = 0; i < config.tuning.partials.length; ++i) {
-    //   len = (int)Math.floor(config.samples_per_period * config.tuning.partials[i]);
-    //   poly_strobe_signals[i] = { new float[len] };
-    // }
-
-    // strobes[i].set_target_freq(strobe_inits[i].frequency);
-
-
-    // init_strobes();
-    /* Polyphonic mode: create a strobe for each frequency defined in the configuration file */
-
-    // strobe_signals = new Display.StrobeSignal[config.strobes.size];
-    // strobes        = new Strobe[config.strobes.size];
-
-    // for (var i = 0; i < config.strobes.size; ++i) {
-    //   var strobe = new Strobe(config.buffer_length, config.sample_rate, config.samples_per_period);
-    //   strobe.set_target_freq((float) config.strobes[i]);
-    //   strobes[i]        = strobe;
-    //   strobe_signals[i] = { new float[config.samples_per_period * config.periods_per_frame] };
-    //   // strobe_signals.add(new float[config.samples_per_period * config.periods_per_frame]);
-
-    // }
-    // strobe = new Strobe( config.buffer_length, config.sample_rate, config.samples_per_period);
-
-    // strobe_signal = new float[config.samples_per_period * config.periods_per_frame];
     audio_signal  = new float[config.fft_length];
-    // audio_signal  = new float[128];
 
     /* start PortAudio and open the input stream*/
     PortAudio.initialize();
@@ -145,13 +76,9 @@ public class App : Display {
   }
 
   void process_signal(float[] input) {
-    if (polyphonic) {
-      foreach (var strobe in poly_strobes) {
-        strobe.process_signal(input);
-      }
-    } else {
-
-      // converter.process_signal(input);
+    converter.process_signal(input);
+    foreach (var strobe in strobes) {
+      strobe.process_signal(input);
     }
   }
 
@@ -171,32 +98,19 @@ public class App : Display {
   }
 
 
-  public void draw_monophonic() {
-    context.save();
+  public void draw() {return;
     paint_background();
 
     context.save();
+    note = Tuning.12TET.find(pitch);
     render_note(note.letter, note.sign, note.octave.to_string());
     context.restore();
 
+    float height = 0.7f / strobe_signals.length;
     context.save();
-    draw_strobes(mono_strobe_signals);
-    // draw_signal(pitch_estimation.autocorr_data, 0.000005f);
-    context.restore();
-
-    flush();
-  }
-
-  public void draw_polyphonic() {
-    context.save();
-    paint_background();
-    context.restore();
-
-    context.save();
-    float height = 1f / poly_strobe_signals.length;
-
     context.scale(this.width, this.height);
-    foreach (var signal in poly_strobe_signals) {
+    context.translate(0, 0.3);
+    foreach (var signal in strobe_signals) {
     //   // draw_stripes(signal.data, 500f, 1f, height, 0f, top);
     //   if (signal.name != "") {
     //     ;
@@ -204,35 +118,41 @@ public class App : Display {
       draw_stripes(signal.data, 2000f, 1f, height);
       context.translate(0, height);
     }
+    // draw_signal(pitch_estimation.autocorr_data, 0.000005f);
     context.restore();
+
+
+    // context.save();
+    // /* center */
+    // context.translate(width / 2, height / 2);
+
+    // /* keep aspect ratio */
+    // if (height > width)
+    //   context.scale(width, width);
+    // else
+    //   context.scale(height, height);
+
+    // draw_wheel(strobe_signals[2].data, 2000f);
+    // context.restore();
   }
 
 
-  public void do_work () {
-
-    // converter.read(ref audio_signal);
-
-    // var peak = find_peak(converter.output);
-    // draw_level(peak);
-    //
-    // note = Tuning.12TET.find(110.0f);
-    // draw_strobes(strobe_signals);
-    if (polyphonic) {
-      for (var i = 0; i < poly_strobes.length; ++i) {
-        poly_strobes[i].read(ref poly_strobe_signals[i].data);
-      }
-      draw_polyphonic();
-    } else {
-      // converter.read(ref audio_signal);
-      // pitch = pitch_estimation.pitch_from_autocorrelation(audio_signal);
-      // note  = Tuning.12TET.find(pitch);
-      // for (var i = 0; i < config.tuning.partials.length; ++i) {
-      //   strobes[i].read(ref mono_strobe_signals[i].data);
-      //   strobes[i].set_target_freq(pitch * config.tuning.partials[i]);
-      // }
-      // draw_monophonic();
+  public void strobe() {
+    for (var i = 0; i < strobes.length; ++i) {
+      strobes[i].read(ref strobe_signals[i].data);
+      strobes[i].set_target_freq((float) note.frequency * config.partials[i]);
     }
+    draw();
+  }
 
+  public int find_pitch() {
+    while (true) {
+      converter.read(ref audio_signal);
+      var p = pitch_estimation.pitch_from_autocorrelation(audio_signal);
+      pitch = p.clamp(27.5000f, 4186.01f); /* A0 - C8 */
+      Thread.usleep(20000);
+    }
+    return 0;
   }
 
 
@@ -242,8 +162,9 @@ public class App : Display {
       return 1;
     }
     var app = new App();
+    Thread<int> thread = new Thread<int>("", app.find_pitch);
     while (!app.quit) {
-      app.do_work();
+      app.strobe();
       app.process_events();
       Thread.usleep(10000);
     }

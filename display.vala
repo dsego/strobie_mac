@@ -98,25 +98,13 @@ public class Display : GLCairoWindow {
 
 
 
-  protected void draw_wheel(float[] signal) {
+  protected void draw_wheel(float[] signal, float gain = 1f) {
     const double RADIUS_1 = 0.36;
     const double RADIUS_2 = 0.42;
 
-    /* center */
-    context.translate(width / 2, height / 2);
-
-    /* keep aspect ratio */
-    if (height > width)
-      context.scale(width, width);
-    else
-      context.scale(height, height);
-
-
     /* Circumference divided by the number of samples to display. */
-    context.set_line_width(1.25 * Math.PI * RADIUS_1 / signal.length);
-
+    context.set_line_width(0.2 * Math.PI * RADIUS_1 / signal.length);
     context.set_line_cap(Cairo.LineCap.SQUARE);
-
 
     /* Negative angle - rotates counter-clockwise if the note is flat, clockwise if it is sharp */
     var angle = -Math.PI * 2 / signal.length;
@@ -131,13 +119,9 @@ public class Display : GLCairoWindow {
       context.stroke();
     }
 
-    /* Clipping the signal */
-    // var k = 4f / find_peak(output);
-    var k = 4f;
-
     /* Draw the signal */
     foreach (float sample in signal) {
-      context.set_source_rgba(1, 1, 1, k * sample);
+      context.set_source_rgba(1, 1, 1, gain * sample);
       context.move_to(0, RADIUS_1);
       context.line_to(0, RADIUS_2);
       context.move_to(0, 0);
@@ -150,7 +134,7 @@ public class Display : GLCairoWindow {
 
 
 
-  protected void draw_stripes(float[] signal, float gain = 1f, float width, float height) {
+  protected void draw_stripes(float[] signal, float gain = 1f, float width, float height) {return;
     /* Clipping the signal */
     // var peak = find_peak(signal);
     // var k = (peak > 0.01) ? 4.0 / peak : 1.0 / peak ;
@@ -159,6 +143,8 @@ public class Display : GLCairoWindow {
     // stdout.printf("%f %f \n", peak, level_to_dbfs(peak));
 
     var gradient = new Pattern.linear(0, 0, 1, 0);
+    gradient.set_filter(Cairo.Filter.FAST);
+
     var x        = 1.0;
     var dx       = 1.0 / (signal.length - 1);
     var count    = 0;
