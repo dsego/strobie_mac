@@ -53,6 +53,13 @@ class Biquad {
   double[] z1;
   double[] z2;
 
+  public void reset() {
+    for (var i = 0; i < z1.length; ++i) {
+      z1[i] = 0.0;
+      z2[i] = 0.0;
+    }
+  }
+
   public void filter(double[] biquad, float[] input, float[] output) {
     if (biquad.length < 5) return;
 
