@@ -18,6 +18,9 @@ public class App : Display {
   Strobe[] strobes;
   Display.StrobeSignal[] strobe_signals;
 
+  int estimation_delay;
+  int strobe_delay;
+
   public App() {
     base("Strobie", 500, 400);
 
@@ -26,6 +29,14 @@ public class App : Display {
     pitch_estimation = new PitchEstimation(config.fft_sample_rate, config.fft_length);
     strobes          = new Strobe[config.partials.length];
     strobe_signals   = new Display.StrobeSignal[strobes.length];
+
+    /* frame rates */
+    var estimation_framerate = config.estimation_framerate.clamp(1, 100);
+    var strobe_framerate     = config.strobe_framerate.clamp(1, 100);
+
+    /* sleep in microseconds */
+    estimation_delay = 1000000 / estimation_framerate;
+    strobe_delay     = 1000000 / strobe_framerate;
 
     var samples_per_period = config.samples_per_period;
     for (var i = 0; i < strobes.length; ++i) {
@@ -98,31 +109,23 @@ public class App : Display {
   }
 
 
-  public void draw() {return;
-    paint_background();
+  public void draw() {
+    window_background();
 
-    context.save();
-    note = Tuning.12TET.find(pitch);
-    render_note(note.letter, note.sign, note.octave.to_string());
-    context.restore();
+    note = Tuning.12TET.find(pitch, config.pitch_standard);
+    if (config.display_flats)
+      render_note(note.alt_letter, note.alt_sign, note.octave.to_string());
+    else
+      render_note(note.letter, note.sign, note.octave.to_string());
 
-    float height = 0.7f / strobe_signals.length;
-    context.save();
-    context.scale(this.width, this.height);
-    context.translate(0, 0.3);
-    foreach (var signal in strobe_signals) {
-    //   // draw_stripes(signal.data, 500f, 1f, height, 0f, top);
-    //   if (signal.name != "") {
-    //     ;
-    //   }
-      draw_stripes(signal.data, 2000f, 1f, height);
-      context.translate(0, height);
+    // float h = height / strobe_signals.length;
+
+    lock (strobe_signals) {
+      strobe_display(strobe_signals, config.strobe_background, config.strobe_foreground);
     }
+
     // draw_signal(pitch_estimation.autocorr_data, 0.000005f);
-    context.restore();
 
-
-    // context.save();
     // /* center */
     // context.translate(width / 2, height / 2);
 
@@ -137,12 +140,17 @@ public class App : Display {
   }
 
 
-  public void strobe() {
-    for (var i = 0; i < strobes.length; ++i) {
-      strobes[i].read(ref strobe_signals[i].data);
-      strobes[i].set_target_freq((float) note.frequency * config.partials[i]);
+  public int strobe() {
+    while (true) {
+      lock (strobe_signals) {
+        for (var i = 0; i < strobes.length; ++i) {
+          strobes[i].read(ref strobe_signals[i].data);
+          strobes[i].set_target_freq((float) note.frequency * config.partials[i]);
+        }
+      }
+      Thread.usleep(strobe_delay);
     }
-    draw();
+    return 0;
   }
 
   public int find_pitch() {
@@ -150,21 +158,24 @@ public class App : Display {
       converter.read(ref audio_signal);
       var p = pitch_estimation.pitch_from_autocorrelation(audio_signal);
       pitch = p.clamp(27.5000f, 4186.01f); /* A0 - C8 */
-      Thread.usleep(20000);
+      Thread.usleep(estimation_delay);
     }
     return 0;
   }
 
 
   public static int main(string[] args) {
-    if (!Thread.supported ()) {
+    if (!Thread.supported()) {
       stderr.printf ("Cannot run without thread support.\n");
       return 1;
     }
     var app = new App();
-    Thread<int> thread = new Thread<int>("", app.find_pitch);
+    Thread<int> thread_a = new Thread<int>("a", app.find_pitch);
+    Thread<int> thread_b = new Thread<int>("b", app.strobe);
+
     while (!app.quit) {
-      app.strobe();
+      // app.strobe();
+      app.draw();
       app.process_events();
       Thread.usleep(10000);
     }
