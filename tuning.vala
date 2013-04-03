@@ -56,10 +56,12 @@ namespace Tuning {
       note.cents     = cents;
       note.frequency = cents_to_freq(cents);
       note.sign      = "";
+      note.alt_sign  = "";
 
       switch (nearest % 12) {
         case 0:
-          note.letter = "A";
+          note.letter     = "A";
+          note.alt_letter = "A";
           break;
         case   1:
         case -11:
@@ -70,11 +72,13 @@ namespace Tuning {
           break;
         case   2:
         case -10:
-          note.letter = "B";
+          note.letter     = "B";
+          note.alt_letter = "B";
           break;
         case  3:
         case -9:
-          note.letter = "C";
+          note.letter     = "C";
+          note.alt_letter = "C";
           break;
         case  4:
         case -8:
@@ -85,7 +89,8 @@ namespace Tuning {
           break;
         case  5:
         case -7:
-          note.letter = "D";
+          note.letter     = "D";
+          note.alt_letter = "D";
           break;
         case  6:
         case -6:
@@ -96,11 +101,13 @@ namespace Tuning {
           break;
         case  7:
         case -5:
-          note.letter = "E";
+          note.letter     = "E";
+          note.alt_letter = "E";
           break;
         case  8:
         case -4:
-          note.letter = "F";
+          note.letter     = "F";
+          note.alt_letter = "F";
           break;
         case  9:
         case -3:
@@ -111,7 +118,8 @@ namespace Tuning {
           break;
         case 10:
         case -2:
-          note.letter = "G";
+          note.letter     = "G";
+          note.alt_letter = "G";
           break;
         case 11:
         case -1:
