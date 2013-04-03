@@ -79,7 +79,7 @@ public class Config {
     try {
       file_parsed = parser.load_from_file(filename);
     } catch (Error e) {
-      stderr.printf("No configuration file. \n%s\n", e.message);
+      stderr.printf("%s\n", e.message);
       return null;
     }
 
