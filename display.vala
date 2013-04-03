@@ -11,24 +11,19 @@ public class Display : GLCairoWindow {
     public string name;
     public float[] data;
   }
-  protected struct RGB {
-    public float r;
-    public float g;
-    public float b;
-  }
 
+  Layout layout;
   FontDescription font;
-
-  Layout note_layout;
   AttrList note_attr;
 
   public Display(string title, int width, int height) {
     base(title, width, height);
-    font = Pango.FontDescription.from_string("sans light 100");
-    note_layout = Pango.cairo_create_layout(context);
-    note_layout.set_font_description(font);
+    font   = Pango.FontDescription.from_string("sans light 100");
     note_attr = new AttrList();
     note_attr.insert(Pango.attr_scale_new(0.4));
+
+    layout = Pango.cairo_create_layout(context);
+    layout.set_font_description(font);
   }
 
 
@@ -50,24 +45,25 @@ public class Display : GLCairoWindow {
 
     context.set_source_rgba(1.0, 1.0, 1.0, 0.9);
 
+    layout.context_changed();
+    layout.set_text(letter, 1);
+    layout.set_alignment(Alignment.CENTER);
+    layout.set_width(80000);
+    layout.set_attributes(null);
+    layout.get_pixel_size(out width, out height);
     context.move_to(10, 10);
-    note_layout.set_text(letter, -1);
-    note_layout.set_alignment(Alignment.CENTER);
-    note_layout.set_width(80000);
-    note_layout.set_attributes(null);
-    note_layout.get_pixel_size(out width, out height);
-    Pango.cairo_show_layout(context, note_layout);
+    Pango.cairo_show_layout(context, layout);
 
-    note_layout.set_attributes(note_attr);
-    note_layout.set_alignment(Alignment.LEFT);
+    layout.set_attributes(note_attr);
+    layout.set_alignment(Alignment.LEFT);
 
-    context.move_to(80, 10);
-    note_layout.set_text(sign, -1);
-    Pango.cairo_show_layout(context, note_layout);
+    context.rel_move_to(70, 0);
+    layout.set_text(sign, -1);
+    Pango.cairo_show_layout(context, layout);
 
-    context.move_to(90, 10 + height / 2 );
-    note_layout.set_text(octave, -1);
-    Pango.cairo_show_layout(context, note_layout);
+    context.rel_move_to(10, height / 2);
+    layout.set_text(octave, -1);
+    Pango.cairo_show_layout(context, layout);
 
   }
 
@@ -131,28 +127,16 @@ public class Display : GLCairoWindow {
   }
 
 
-
-
-
-  protected void draw_stripes(float[] signal, float gain = 1f, float width, float height) {return;
-    /* Clipping the signal */
-    // var peak = find_peak(signal);
-    // var k = (peak > 0.01) ? 4.0 / peak : 1.0 / peak ;
-    //
-    // var peak = find_peak(signal);
-    // stdout.printf("%f %f \n", peak, level_to_dbfs(peak));
-
-    var gradient = new Pattern.linear(0, 0, 1, 0);
+  protected void draw_stripes(float[] signal, float gain = 1f, float width, float height, RGB fg) {
+    var gradient = new Pattern.linear(0, 0, width, 0);
     gradient.set_filter(Cairo.Filter.FAST);
-
-    var x        = 1.0;
-    var dx       = 1.0 / (signal.length - 1);
+    var x        = 1f;
+    var dx       = 1f / (signal.length - 1);
     var count    = 0;
 
     /* signal -> gradient */
     foreach (float sample in signal) {
-      gradient.add_color_stop_rgba(x, 1, 1, 1, gain * sample);
-      // gradient.add_color_stop_rgba(x, 0.992, 0.965, 0.890, gain * sample);
+      gradient.add_color_stop_rgba(x, fg.r, fg.g, fg.b, gain * sample);
       x -= dx;
       count++;
     }
@@ -163,10 +147,25 @@ public class Display : GLCairoWindow {
     context.fill();
   }
 
+  protected void strobe_display(StrobeSignal[] strobe_signals, RGB bg, RGB fg) {
+    var len = strobe_signals.length;
+    context.set_source_rgb(bg.r, bg.g, bg.b);
+    context.rectangle(10, 140, 400, 61 * len);
+    context.fill();
 
+    context.save();
+    context.translate(10, 140);
+    foreach (var signal in strobe_signals) {
+      draw_stripes(signal.data, 2000f, 400, 60, fg);
+      context.translate(0, 61);
+    }
+    context.restore();
+  }
 
-  protected void paint_background() {
-    context.set_source_rgb(0, 0.169, 0.212);
+  protected void window_background() {
+    // context.set_source_rgb(0, 0.169, 0.212);
+    context.set_source_rgb(0.1, 0.02, 0.0);
+    // context.set_source_rgb(0.3, 0.3, 0.3);
     context.paint();
   }
 
