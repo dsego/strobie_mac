@@ -9439,7 +9439,7 @@ namespace GL {
   [CCode (cheader_filename = "OpenGL/gl.h", cname = "glGenFragmentShadersATI")]
   public static GL.GLuint glGenFragmentShadersATI (GL.GLuint range);
   [CCode (cheader_filename = "OpenGL/gl.h", cname = "glGenFramebuffers")]
-  public static void glGenFramebuffers (GL.GLsizei n, [CCode (array_length = false, array_null_terminated = true)] out unowned GL.GLuint[] framebuffers);
+  public static void glGenFramebuffers (GL.GLsizei n, [CCode (array_length = false, array_null_terminated = true)] GL.GLuint[] framebuffers);
   [CCode (cheader_filename = "OpenGL/gl.h", cname = "glGenFramebuffersEXT")]
   public static void glGenFramebuffersEXT (GL.GLsizei n, [CCode (array_length = false, array_null_terminated = true)] out unowned GL.GLuint[] framebuffers);
   [CCode (cheader_filename = "OpenGL/gl.h", cname = "glGenLists")]

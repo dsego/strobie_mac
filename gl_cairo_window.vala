@@ -9,13 +9,14 @@ using Cairo;
 public class GLCairoWindow {
   protected Cairo.ImageSurface surface;
   protected Cairo.Context context;
-  protected weak uchar[] surface_data;
+  protected unowned uchar[] surface_data;
   protected bool quit;
 
   protected int width;
   protected int height;
 
-  protected unowned GLuint[] textures = new GLuint[1];
+  protected GLuint[] textures     = new GLuint[1];
+  // protected GLuint[] framebuffers = new GLuint[1];
 
 
   public GLCairoWindow(string title = "", int width = 400, int height = 300) {
@@ -35,7 +36,6 @@ public class GLCairoWindow {
     }
 
     glfwSetWindowTitle(title);
-    glfwSwapInterval(1);
     init_video(width, height);
   }
 
@@ -50,6 +50,12 @@ public class GLCairoWindow {
     this.surface_data = surface.get_data();
     this.context      = new Context(surface);
 
+    // glGenFramebuffers(1, framebuffers);
+
+    glDisable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+
     /* openGL texture */
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1,  textures);
@@ -61,15 +67,26 @@ public class GLCairoWindow {
 
 
   protected void flush() {
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, (GL.GLvoid[]) surface_data);
+    // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffers[0]);
+    // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    // glDrawPixels(width, height, GL_BGRA, GL_UNSIGNED_BYTE, (GL.GLvoid[]) surface_data);
+    // glClear(GL_COLOR_BUFFER_BIT);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid[]) surface_data);
 
-    /* The texture mapping coordinates are confusing as hell */
+    // glTexSubImage2D (GL.GLenum target,
+    //   GL.GLint level, GL.GLint xoffset, GL.GLint yoffset, GL.GLsizei width, GL.GLsizei height, GL.GLenum format, GL.GLenum type, [CCode (array_length = false, array_null_terminated = true)] GL.GLvoid[]? pixels);
+
+
     glBegin(GL_QUADS);
       glTexCoord2f(0f, 1f); glVertex2f(-1f, -1f);
       glTexCoord2f(1f, 1f); glVertex2f(1f, -1f);
       glTexCoord2f(1f, 0f); glVertex2f(1f, 1f);
       glTexCoord2f(0f, 0f); glVertex2f(-1f, 1f);
     glEnd();
+
+    // glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffers[0] );
+    // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    // glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     glDrawBuffer(GL_BACK);
     glfwSwapBuffers();
