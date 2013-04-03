@@ -1,0 +1,15 @@
+{
+  "sample_rate"            : 44100,
+  "fft_sample_rate"        : 44100,
+  "fft_length"             : 4096,
+  "buffer_length"          : 1024,
+  "periods_per_frame"      : 1,
+  "estimation_framerate"   : 20,
+  "strobe_framerate"       : 40,
+  "pitch_standard"         : 440.0,
+  "display_flats"          : false,
+  "partials"               : [ 4, 2, 1 ],
+  "samples_per_period"     : [ 64, 128, 256 ],
+  "strobe_background"      : "#000",
+  "strobe_foreground"      : "#fff"
+}
