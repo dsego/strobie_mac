@@ -30,7 +30,7 @@ GLFW      = libglfw.vapi -X -I/usr/local/include/GL -X -lglfw
 
 all:
 	valac -g -o \
-        strobie app.vala converter.vala strobe.vala gl_cairo_window.vala biquad.vala \
+        strobie app.vala converter.vala strobe.vala gl_cairo_window.vala biquad.vala misc.vala \
 	      pitch_estimation.vala tuning.vala config.vala display.vala \
 	      ../src/src.vala ../fir/window.vala ../fir/simple_filter.vala \
 	      --pkg posix --pkg gee-0.8 --thread --target-glib=2.32  \
