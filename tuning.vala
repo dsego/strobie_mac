@@ -29,27 +29,27 @@ namespace Tuning {
       public float frequency;
     }
 
-    public static Note find(float freq, float pitch_standard = 440.0f, float cents_offset = 0.0f, int transpose = 0) {
+    public static Note find(float freq, float pitch_standard = 440f, float cents_offset = 0.0f, int transpose = 0) {
       var cents = freq_to_cents(freq, pitch_standard);
-      return cents_to_note(cents, cents_offset, transpose);
+      return cents_to_note(cents, pitch_standard, cents_offset, transpose);
     }
 
-    public static float freq_to_cents(float freq, float pitch_standard = 440.0f) {
+    public static float freq_to_cents(float freq, float pitch_standard = 440f) {
       return (float) (1200.0f * Math.log2((freq / pitch_standard)));
     }
 
-    public static float cents_to_freq(float cents, float pitch_standard = 440.0f) {
+    public static float cents_to_freq(float cents, float pitch_standard = 440f) {
       return (float) (pitch_standard * (Math.pow(2.0, cents / 1200.0f)));
     }
 
-    public static Note cents_to_note(float cents, float cents_offset = 0f, int transpose = 0) {
+    public static Note cents_to_note(float cents, float pitch_standard = 440f, float cents_offset = 0f, int transpose = 0) {
       var nearest       = (int) Math.round(cents / 100.0);
       var transposed    = nearest + transpose;
       var octave        = (int) ((transposed / 12.0) + 4.75);
       Note note         = Note();
       note.octave       = octave;
-      note.cents        = nearest * 100f + cents_offset;stdout.printf("%f \n", note.cents);
-      note.frequency    = cents_to_freq(note.cents);
+      note.cents        = nearest * 100f + cents_offset;
+      note.frequency    = cents_to_freq(note.cents, pitch_standard);
       note.sign         = "";
       note.alt_sign     = "";
 
