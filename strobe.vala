@@ -28,13 +28,13 @@ public class Strobe {
   int samples_per_period;
 
 
-  public Strobe(int buffer_length, int sample_rate, int samples_per_period) {
+  public Strobe(int buffer_length, int resampled_buffer_length, int sample_rate, int samples_per_period) {
     this.sample_rate        = sample_rate;
     this.samples_per_period = samples_per_period;
     bandpass                = new Biquad(3);
     src                     = new SRC(1, 1);
     filtered_buffer         = new float[buffer_length];
-    resampled_buffer        = new float[buffer_length * 16];
+    resampled_buffer        = new float[resampled_buffer_length];
     _ringbuffer             = new float[65536];
     ringbuffer.initialize((Util.size_t) sizeof(float), _ringbuffer.length, _ringbuffer);
   }

@@ -25,31 +25,31 @@ namespace Tuning {
       public string alt_letter;
       public string alt_sign;
       public int octave;
-      public double cents;
-      public double frequency;
+      public float cents;
+      public float frequency;
     }
 
-    public static Note find(double freq, double pitch_standard = 440.0) {
-      var cents    = freq_to_cents(freq, pitch_standard);
+    public static Note find(float freq, float pitch_standard = 440.0f, float cents_offset = 0.0f, int transpose = 0) {
+      var cents    = freq_to_cents(freq, pitch_standard);// + cents_offset;
       var semitone = nearest_semitone(cents);
-      return cents_to_note(semitone);
+      return cents_to_note(semitone, transpose);
     }
 
-    public static double freq_to_cents(double freq, double pitch_standard = 440.0) {
-      return 1200.0 * Math.log2((freq / pitch_standard));
+    public static float freq_to_cents(float freq, float pitch_standard = 440.0f) {
+      return (float) (1200.0f * Math.log2((freq / pitch_standard)));
     }
 
-    public static double cents_to_freq(double cents, double pitch_standard = 440.0) {
-      return pitch_standard * (Math.pow(2.0, cents / 1200.0));
+    public static float cents_to_freq(float cents, float pitch_standard = 440.0f) {
+      return (float) (pitch_standard * (Math.pow(2.0, cents / 1200.0f)));
     }
 
     /* in cents */
-    public static int nearest_semitone(double cents) {
+    public static int nearest_semitone(float cents) {
       return (int) Math.round(cents / 100.0) * 100;
     }
 
-    public static Note cents_to_note(double cents) {
-      int nearest    = (int) Math.round(cents / 100.0);
+    public static Note cents_to_note(float cents, int transpose = 0) {
+      int nearest    = (int) Math.round(cents / 100.0) + transpose;
       int octave     = (int) ((nearest / 12.0) + 4.75);
       Note note      = Note();
       note.octave    = octave;

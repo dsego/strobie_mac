@@ -8,19 +8,22 @@ using Gee;
 public class Config {
 
   /* Default parameters */
-  public int sample_rate            = 44100;
-  public int fft_sample_rate        = 44100;
-  public int fft_length             = 4096;
-  public int buffer_length          = 1024;
-  public int periods_per_frame      = 1;
-  public int estimation_framerate   = 20;
-  public int strobe_framerate       = 40;
-  public float pitch_standard       = 440.0f;
-  public bool display_flats         = false;
-  public int[] partials             = { 4, 2, 1 };
-  public int[] samples_per_period   = { 64, 128, 256 };
-  public RGB strobe_background      = RGB(0.157f, 0.110f, 0.055f);
-  public RGB strobe_foreground      = RGB(0.984f, 0.627f, 0.106f);
+  public int sample_rate             = 44100;
+  public int fft_sample_rate         = 44100;
+  public int fft_length              = 4096;
+  public int buffer_length           = 512;
+  public int resampled_buffer_length = 512 * 25;
+  public int periods_per_frame       = 1;
+  public int estimation_framerate    = 20;
+  public int strobe_framerate        = 60;
+  public float pitch_standard        = 440.0f;
+  public bool display_flats          = false;
+  public int transpose               = 0;
+  public float cents_offset          = 0f;
+  public int[] partials              = { 4, 2, 1 };
+  public int[] samples_per_period    = { 64, 128, 256 };
+  public RGB strobe_background       = RGB(0.157f, 0.110f, 0.055f);
+  public RGB strobe_foreground       = RGB(0.984f, 0.627f, 0.106f);
 
 
   public Config(string filename) {
@@ -44,6 +47,9 @@ public class Config {
     if (json_object.has_member("buffer_length"))
       buffer_length = (int) json_object.get_int_member("buffer_length");
 
+    if (json_object.has_member("resampled_buffer_length"))
+      resampled_buffer_length = (int) json_object.get_int_member("resampled_buffer_length");
+
     if (json_object.has_member("periods_per_frame"))
       periods_per_frame = (int) json_object.get_int_member("periods_per_frame");
 
@@ -58,6 +64,12 @@ public class Config {
 
     if (json_object.has_member("display_flats"))
       display_flats = json_object.get_boolean_member("display_flats");
+
+    if (json_object.has_member("transpose"))
+      transpose = (int) json_object.get_int_member("transpose");
+
+    if (json_object.has_member("cents_offset"))
+      cents_offset = (float) json_object.get_double_member("cents_offset");
 
     if (json_object.has_member("partials"))
       read_int_array(json_object.get_array_member("partials"), ref partials);

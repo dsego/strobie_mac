@@ -164,8 +164,7 @@ public class Display : GLCairoWindow {
 
   protected void window_background() {
     // context.set_source_rgb(0, 0.169, 0.212);
-    context.set_source_rgb(0.1, 0.02, 0.0);
-    // context.set_source_rgb(0.3, 0.3, 0.3);
+    // context.set_source_rgb(0.1, 0.02, 0.0);
     context.paint();
   }
 

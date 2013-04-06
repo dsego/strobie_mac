@@ -9,11 +9,11 @@ public class Converter {
   float[] filtered_buffer;
   float[] resampled_buffer;
 
-  Biquad lowpass;
-  Biquad highpass;
+  // Biquad lowpass;
+  // Biquad highpass;
 
-  double[] lowpass_coeffs;
-  double[] highpass_coeffs;
+  // double[] lowpass_coeffs;
+  // double[] highpass_coeffs;
 
   Util.RingBuffer ringbuffer;
   float[] _ringbuffer;

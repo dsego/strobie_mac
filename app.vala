@@ -40,8 +40,9 @@ public class App : Display {
 
     var samples_per_period = config.samples_per_period;
     for (var i = 0; i < strobes.length; ++i) {
-      strobes[i] = new Strobe(config.buffer_length, config.sample_rate, config.samples_per_period[i]);
-      strobe_signals[i] = { "", new float[config.samples_per_period[i] * config.periods_per_frame * config.partials[i]] };
+      strobes[i] = new Strobe(config.buffer_length, config.resampled_buffer_length, config.sample_rate, config.samples_per_period[i]);
+      var len = (int)(config.samples_per_period[i] * config.periods_per_frame * config.partials[i]);
+      strobe_signals[i] = { "", new float[len] };
     }
 
     audio_signal  = new float[config.fft_length];
@@ -112,7 +113,7 @@ public class App : Display {
   public void draw() {
     window_background();
 
-    note = Tuning.12TET.find(pitch, config.pitch_standard);
+    note = Tuning.12TET.find(pitch, config.pitch_standard, config.cents_offset, config.transpose);
     if (config.display_flats)
       render_note(note.alt_letter, note.alt_sign, note.octave.to_string());
     else
