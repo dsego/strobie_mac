@@ -30,9 +30,8 @@ namespace Tuning {
     }
 
     public static Note find(float freq, float pitch_standard = 440.0f, float cents_offset = 0.0f, int transpose = 0) {
-      var cents    = freq_to_cents(freq, pitch_standard);// + cents_offset;
-      var semitone = nearest_semitone(cents);
-      return cents_to_note(semitone, transpose);
+      var cents = freq_to_cents(freq, pitch_standard);
+      return cents_to_note(cents, cents_offset, transpose);
     }
 
     public static float freq_to_cents(float freq, float pitch_standard = 440.0f) {
@@ -43,22 +42,18 @@ namespace Tuning {
       return (float) (pitch_standard * (Math.pow(2.0, cents / 1200.0f)));
     }
 
-    /* in cents */
-    public static int nearest_semitone(float cents) {
-      return (int) Math.round(cents / 100.0) * 100;
-    }
+    public static Note cents_to_note(float cents, float cents_offset = 0f, int transpose = 0) {
+      var nearest       = (int) Math.round(cents / 100.0);
+      var transposed    = nearest + transpose;
+      var octave        = (int) ((transposed / 12.0) + 4.75);
+      Note note         = Note();
+      note.octave       = octave;
+      note.cents        = nearest * 100f + cents_offset;stdout.printf("%f \n", note.cents);
+      note.frequency    = cents_to_freq(note.cents);
+      note.sign         = "";
+      note.alt_sign     = "";
 
-    public static Note cents_to_note(float cents, int transpose = 0) {
-      int nearest    = (int) Math.round(cents / 100.0) + transpose;
-      int octave     = (int) ((nearest / 12.0) + 4.75);
-      Note note      = Note();
-      note.octave    = octave;
-      note.cents     = cents;
-      note.frequency = cents_to_freq(cents);
-      note.sign      = "";
-      note.alt_sign  = "";
-
-      switch (nearest % 12) {
+      switch (transposed % 12) {
         case 0:
           note.letter     = "A";
           note.alt_letter = "A";
