@@ -13,16 +13,22 @@ public class App : Display {
   PitchEstimation pitch_estimation;
   Stream stream;
   12TET.Note note;
-  float pitch   = 0.0f;
+  float pitch = 27.5000f; /* A0 */
   float[] audio_signal;
   Strobe[] strobes;
   Display.StrobeSignal[] strobe_signals;
 
   int estimation_delay;
   int strobe_delay;
+  float peak;
+  float threshold;
+  bool above = false;
+  bool manual_mode = false;
+  bool instrument_mode = false;
+
 
   public App() {
-    base("Strobie", 500, 400);
+    base("Strobie", 500, 500);
 
     config           = new Config("config.json");
     converter        = new Converter(config.buffer_length, config.fft_sample_rate, 0, 0, config.sample_rate);
@@ -44,6 +50,8 @@ public class App : Display {
       var len = (int)(config.samples_per_period[i] * config.periods_per_frame * config.partials[i]);
       strobe_signals[i] = { "", new float[len] };
     }
+
+    threshold = (float) from_dbfs(config.audio_threshold);
 
     audio_signal  = new float[config.fft_length];
 
@@ -105,15 +113,23 @@ public class App : Display {
     return peak;
   }
 
-  double to_dbfs(double value) {
+  static double to_dbfs(double value) {
     return 20.0 * Math.log10(value);
+  }
+
+  static double from_dbfs(double value) {
+    return Math.pow(10, value / 20.0);
   }
 
 
   public void draw() {
     window_background();
 
-    note = Tuning.12TET.find(pitch, config.pitch_standard, config.cents_offset, config.transpose);
+    if (instrument_mode == true)
+      note = Tuning.12TET.find_nearest(pitch, config.ins_notes, config.pitch_standard);
+    else
+      note = Tuning.12TET.find(pitch, config.pitch_standard, config.cents_offset, config.transpose);
+
     if (config.display_flats)
       render_note(note.alt_letter, note.alt_sign, note.octave.to_string());
     else
@@ -122,8 +138,11 @@ public class App : Display {
     // float h = height / strobe_signals.length;
 
     lock (strobe_signals) {
-      strobe_display(strobe_signals, config.strobe_background, config.strobe_foreground);
+      strobe_display(strobe_signals, config.strobe_gain, config.strobe_background, config.strobe_foreground);
     }
+
+
+    // to_dbfs(peak);
 
     // draw_signal(pitch_estimation.autocorr_data, 0.000005f);
 
@@ -140,6 +159,13 @@ public class App : Display {
     // context.restore();
   }
 
+  public bool above_threshold() {
+    // if (above && ) {
+
+    // }
+
+    return peak > threshold;
+  }
 
   public int strobe() {
     while (true) {
@@ -156,14 +182,31 @@ public class App : Display {
 
   public int find_pitch() {
     while (true) {
-      converter.read(ref audio_signal);
-      var p = pitch_estimation.pitch_from_autocorrelation(audio_signal);
-      pitch = p.clamp(27.5000f, 4186.01f); /* A0 - C8 */
+      if (manual_mode == false) {
+        lock (audio_signal) {
+          converter.read(ref audio_signal);
+          peak = find_peak(audio_signal);
+          if (above_threshold()) {
+            var p = pitch_estimation.pitch_from_autocorrelation(audio_signal);
+            pitch = p.clamp(27.5000f, 4186.01f); /* A0 - C8 */
+          }
+        }
+      }
       Thread.usleep(estimation_delay);
     }
     return 0;
   }
 
+
+  // protected process_events() {
+  //   base.process_events();
+
+  //   if (manual_mode == true) {
+  //     if (get_key(Key.UP)) {
+  //       pitch =
+  //     }
+  //   }
+  // }
 
   public static int main(string[] args) {
     if (!Thread.supported()) {
@@ -175,7 +218,6 @@ public class App : Display {
     Thread<int> thread_b = new Thread<int>("b", app.strobe);
 
     while (!app.quit) {
-      // app.strobe();
       app.draw();
       app.process_events();
       Thread.usleep(10000);

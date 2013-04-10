@@ -16,12 +16,15 @@ public class Config {
   public int periods_per_frame       = 1;
   public int estimation_framerate    = 20;
   public int strobe_framerate        = 60;
+  public float audio_threshold       = -40;
+  public float strobe_gain           = 1000f;
   public float pitch_standard        = 440.0f;
   public bool display_flats          = false;
   public int transpose               = 0;
   public float cents_offset          = 0f;
   public int[] partials              = { 4, 2, 1 };
   public int[] samples_per_period    = { 64, 128, 256 };
+  public float[] ins_notes           = { -2900f, -2400f, -1900f , -1400f , -1000f, -500f }; /* std guitar tuning (in cents) */
   public RGB strobe_background       = RGB(0.157f, 0.110f, 0.055f);
   public RGB strobe_foreground       = RGB(0.984f, 0.627f, 0.106f);
 
@@ -59,6 +62,12 @@ public class Config {
     if (json_object.has_member("strobe_framerate"))
       strobe_framerate = (int) json_object.get_int_member("strobe_framerate");
 
+    if (json_object.has_member("audio_threshold"))
+      audio_threshold = (float) json_object.get_double_member("audio_threshold");
+
+    if (json_object.has_member("strobe_gain"))
+      strobe_gain = (float) json_object.get_double_member("strobe_gain");
+
     if (json_object.has_member("pitch_standard"))
       pitch_standard = (float) json_object.get_double_member("pitch_standard");
 
@@ -76,6 +85,9 @@ public class Config {
 
     if (json_object.has_member("samples_per_period"))
       read_int_array(json_object.get_array_member("samples_per_period"), ref samples_per_period);
+
+    if (json_object.has_member("ins_notes     "))
+      read_float_array(json_object.get_array_member("ins_notes     "), ref ins_notes     );
 
     if (json_object.has_member("strobe_background"))
       strobe_background = parse_from_hex(json_object.get_string_member("strobe_background"));
@@ -107,10 +119,18 @@ public class Config {
   }
 
   private static void read_int_array(Json.Array json_array, ref int[] array) {
-    var len   = json_array.get_length();
+    var len = json_array.get_length();
     array = new int[len];
     for (var i = 0; i < len; ++i) {
       array[i] = (int) json_array.get_int_element(i);
+    }
+  }
+
+  private static void read_float_array(Json.Array json_array, ref float[] array) {
+    var len = json_array.get_length();
+    array = new float[len];
+    for (var i = 0; i < len; ++i) {
+      array[i] = (float) json_array.get_double_element(i);
     }
   }
 
@@ -125,7 +145,6 @@ public class Config {
     else if (hex.length == 7) {
       hex.down().scanf("#%2x%2x%2x", &r, &g, &b);
     }
-
     return RGB(r / 255f, g / 255f, b / 255f);
   }
 
