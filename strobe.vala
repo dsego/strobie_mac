@@ -66,12 +66,10 @@ public class Strobe {
    * Process the audio input and write into the ring buffer
    */
   public void process_signal(float[] input) {
-    /* input can be smaller than the filter buffer (we don't want to read junk data) */
-    weak float[] fb = filtered_buffer;
+    weak float[] fb = filtered_buffer; /* input can be smaller than the filter buffer (we don't want to read junk data) */
     fb.length = input.length;
-
     bandpass.filter(bandpass_coeffs, input, fb);                 /* IIR bandpass         */
-    var count = src.linear_convert(fb, resampled_buffer);        /* re-sample            */
+    var count = src.cubic_convert(fb, resampled_buffer);         /* re-sample            */
     ringbuffer.write(resampled_buffer, count);                   /* write to ring buffer */
   }
 }
