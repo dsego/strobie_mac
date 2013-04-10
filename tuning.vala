@@ -6,19 +6,6 @@ namespace Tuning {
 
   class 12TET {
 
-
-    /* ?????????????????
-    public enum note_name {
-      A,
-      Ais,
-      B,
-      C,
-      D,
-      E,
-      F,
-      G,
-    }*/
-
     public struct Note {
       public string letter;
       public string sign;
@@ -128,10 +115,28 @@ namespace Tuning {
       return note;
     }
 
-//    public static Note get_note(string name) {
-//      Note note = Note();
-//      return note;
-//    }
+    /* A simple binary search, slightly modified to find the nearest value.
+       The notes parameter holds note values in cents.
+    */
+    public static Note find_nearest(float freq, float[] notes, float pitch_standard) {
+      var cents = freq_to_cents(freq, pitch_standard);
+      int mid = 0;
+      int low = 0;
+      int high = notes.length - 1;
+      while (high - low > 1) {
+        mid = low + ((high - low) / 2);
+        if (notes[mid] >= cents)
+          high = mid;
+        else
+          low = mid;
+      }
+      cents = Math.fabsf(cents);
+
+      if (Math.fabsf(Math.fabsf(notes[low]) - cents) < Math.fabsf(Math.fabsf(notes[high]) - cents))
+        return cents_to_note(notes[low], pitch_standard);
+      else
+        return cents_to_note(notes[high], pitch_standard);
+    }
 
   }
 

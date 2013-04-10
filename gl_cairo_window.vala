@@ -12,8 +12,8 @@ public class GLCairoWindow {
   protected unowned uchar[] surface_data;
   protected bool quit;
 
-  protected int width;
-  protected int height;
+  protected int window_width;
+  protected int window_height;
 
   protected GLuint[] textures     = new GLuint[1];
   // protected GLuint[] framebuffers = new GLuint[1];
@@ -44,11 +44,11 @@ public class GLCairoWindow {
   }
 
   protected void init_video(int width, int height) {
-    this.width        = width;
-    this.height       = height;
-    this.surface      = new ImageSurface(Format.ARGB32, width, height);
-    this.surface_data = surface.get_data();
-    this.context      = new Context(surface);
+    this.window_width  = width;
+    this.window_height = height;
+    this.surface       = new ImageSurface(Format.ARGB32, width, height);
+    this.surface_data  = surface.get_data();
+    this.context       = new Context(surface);
 
     // glGenFramebuffers(1, framebuffers);
 
@@ -71,7 +71,7 @@ public class GLCairoWindow {
     // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     // glDrawPixels(width, height, GL_BGRA, GL_UNSIGNED_BYTE, (GL.GLvoid[]) surface_data);
     // glClear(GL_COLOR_BUFFER_BIT);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid[]) surface_data);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, window_width, window_height, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid[]) surface_data);
 
     // glTexSubImage2D (GL.GLenum target,
     //   GL.GLint level, GL.GLint xoffset, GL.GLint yoffset, GL.GLsizei width, GL.GLsizei height, GL.GLenum format, GL.GLenum type, [CCode (array_length = false, array_null_terminated = true)] GL.GLvoid[]? pixels);
@@ -95,6 +95,11 @@ public class GLCairoWindow {
   protected void process_events() {
     flush();
     if (! (bool) glfwGetWindowParam(WindowParam.OPENED)) quit = true;
+  }
+
+
+  protected bool get_key(int key) {
+    return glfwGetKey(key);
   }
 
 }
