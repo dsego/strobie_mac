@@ -26,15 +26,17 @@ GL        = gl_mac.vapi -X -L"/System/Library/Frameworks/OpenGL.framework/Librar
 
 GLFW      = libglfw.vapi -X -I/usr/local/include/GL -X -lglfw
 
+FREETYPE  = -X -I/usr/local/include/freetype2 -X -lfreetype
+
 
 
 all:
 	valac -g -o \
         strobie app.vala converter.vala strobe.vala gl_cairo_window.vala biquad.vala misc.vala \
-	      pitch_estimation.vala tuning.vala config.vala display.vala \
+	      pitch_estimation.vala tuning.vala config.vala display.vala font_loader.vala \
 	      ../src/src.vala ../fir/window.vala ../fir/simple_filter.vala \
 	      --pkg posix --pkg gee-0.8 --thread --target-glib=2.32  \
-	      $(PORTAUDIO) $(KISS_FFT) $(CAIRO) $(PANGO) $(JSON) $(GL) $(GLFW)
+	      $(PORTAUDIO) $(KISS_FFT) $(CAIRO) $(PANGO) $(JSON) $(GL) $(GLFW) $(FREETYPE)
 
 test_lowpass:
 	valac -o test_lowpass test_lowpass.vala biquad.vala \

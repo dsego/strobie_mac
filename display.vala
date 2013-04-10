@@ -12,20 +12,46 @@ public class Display : GLCairoWindow {
     public float[] data;
   }
 
-  Layout layout;
-  FontDescription font;
-  AttrList note_attr;
+  // Layout note_letter_layout;
+  // Layout note_octave_layout;
+  // Layout note_sign_layout;
+  // FontDescription font;
+  // AttrList note_attr;
 
   public Display(string title, int width, int height) {
     base(title, width, height);
-    font   = Pango.FontDescription.from_string("sans light 100");
-    note_attr = new AttrList();
-    note_attr.insert(Pango.attr_scale_new(0.4));
-
-    layout = Pango.cairo_create_layout(context);
-    layout.set_font_description(font);
+    set_font();
   }
 
+  protected void set_font() {
+    Cairo.FontFace font_face;
+    try {
+      font_face = FontLoader.load("fonts/DejaVuSansMono.ttf");
+    } catch (Error e) {
+      stderr.puts("Error! Font file is missing.\n");
+      return;
+    }
+
+    // context.select_font_face("Monaco", FontSlant.NORMAL, FontWeight.NORMAL);
+    context.set_font_face(font_face);
+  }
+
+  protected void init_text_layouts() {
+    // font      = Pango.FontDescription.from_string("sans light 100");
+    // note_attr = new AttrList();
+    // note_attr.insert(Pango.attr_scale_new(0.4));
+
+    // note_letter_layout = Pango.cairo_create_layout(context);
+    // note_octave_layout = Pango.cairo_create_layout(context);
+    // note_sign_layout   = Pango.cairo_create_layout(context);
+
+    // note_letter_layout.set_font_description(font);
+    // note_octave_layout.set_font_description(font);
+    // note_sign_layout.set_font_description(font);
+
+    // note_sign_layout.set_attributes(note_attr);
+    // note_octave_layout.set_attributes(note_attr);
+  }
 
 
   protected void draw_strobe(float[] data) {
@@ -41,36 +67,54 @@ public class Display : GLCairoWindow {
 
 
   protected void render_note(string letter, string sign, string octave) {
-    int width, height;
+    // int w1, h1, w2, h2;
+
+    TextExtents extents1;
+    TextExtents extents2;
 
     context.set_source_rgba(1.0, 1.0, 1.0, 0.9);
+    context.set_font_size(96);
+    context.text_extents(letter, out extents1);
 
-    layout.context_changed();
-    layout.set_text(letter, 1);
-    layout.set_alignment(Alignment.CENTER);
-    layout.set_width(80000);
-    layout.set_attributes(null);
-    layout.get_pixel_size(out width, out height);
-    context.move_to(10, 10);
-    Pango.cairo_show_layout(context, layout);
+    context.set_font_size(32);
+    context.text_extents(octave, out extents2);
 
-    layout.set_attributes(note_attr);
-    layout.set_alignment(Alignment.LEFT);
+    context.move_to((window_width - extents1.width - extents2.width) / 2, 100);
+    context.set_font_size(96);
+    context.show_text(letter);
 
-    context.rel_move_to(70, 0);
-    layout.set_text(sign, -1);
-    Pango.cairo_show_layout(context, layout);
+    context.set_font_size(32);
+    context.show_text(octave);
+    context.rel_move_to(-extents2.width, -extents2.height);
+    context.show_text(sign);
+    // context.rel_move_to(10, 48);
 
-    context.rel_move_to(10, height / 2);
-    layout.set_text(octave, -1);
-    Pango.cairo_show_layout(context, layout);
 
+
+
+
+    // note_letter_layout.context_changed();
+    // note_letter_layout.set_text(letter, 1);
+    // note_letter_layout.get_pixel_size(out w1, out h1);
+
+    // note_sign_layout.set_text(sign, -1);
+    // note_octave_layout.set_text(octave, -1);
+    // note_octave_layout.get_pixel_size(out w2, out h2);
+
+    // context.move_to((window_width - (w1 + w2 + 10)) / 2, 50);
+    // Pango.cairo_show_layout(context, note_letter_layout);
+
+    // context.rel_move_to(70, 0);
+    // Pango.cairo_show_layout(context, note_sign_layout);
+
+    // context.rel_move_to(10, h1 / 2);
+    // Pango.cairo_show_layout(context, note_octave_layout);
   }
 
 
 
   protected void draw_level(float level) {
-    context.scale(width, height);
+    context.scale(window_width, window_height);
     context.translate(0, 0.5);
     context.rectangle(0, -0.1, level, 0.2);
     // context.set_source(gradient);
@@ -147,17 +191,16 @@ public class Display : GLCairoWindow {
     context.fill();
   }
 
-  protected void strobe_display(StrobeSignal[] strobe_signals, RGB bg, RGB fg) {
+  protected void strobe_display(StrobeSignal[] strobe_signals, float gain, RGB bg, RGB fg) {
     var len = strobe_signals.length;
     context.set_source_rgb(bg.r, bg.g, bg.b);
-    context.rectangle(10, 140, 400, 61 * len);
+    context.rectangle(40, 200, 420, 81 * len);
     context.fill();
-
     context.save();
-    context.translate(10, 140);
+    context.translate(40, 200);
     foreach (var signal in strobe_signals) {
-      draw_stripes(signal.data, 2000f, 400, 60, fg);
-      context.translate(0, 61);
+      draw_stripes(signal.data, gain, 420, 80, fg);
+      context.translate(0, 81);
     }
     context.restore();
   }
@@ -165,6 +208,7 @@ public class Display : GLCairoWindow {
   protected void window_background() {
     // context.set_source_rgb(0, 0.169, 0.212);
     // context.set_source_rgb(0.1, 0.02, 0.0);
+    context.set_source_rgb(0.0, 0.0, 0.0);
     context.paint();
   }
 
