@@ -1,0 +1,39 @@
+
+
+
+
+=== MAIN SCREEN LAYOUT ===
+  - 2D canvas
+    - note display (letter, octave, sign)
+    - strobe display
+    - info display (audio level, concert pitch, chromatic or chosen instrument)
+  - Toolbar
+    - Mode toggle button (automatic, manual)
+    - Note selection drop-down (C, C#, D, D#, ...)
+    - Octave selection
+
+
+=== PREFERENCES LAYOUT ===
+  = Basic tab
+    - Instrument selection (chromatic, std. guitar ...), combo box
+    - Transpose (e.g. for trumpet Bb -> C), numerical text box
+    - Pitch standard (440.0 Hz), numerical box or combo box (lists historical pitch standards)
+    - Cents offset
+    - Sound input, drop-down box
+    - Enable sound output, check box
+
+  = Advanced tab
+    - Min audio level for pitch recognition (e.g. -40dBFS), slider
+    - Display sharps or flats, drop-down
+    - Strobe gain, slider
+    - Partials, text box
+    - Samples per period, text box   (?)
+    - Strobe color scheme
+
+
+
+
+
+Future
+  - Scale & temperament presets
+  - Tuner accuracy (strobe speed) adjustment (how?)
