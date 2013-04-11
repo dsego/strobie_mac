@@ -22,18 +22,18 @@ KISS_FFT  = ../../vala-extra-vapis/kiss_fft.vapi -X -I../kiss_fft130 \
 
 SNDFILE   = ../../vala-extra-vapis/sndfile.vapi -X -I../libsndfile-1.0.25/src -X -lsndfile
 
-GL        = gl_mac.vapi -X -L"/System/Library/Frameworks/OpenGL.framework/Libraries" -X -lGL
+GL        = src/gl_mac.vapi -X -L"/System/Library/Frameworks/OpenGL.framework/Libraries" -X -lGL
 
-GLFW      = libglfw.vapi -X -I/usr/local/include/GL -X -lglfw
+GLFW      = src/libglfw.vapi -X -I/usr/local/include/GL -X -lglfw
 
 FREETYPE  = -X -I/usr/local/include/freetype2 -X -lfreetype
 
 
 
 all:
-	valac -g -o \
-        strobie app.vala converter.vala strobe.vala gl_cairo_window.vala biquad.vala misc.vala \
-	      pitch_estimation.vala tuning.vala config.vala display.vala font_loader.vala \
+	valac -C -o \
+        strobie src/app.vala src/converter.vala src/strobe.vala src/gl_cairo_window.vala src/biquad.vala src/misc.vala \
+	      src/pitch_estimation.vala src/tuning.vala src/config.vala src/display.vala src/font_loader.vala \
 	      ../src/src.vala ../fir/window.vala ../fir/simple_filter.vala \
 	      --pkg posix --pkg gee-0.8 --thread --target-glib=2.32  \
 	      $(PORTAUDIO) $(KISS_FFT) $(CAIRO) $(PANGO) $(JSON) $(GL) $(GLFW) $(FREETYPE)
