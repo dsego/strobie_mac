@@ -103,7 +103,6 @@ void Biquad_filter(Biquad* bq, double* input, int input_len, double* output, int
 
     // Cascade
     for (int j = 0; j < bq->sectionCount; ++j) {
-
       // Transposed direct form II
       //   z2   = a2 * x[n-2] – b2 * y[n-2]
       //   z1   = a1 * x[n-1] – b1 * y[n-1] + z2
