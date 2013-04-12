@@ -2,12 +2,22 @@
 #include <assert.h>
 #include <math.h>
 
+#define BIQUAD_MAX_SECTION_COUNT 10
+
+
+//
+//  IIR Biquad filter
+//
+//  Biquad formulas from:
+//    Nigel Redmon
+//    http://www.earlevel.com/main/2011/01/02/biquad-formulas/
+//
 
 typedef struct {
 
   // delay line
-  double z1[10];
-  double z2[10];
+  double z1[BIQUAD_MAX_SECTION_COUNT];
+  double z2[BIQUAD_MAX_SECTION_COUNT];
 
   // cascade multiple biquads
   int sectionCount;
@@ -25,12 +35,9 @@ typedef struct {
 
 Biquad* Biquad_create(int sectionCount)
 {
+  assert(sectionCount < BIQUAD_MAX_SECTION_COUNT);
   Biquad* bq = malloc(sizeof(Biquad));
   assert(bq != NULL);
-  if (sectionCount < 10)
-    bq->sectionCount = sectionCount;
-  else
-    bq->sectionCount = 1;
   return bq;
 }
 
@@ -90,18 +97,18 @@ void Biquad_filter(Biquad* bq, double* input, double* output)
   double y = 0.0;
   double x = 0.0;
 
-  /* IIR filtering - cascaded biquads */
+  // IIR filtering - cascaded biquads
   for (int i = 0; i < bq->sectionCount; ++i) {
     x = input[i];
 
-    /* Cascade */
+    // Cascade
     for (int j = 0; j < bq->sectionCount; ++j) {
-      /*
-        Transposed direct form II
-          z2   = a2 * x[n-2] – b2 * y[n-2]
-          z1   = a1 * x[n-1] – b1 * y[n-1] + z2
-          y[n] = a0 * input[i]
-      */
+
+      // Transposed direct form II
+      //   z2   = a2 * x[n-2] – b2 * y[n-2]
+      //   z1   = a1 * x[n-1] – b1 * y[n-1] + z2
+      //   y[n] = a0 * input[i]
+
       y     = x * bq->a0 + bq->z1[j];
       bq->z1[j] = x * bq->a1 + bq->z2[j] - bq->b1 * y;
       bq->z2[j] = x * bq->a2 - bq->b2 * y;
