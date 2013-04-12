@@ -3,4 +3,4 @@
 #
 
 all:
-	cc -c src/biquad.c
+	cc -c src/biquad.c src/tuning.c
