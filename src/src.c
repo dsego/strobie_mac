@@ -34,6 +34,12 @@ SRC* SRC_create(double out_rate, double in_rate)
   return src;
 }
 
+void SRC_destroy(SRC* src)
+{
+  assert(src != NULL);
+  free(src);
+}
+
 void SRC_reset(SRC* src)
 {
   src->rems[0] = 0.0;
