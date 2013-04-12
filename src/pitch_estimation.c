@@ -2,23 +2,11 @@
   Copyright (C) 2013 Davorin Šego
 */
 
-#define kiss_fft_scalar double
-
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "pitch_estimation.h" // redefine kiss_fft_scalar to double
 #include "kiss_fftr.h"
-
-typedef struct {
-  double* padded_data;
-  double* autocorr_data;
-  int sample_rate;
-  int fft_len;
-  kiss_fft_cpx* fft;
-  kiss_fftr_cfg fft_cfg;
-  kiss_fftr_cfg ifft_cfg;
-} PitchEstimation;
-
 
 PitchEstimation* PitchEstimation_create(int sample_rate, int fft_length)
 {
