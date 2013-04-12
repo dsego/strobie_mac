@@ -91,13 +91,14 @@ void Biquad_reset(Biquad* bq)
   }
 }
 
-void Biquad_filter(Biquad* bq, double* input, double* output)
+void Biquad_filter(Biquad* bq, double* input, int input_len, double* output, int output_len)
 {
   double y = 0.0;
   double x = 0.0;
 
-  // IIR filtering - cascaded biquads
-  for (int i = 0; i < bq->sectionCount; ++i) {
+  assert(input_len == output_len);
+
+  for (int i = 0; i < input_len; ++i) {
     x = input[i];
 
     // Cascade
