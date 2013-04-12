@@ -7,17 +7,8 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
+#include "src.h"
 
-
-typedef struct {
-  double ratio;         /* output sample rate / input sample rate */
-  double interval;      /* time distance between generated samples */
-  double rems[3];       /* remaining samples */
-  double t;             /* position of the output sample between two input samples */
-  int in_i;             /* input index */
-  int out_i;            /* output index */
-  double time;          /* output time */
-} SRC;
 
 
 void SRC_set_ratio(SRC* src, double out_rate, double in_rate)
@@ -109,12 +100,9 @@ double SRC_cubic(double y0, double y1, double y2, double y3, double t)
                 + ((y2 - y0) / 2) ) * t;
 }
 
-/**
- * Convert a chunk of data - linear interpolation.
- * Returns the number of generated samples.
- */
+
 int SRC_linear_convert(SRC* src, double* in, int in_len, double* out, int out_len) {
-  /* Sanity check */
+  // Sanity check
   if ((int) (src->ratio * in_len) > out_len) {
     printf("Output buffer is too small (need %i, buffer size %i).\n", (int) (src->ratio * in_len), out_len);
     return 0;
@@ -122,7 +110,7 @@ int SRC_linear_convert(SRC* src, double* in, int in_len, double* out, int out_le
 
   SRC_reset_indices(src);
 
-  /* interval  before the first sample, from -1 to 0 */
+  // interval  before the first sample, from -1 to 0
   while (src->time < 0 && in_len >= 1) {
     out[src->out_i] = SRC_linear(src->rems[0], in[0], src->time + 1);
     SRC_increment_time(src);
@@ -130,31 +118,26 @@ int SRC_linear_convert(SRC* src, double* in, int in_len, double* out, int out_le
 
   int last = in_len - 1;
 
-  /* For every two (relevant) input samples calculate the output */
+  // For every two (relevant) input samples calculate the output
   while (src->in_i < last) {
     out[src->out_i] = SRC_linear(in[src->in_i], in[src->in_i + 1], src->t);
     SRC_increment_time(src);
   }
 
-  /* Save the last sample */
+  // Save the last sample
   src->rems[0] = in[last];
 
-  /* Wrap around */
+  // Wrap around
   src->time = src->time - last - 1;
 
-  /* Number of generated samples */
+  // Number of generated samples
   return src->out_i;
 
 }
 
-
-/**
- * Convert a chunk of data - cubic interpolation.
- * Returns the number of generated samples.
- */
 int SRC_cubic_convert(SRC* src, double* in, int in_len, double* out, int out_len) {
 
-  /* Sanity check */
+  // Sanity check
   if ((int) (src->ratio * in_len) > out_len) {
     printf("Output buffer is too small (need %i, buffer size %i).\n", (int) (src->ratio * in_len), out_len);
     return 0;
@@ -162,19 +145,19 @@ int SRC_cubic_convert(SRC* src, double* in, int in_len, double* out, int out_len
 
   SRC_reset_indices(src);
 
-  /*  from -2 to -1 */
+  //  from -2 to -1
   while (src->time < -1 && in_len >= 1) {
     out[src->out_i] = SRC_cubic(src->rems[0], src->rems[1], src->rems[2], in[0], src->time + 2);
     SRC_increment_time(src);
   }
 
-  /* interval before the first sample, from -1 to 0 */
+  // interval before the first sample, from -1 to 0
   while (src->time < 0 && in_len >= 2) {
     out[src->out_i] = SRC_cubic(src->rems[1], src->rems[2],  in[0], in[1], src->time + 1);
     SRC_increment_time(src);
   }
 
-  /* interval from 0 to 1 */
+  // interval from 0 to 1
   while (src->time < 1 && in_len >= 3) {
     out[src->out_i] = SRC_cubic(src->rems[2], in[0], in[1], in[2], src->time);
     SRC_increment_time(src);
@@ -187,15 +170,15 @@ int SRC_cubic_convert(SRC* src, double* in, int in_len, double* out, int out_len
     SRC_increment_time(src);
   }
 
-  /* save the last 3 samples for next call */
+  // save the last 3 samples for next call
   src->rems[0] = in[last - 1];
   src->rems[1] = in[last];
   src->rems[2] = in[last + 1];
 
-  /* wrap around */
+  // wrap around
   src->time = src->time - last - 2;
 
-  /* Number of generated samples */
+  // Number of generated samples
   return src->out_i;
 
 }
