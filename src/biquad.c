@@ -2,9 +2,6 @@
 #include <assert.h>
 #include <math.h>
 
-#define BIQUAD_MAX_SECTION_COUNT 10
-
-
 //
 //  IIR Biquad filter
 //
@@ -13,11 +10,13 @@
 //    http://www.earlevel.com/main/2011/01/02/biquad-formulas/
 //
 
+static const int MAX_SECTION_COUNT = 10;
+
 typedef struct {
 
   // delay line
-  double z1[BIQUAD_MAX_SECTION_COUNT];
-  double z2[BIQUAD_MAX_SECTION_COUNT];
+  double z1[MAX_SECTION_COUNT];
+  double z2[MAX_SECTION_COUNT];
 
   // cascade multiple biquads
   int sectionCount;
@@ -35,7 +34,7 @@ typedef struct {
 
 Biquad* Biquad_create(int sectionCount)
 {
-  assert(sectionCount < BIQUAD_MAX_SECTION_COUNT);
+  assert(sectionCount < MAX_SECTION_COUNT);
   Biquad* bq = malloc(sizeof(Biquad));
   assert(bq != NULL);
   return bq;
