@@ -36,7 +36,6 @@ SRC* SRC_create(double out_rate, double in_rate)
 
 void SRC_destroy(SRC* src)
 {
-  assert(src != NULL);
   free(src);
 }
 

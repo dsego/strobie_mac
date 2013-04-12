@@ -42,7 +42,6 @@ Biquad* Biquad_create(int sectionCount)
 
 void Biquad_destroy(Biquad* bq)
 {
-  assert(bq != NULL);
   free(bq);
 }
 
