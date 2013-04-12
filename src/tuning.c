@@ -5,16 +5,7 @@
 
 #include <math.h>
 #include <string.h>
-
-typedef struct {
-  char letter;
-  char sign[4];
-  char alt_letter;
-  char alt_sign[4];
-  int octave;
-  double cents;
-  double frequency;
-} Note;
+#include "tuning.h"
 
 
 double Tuning12TET_freq_to_cents(double freq, double pitch_standard)
@@ -119,9 +110,8 @@ Note Tuning12TET_find(double freq, double pitch_standard, double cents_offset, i
   return Tuning12TET_cents_to_note(cents, pitch_standard, cents_offset, transpose);
 }
 
-/* A simple binary search, slightly modified to find the nearest value.
-   The notes parameter holds note values in cents.
-*/
+// A simple binary search, slightly modified to find the nearest value.
+//  The notes parameter holds note values in cents.
 Note Tuning12TET_find_nearest(double freq, double* notes, int notes_len, double pitch_standard)
 {
   int cents = Tuning12TET_freq_to_cents(freq, pitch_standard);
