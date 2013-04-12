@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2013 Davorin Šego
+*/
 
 // RGB color
 typedef struct  {

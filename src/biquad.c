@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2013 Davorin Šego
+*/
+
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
