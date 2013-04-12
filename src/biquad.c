@@ -40,7 +40,7 @@ Biquad* Biquad_create(int sectionCount)
   return bq;
 }
 
-void Biquqad_destroy(Biquad* bq)
+void Biquad_destroy(Biquad* bq)
 {
   assert(bq != NULL);
   free(bq);
