@@ -4,37 +4,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include "portaudio.h"
-#include "pa_ringbuffer.h"
-#include "biquad.h"
-#include "src.h"
-
-
-typedef struct {
-  int sample_rate;
-  int samples_per_period;
-  int buffer_length;
-  int resampled_buffer_length;
-
-  // strobing frequency
-  double freq;
-
-  // buffers for processing data before writing to the ring buffer
-  double* filtered_buffer;
-  double* resampled_buffer;
-
-  // band pass filter
-  Biquad*  bandpass;
-
-  // sample rate converter
-  SRC* src;
-
-  // circular buffer
-  PaUtilRingBuffer* ringbuffer;
-  double* ringbuffer_data;
-
-} Strobe;
-
+#include "strobe.h"
 
 
 Strobe* Strobe_create(int buffer_length, int resampled_buffer_length, int sample_rate, int samples_per_period)
@@ -50,8 +20,12 @@ Strobe* Strobe_create(int buffer_length, int resampled_buffer_length, int sample
   str->bandpass           = Biquad_create(3);
   str->src                = SRC_create(1, 1);
   str->filtered_buffer    = malloc(buffer_length * sizeof(double)); assert(str->filtered_buffer != NULL);
-  str->resampled_buffer   = malloc(resampled_buffer_length * sizeof(double)); assert(str->resampled_buffer != NULL);
-  str->ringbuffer_data    = malloc(65536 * sizeof(double)); assert(str->ringbuffer_data != NULL);
+  str->resampled_buffer   = malloc(resampled_buffer_length * sizeof(double));
+                            assert(str->resampled_buffer != NULL);
+  str->ringbuffer_data    = malloc(65536 * sizeof(double));
+                            assert(str->ringbuffer_data != NULL);
+  str->ringbuffer         = malloc(sizeof(PaUtilRingBuffer));
+                            assert(str->ringbuffer != NULL);
   PaUtil_InitializeRingBuffer(str->ringbuffer, sizeof(double), 65536, str->ringbuffer_data);
 
   return str;
@@ -68,14 +42,12 @@ void Strobe_destroy(Strobe* str)
   free(str);
 }
 
-// Read the newest data from the ring buffer
 void Strobe_read(Strobe* str, double* output, int output_length)
 {
   while (PaUtil_GetRingBufferReadAvailable(str->ringbuffer) >=  output_length)
     PaUtil_ReadRingBuffer(str->ringbuffer, output, output_length);
 }
 
-// Set the filter band and the sample rate to a multiple of the target frequency
 void Strobe_set_freq(Strobe* str, double freq)
 {
   if (freq == str->freq)
@@ -88,7 +60,6 @@ void Strobe_set_freq(Strobe* str, double freq)
   Biquad_bandpass(str->bandpass, freq, str->sample_rate, 10);
 }
 
-// Process (IIR, re-sample) the audio input and write into the ring buffer
 void Strobe_process(Strobe* str, double* input, int input_length)
 {
   Biquad_filter(str->bandpass, input, input_length, str->filtered_buffer, input_length);
