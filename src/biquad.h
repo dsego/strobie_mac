@@ -10,7 +10,7 @@
 //    http://www.earlevel.com/main/2011/01/02/biquad-formulas/
 //
 
-static const int MAX_SECTION_COUNT = 10;
+#define MAX_SECTION_COUNT 10
 
 typedef struct {
 

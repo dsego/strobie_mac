@@ -7,8 +7,8 @@
 #include <stdbool.h>
 #include "rgb.h"
 
-static const int CFG_MAX_PARTIALS = 10;
-static const int CFG_MAX_MOTES = 50;
+#define CONFIG_MAX_PARTIALS 10
+#define CONFIG_MAX_NOTES    50
 
 typedef struct {
   int sample_rate;
@@ -25,9 +25,9 @@ typedef struct {
   bool display_flats;
   int transpose;
   double cents_offset;
-  int partials[CFG_MAX_PARTIALS];
-  int samples_per_period[CFG_MAX_PARTIALS];
-  double ins_notes[CFG_MAX_MOTES];
+  int partials[CONFIG_MAX_PARTIALS];
+  int samples_per_period[CONFIG_MAX_PARTIALS];
+  double ins_notes[CONFIG_MAX_NOTES];
   RGB strobe_background;
   RGB strobe_foreground;
 } Config;
