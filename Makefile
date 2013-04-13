@@ -8,4 +8,4 @@ PORTAUDIO = ../portaudio/src/common/pa_ringbuffer.c -I../portaudio/include -I../
 
 
 all:
-	cc $(KISS_FFT) $(PORTAUDIO) src/*.c -o strobie
+	cc -g $(KISS_FFT) $(PORTAUDIO) src/*.c -o strobie
