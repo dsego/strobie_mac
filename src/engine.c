@@ -24,9 +24,9 @@ Engine* Engine_create()
   engine->strobe_delay     = 1000000 / strobe_framerate;
 
   // initialize strobes
-  int i   = 0;
+  int i = 0;
 
-  while (config->partials[i] > 0 && config->samples_per_period[i] > 0) {
+  while (i < CONFIG_MAX_PARTIALS && i < MAX_STROBES && config->partials[i] > 0 && config->samples_per_period[i] > 0) {
     engine->strobes[i] = Strobe_create(config->buffer_length,
                                        config->resampled_buffer_length,
                                        config->sample_rate,
@@ -123,8 +123,9 @@ int Engine_stream_callback(const void* input, void* output, unsigned long nframe
 
 bool Engine_init_audio(Engine* engine)
 {
-  // start PortAudio and open the input stream
   PaError err;
+
+  // start PortAudio and open the input stream
   err = Pa_Initialize();
   if (err != paNoError)
     return false;
