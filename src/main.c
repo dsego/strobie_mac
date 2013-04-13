@@ -9,10 +9,12 @@ int main(int argc, char *argv[])
   Note note;
   note.frequency = 440;
 
+  struct timespec t[] = (struct timespec[]){{0, 200000000}};
+
   while (true) {
     Engine_read_strobes(engine, note);
     Engine_estimate_pitch(engine);
-    nanosleep((struct timespec[]){{0, 200000000}}, NULL);
+    nanosleep(t, NULL);
   }
   return 0;
 }

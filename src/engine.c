@@ -7,6 +7,9 @@
 #include "engine.h"
 #include "utils.h"
 
+void Engine_init_strobes(Engine* engine);
+void Engine_init_pitch_recognition(Engine* engine);
+
 
 Engine* Engine_create()
 {
@@ -24,8 +27,36 @@ Engine* Engine_create()
   engine->strobe_delay     = 1000000 / strobe_framerate;
 
   // initialize strobes
-  int i = 0;
+  Engine_init_strobes(engine);
 
+  // pitch recognition
+  Engine_init_pitch_recognition(engine);
+
+  // to convert stream from float* to double*
+  engine->stream_buffer = calloc(4096, sizeof(double));
+  assert(engine->stream_buffer != NULL);
+
+  return engine;
+}
+
+void Engine_init_pitch_recognition(Engine* engine)
+{
+  Config* config = engine->config;
+  engine->pitch_estimation = PitchEstimation_create(config->fft_sample_rate, config->fft_length);
+  engine->threshold = from_dbfs(engine->config->audio_threshold);
+  engine->audio_buffer = calloc(engine->config->fft_length, sizeof(double));
+                         assert(engine->audio_buffer != NULL);
+  engine->ringbuffer_data = malloc(32768 * sizeof(double));
+                            assert(engine->ringbuffer_data != NULL);
+  engine->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
+                       assert(engine->ringbuffer != NULL);
+  PaUtil_InitializeRingBuffer(engine->ringbuffer, sizeof(double), 32768, engine->ringbuffer_data);
+}
+
+void Engine_init_strobes(Engine* engine)
+{
+  Config* config = engine->config;
+  int i = 0;
   while (i < CONFIG_MAX_PARTIALS && i < MAX_STROBES && config->partials[i] > 0 && config->samples_per_period[i] > 0) {
     engine->strobes[i] = Strobe_create(config->buffer_length,
                                        config->resampled_buffer_length,
@@ -37,27 +68,7 @@ Engine* Engine_create()
     i = i + 1;
   }
   engine->strobe_count = i - 1;
-
-  // pitch recognition
-  engine->pitch_estimation = PitchEstimation_create(config->fft_sample_rate, config->fft_length);
-  engine->threshold = from_dbfs(engine->config->audio_threshold);
-  engine->audio_buffer = calloc(engine->config->fft_length, sizeof(double));
-                         assert(engine->audio_buffer != NULL);
-  engine->ringbuffer_data = malloc(32768 * sizeof(double));
-                            assert(engine->ringbuffer_data != NULL);
-  engine->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
-                       assert(engine->ringbuffer != NULL);
-  PaUtil_InitializeRingBuffer(engine->ringbuffer, sizeof(double), 32768, engine->ringbuffer_data);
-
-  // to convert stream from float* to double*
-  engine->stream_buffer = calloc(4096, sizeof(double));
-  assert(engine->stream_buffer != NULL);
-
-  return engine;
 }
-
-
-
 
 void Engine_destroy(Engine* engine)
 {
