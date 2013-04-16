@@ -101,7 +101,7 @@ double SRC_cubic(double y0, double y1, double y2, double y3, double t)
 }
 
 
-int SRC_linear_convert(SRC* src, double* in, int in_len, double* out, int out_len) {
+int SRC_linear_convert(SRC* src, float* in, int in_len, float* out, int out_len) {
   // Sanity check
   if ((int) (src->ratio * in_len) > out_len) {
     printf("Output buffer is too small (need %i, buffer size %i).\n", (int) (src->ratio * in_len), out_len);
@@ -135,7 +135,7 @@ int SRC_linear_convert(SRC* src, double* in, int in_len, double* out, int out_le
 
 }
 
-int SRC_cubic_convert(SRC* src, double* in, int in_len, double* out, int out_len) {
+int SRC_cubic_convert(SRC* src, float* in, int in_len, float* out, int out_len) {
 
   // Sanity check
   if ((int) (src->ratio * in_len) > out_len) {

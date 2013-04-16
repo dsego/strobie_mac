@@ -16,8 +16,8 @@ typedef struct {
   double freq;
 
   // buffers for processing data before writing to the ring buffer
-  double* filtered_buffer;
-  double* resampled_buffer;
+  float* filtered_buffer;
+  float* resampled_buffer;
 
   // band pass filter
   Biquad*  bandpass;
@@ -27,7 +27,7 @@ typedef struct {
 
   // circular buffer
   PaUtilRingBuffer* ringbuffer;
-  double* ringbuffer_data;
+  float* ringbuffer_data;
 
 } Strobe;
 
@@ -37,10 +37,10 @@ Strobe* Strobe_create(int buffer_length, int resampled_buffer_length, int sample
 void Strobe_destroy(Strobe* str);
 
 // Read the newest data from the ring buffer
-void Strobe_read(Strobe* str, double* output, int output_length);
+void Strobe_read(Strobe* str, float* output, int output_length);
 
 // Set the filter band and the sample rate to a multiple of the target frequency
 void Strobe_set_freq(Strobe* str, double freq);
 
 // Process (IIR, re-sample) the audio input and write into the ring buffer
-void Strobe_process(Strobe* str, double* input, int input_length);
+void Strobe_process(Strobe* str, float* input, int input_length);

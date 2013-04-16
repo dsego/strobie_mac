@@ -10,16 +10,14 @@
 
 PitchEstimation* PitchEstimation_create(int sample_rate, int fft_length)
 {
-  PitchEstimation* pe = malloc(sizeof(PitchEstimation));
-  assert(pe != NULL);
-
-  pe->sample_rate   = sample_rate;
-  pe->fft_len       = fft_length;
-  pe->fft_cfg       = kiss_fftr_alloc(fft_length, 0, NULL, NULL);
-  pe->ifft_cfg      = kiss_fftr_alloc(fft_length, 1, NULL, NULL);
-  pe->fft           = malloc(sizeof(kiss_fft_cpx) * fft_length / 2 + 1); assert(pe->fft != NULL);
-  pe->padded_data   = calloc(sizeof(kiss_fft_cpx), fft_length * 2); assert(pe->padded_data != NULL);
-  pe->autocorr_data = malloc(sizeof(kiss_fft_cpx) * fft_length); assert(pe->autocorr_data != NULL);
+  PitchEstimation* pe = malloc(sizeof(PitchEstimation)); assert(pe != NULL);
+  pe->sample_rate     = sample_rate;
+  pe->fft_len         = fft_length;
+  pe->fft_cfg         = kiss_fftr_alloc(fft_length, 0, NULL, NULL);
+  pe->ifft_cfg        = kiss_fftr_alloc(fft_length, 1, NULL, NULL);
+  pe->fft             = malloc(sizeof(kiss_fft_cpx) * fft_length / 2 + 1); assert(pe->fft != NULL);
+  pe->padded_data     = calloc(sizeof(float),  fft_length * 2); assert(pe->padded_data != NULL);
+  pe->autocorr_data   = malloc(sizeof(float) * fft_length); assert(pe->autocorr_data != NULL);
   return pe;
 }
 
@@ -33,7 +31,7 @@ void PitchEstimation_destroy(PitchEstimation* pe)
   free(pe);
 }
 
-void PitchEstimation_normalize_and_center_clip(double* data, int data_len)
+void PitchEstimation_normalize_and_center_clip(float* data, int data_len)
 {
   double max = 0;
 
@@ -62,13 +60,13 @@ double PitchEstimation_parabolic(double y0, double y1, double y2)
 
 
 
-double PitchEstimation_pitch_from_autocorrelation(PitchEstimation* pe, double* data, int data_len)
+double PitchEstimation_pitch_from_autocorrelation(PitchEstimation* pe, float* data, int data_len)
 {
   // important!
   PitchEstimation_normalize_and_center_clip(data, data_len);
 
   // pad with zeros
-  memcpy(pe->padded_data, data, data_len * sizeof(double));
+  memcpy(pe->padded_data, data, data_len * sizeof(float));
 
   // Fourier transform
   kiss_fftr(pe->fft_cfg, pe->padded_data, pe->fft);
@@ -112,7 +110,7 @@ double PitchEstimation_pitch_from_autocorrelation(PitchEstimation* pe, double* d
   // interpolate
   if (x != 0) {
     pitch = x + PitchEstimation_parabolic(pe->autocorr_data[x - 1], pe->autocorr_data[x], pe->autocorr_data[x + 1]);
-    pitch = (double) (pe->sample_rate / pitch);
+    pitch = (double) pe->sample_rate / pitch;
   }
 
   return pitch;

@@ -61,7 +61,7 @@ void Biquad_reset(Biquad* bq)
   }
 }
 
-void Biquad_filter(Biquad* bq, double* input, int input_len, double* output, int output_len)
+void Biquad_filter(Biquad* bq, float* input, int input_len, float* output, int output_len)
 {
   double y = 0.0;
   double x = 0.0;
@@ -78,10 +78,10 @@ void Biquad_filter(Biquad* bq, double* input, int input_len, double* output, int
       //   z1   = a1 * x[n-1] – b1 * y[n-1] + z2
       //   y[n] = a0 * input[i]
 
-      y     = x * bq->a0 + bq->z1[j];
+      y         = x * bq->a0 + bq->z1[j];
       bq->z1[j] = x * bq->a1 + bq->z2[j] - bq->b1 * y;
       bq->z2[j] = x * bq->a2 - bq->b2 * y;
-      x     = y;
+      x         = y;
     }
     output[i] = (float) y;
   }

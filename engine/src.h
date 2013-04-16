@@ -24,10 +24,10 @@ void SRC_reset(SRC* src);
  * Convert a chunk of data - linear interpolation.
  * Returns the number of generated samples.
  */
-int SRC_linear_convert(SRC* src, double* in, int in_len, double* out, int out_len);
+int SRC_linear_convert(SRC* src, float* in, int in_len, float* out, int out_len);
 
 /**
  * Convert a chunk of data - cubic interpolation.
  * Returns the number of generated samples.
  */
-int SRC_cubic_convert(SRC* src, double* in, int in_len, double* out, int out_len);
+int SRC_cubic_convert(SRC* src, float* in, int in_len, float* out, int out_len);

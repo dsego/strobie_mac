@@ -42,7 +42,7 @@ void Strobe_destroy(Strobe* str)
   free(str);
 }
 
-void Strobe_read(Strobe* str, double* output, int output_length)
+void Strobe_read(Strobe* str, float* output, int output_length)
 {
   while (PaUtil_GetRingBufferReadAvailable(str->ringbuffer) >=  output_length)
     PaUtil_ReadRingBuffer(str->ringbuffer, output, output_length);
@@ -60,7 +60,7 @@ void Strobe_set_freq(Strobe* str, double freq)
   Biquad_bandpass(str->bandpass, freq, str->sample_rate, 10);
 }
 
-void Strobe_process(Strobe* str, double* input, int input_length)
+void Strobe_process(Strobe* str, float* input, int input_length)
 {
   Biquad_filter(str->bandpass, input, input_length, str->filtered_buffer, input_length);
   int count = SRC_cubic_convert(str->src, str->filtered_buffer, input_length, str->resampled_buffer, str->resampled_buffer_length);

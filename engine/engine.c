@@ -7,9 +7,6 @@
 #include "engine.h"
 #include "utils.h"
 
-void Engine_init_strobes(Engine* engine);
-void Engine_init_pitch_recognition(Engine* engine);
-
 
 Engine* Engine_create()
 {
@@ -17,6 +14,7 @@ Engine* Engine_create()
   assert(engine != NULL);
 
   Config* config = engine->config = Config_create();
+  engine->audio_feed = AudioFeed_create();
 
   // frame rates
   double estimation_framerate = clamp(config->estimation_framerate, 1, 100);
@@ -26,36 +24,8 @@ Engine* Engine_create()
   engine->estimation_delay = 1000000 / estimation_framerate;
   engine->strobe_delay     = 1000000 / strobe_framerate;
 
+
   // initialize strobes
-  Engine_init_strobes(engine);
-
-  // pitch recognition
-  Engine_init_pitch_recognition(engine);
-
-  // to convert stream from float* to double*
-  engine->stream_buffer = calloc(4096, sizeof(double));
-  assert(engine->stream_buffer != NULL);
-
-  return engine;
-}
-
-void Engine_init_pitch_recognition(Engine* engine)
-{
-  Config* config = engine->config;
-  engine->pitch_estimation = PitchEstimation_create(config->fft_sample_rate, config->fft_length);
-  engine->threshold = from_dbfs(engine->config->audio_threshold);
-  engine->audio_buffer = calloc(engine->config->fft_length, sizeof(double));
-                         assert(engine->audio_buffer != NULL);
-  engine->ringbuffer_data = malloc(32768 * sizeof(double));
-                            assert(engine->ringbuffer_data != NULL);
-  engine->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
-                       assert(engine->ringbuffer != NULL);
-  PaUtil_InitializeRingBuffer(engine->ringbuffer, sizeof(double), 32768, engine->ringbuffer_data);
-}
-
-void Engine_init_strobes(Engine* engine)
-{
-  Config* config = engine->config;
   int i = 0;
   while (i < CONFIG_MAX_PARTIALS && i < MAX_STROBES && config->partials[i] > 0 && config->samples_per_period[i] > 0) {
     engine->strobes[i] = Strobe_create(config->buffer_length,
@@ -63,23 +33,42 @@ void Engine_init_strobes(Engine* engine)
                                        config->sample_rate,
                                        config->samples_per_period[i]);
     engine->strobe_buffer_lengths[i] = config->samples_per_period[i] * config->periods_per_frame * config->partials[i];
-    engine->strobe_buffers[i] = calloc(engine->strobe_buffer_lengths[i], sizeof(double));
+    engine->strobe_buffers[i] = calloc(engine->strobe_buffer_lengths[i], sizeof(float));
     assert(engine->strobe_buffers[i] != NULL);
     i = i + 1;
   }
   engine->strobe_count = i - 1;
+
+
+  // initialize pitch recognition
+  engine->pitch_estimation = PitchEstimation_create(config->fft_sample_rate, config->fft_length);
+  engine->threshold = from_dbfs(engine->config->audio_threshold);
+  engine->audio_buffer = calloc(engine->config->fft_length, sizeof(float));
+                         assert(engine->audio_buffer != NULL);
+  engine->ringbuffer_data = malloc(32768 * sizeof(float));
+                            assert(engine->ringbuffer_data != NULL);
+  engine->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
+                       assert(engine->ringbuffer != NULL);
+  PaUtil_InitializeRingBuffer(engine->ringbuffer, sizeof(float), 32768, engine->ringbuffer_data);
+
+  // to convert stream from float* to double*
+  engine->conversion_buffer = malloc(config->buffer_length * sizeof(float));
+  assert(engine->conversion_buffer != NULL);
+
+  return engine;
 }
 
 void Engine_destroy(Engine* engine)
 {
+  Pa_Terminate();
   Config_destroy(engine->config);
+  AudioFeed_destroy(engine->audio_feed);
   PitchEstimation_destroy(engine->pitch_estimation);
   for (int i = 0; i < engine->strobe_count; ++i) {
     Strobe_destroy(engine->strobes[i]);
     free(engine->strobe_buffers[i]);
   }
   free(engine->audio_buffer);
-  Pa_Terminate();
   free(engine);
 }
 
@@ -90,10 +79,15 @@ void Engine_destroy(Engine* engine)
 
 
 
-void Engine_process_signal(Engine* engine, double* input, int input_len) {
-  // converter.process_signal(input);
+void Engine_process_signal(Engine* engine, float* input, int input_len) {
+  // convert to double
+  for (int i = 0; i < input_len; ++i) {
+    engine->conversion_buffer[i] = (double) input[i];
+  }
+
+  AudioFeed_process(engine->audio_feed, engine->conversion_buffer, input_len);
   for (int i = 0; i < engine->strobe_count; ++i) {
-    Strobe_process(engine->strobes[i], input, input_len);
+    Strobe_process(engine->strobes[i], engine->conversion_buffer, input_len);
   }
 }
 
@@ -103,28 +97,22 @@ int Engine_stream_callback(const void* input, void* output, unsigned long nframe
                            const PaStreamCallbackTimeInfo* timeInfo,
                            PaStreamCallbackFlags statusFlags, void *userData)
 {
-
-  float* finput = (float*) input;
+  float* finput  = (float*) input;
   Engine* engine = (Engine*) userData;
 
-  // convert to double
-  for (int i = 0; i < nframes; ++i) {
-    engine->stream_buffer[i] = (double) finput[i];
-  }
-
-  int index = 0;
+  int index  = 0;
   int length = (int) nframes;
 
   // process in batches because nframes can be bigger than config->buffer_length
   while (nframes > engine->config->buffer_length) {
-    Engine_process_signal(engine, &engine->stream_buffer[index], engine->config->buffer_length);
+    Engine_process_signal(engine, &finput[index], engine->config->buffer_length);
     length -= engine->config->buffer_length;
-    index += engine->config->buffer_length;
+    index  += engine->config->buffer_length;
   }
 
   // anything left over
   if (length > 0) {
-    Engine_process_signal(engine, &engine->stream_buffer[index], length);
+    Engine_process_signal(engine, &finput[index], length);
   }
 
   return 0;
@@ -172,6 +160,9 @@ void Engine_read_strobes(Engine* engine, Note note)
 double Engine_estimate_pitch(Engine* engine)
 {
   static double pitch = 27.5000;
+
+  // read in new data from the ring buffer
+  AudioFeed_read(engine->audio_feed, engine->audio_buffer, engine->config->fft_length);
   double peak = find_peak(engine->audio_buffer, engine->config->fft_length);
   if (peak > engine->threshold) {
     pitch = PitchEstimation_pitch_from_autocorrelation(engine->pitch_estimation,

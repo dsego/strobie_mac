@@ -7,25 +7,27 @@
 #include "tuning.h"
 #include "config.h"
 #include "pitch_estimation.h"
+#include "audio_feed.h"
 #include "strobe.h"
 
 #define MAX_STROBES 10
 
 typedef struct {
   Config* config;
+  AudioFeed* audio_feed;
   PitchEstimation* pitch_estimation;
   Strobe* strobes[MAX_STROBES];
   int strobe_count;
-  double* strobe_buffers[MAX_STROBES];
+  float* strobe_buffers[MAX_STROBES];
   int strobe_buffer_lengths[MAX_STROBES];
-  double* audio_buffer;
-  double* stream_buffer;
+  float* audio_buffer;
+  float* conversion_buffer;
   PaStream* stream;
   double estimation_delay;
   double strobe_delay;
   double threshold;
   PaUtilRingBuffer* ringbuffer;
-  double* ringbuffer_data;
+  float* ringbuffer_data;
 } Engine;
 
 
