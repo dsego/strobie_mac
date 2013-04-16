@@ -21,7 +21,7 @@ Config* Config_create()
   cfg->estimation_framerate = 20;
   cfg->fft_sample_rate      = 44100;
   cfg->fft_length           = 4096;
-  cfg->audio_threshold      = -40;
+  cfg->audio_threshold      = -60;
   cfg->pitch_standard       = 440;
   cfg->display_flats        = false;
   cfg->transpose            = 0;
