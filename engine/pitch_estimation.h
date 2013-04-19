@@ -6,6 +6,7 @@
 #include "kiss_fftr.h"
 
 
+// a pitch estimator based on autocorrelation
 typedef struct {
   float* padded_data;
   float* autocorr_data;
@@ -19,4 +20,5 @@ typedef struct {
 
 PitchEstimation* PitchEstimation_create(int sample_rate, int fft_length);
 void PitchEstimation_destroy(PitchEstimation* pe);
+
 double PitchEstimation_pitch_from_autocorrelation(PitchEstimation* pe, float* data, int data_len);

@@ -2,6 +2,10 @@
   Copyright (C) 2013 Davorin Šego
 */
 
+
+// Sample rate conversion
+//  interpolates the siglan in time domain
+//  (supports streaming data and arbitrary conversion factors)
 typedef struct {
   double ratio;         // output sample rate / input sample rate
   double interval;      // time distance between generated samples
@@ -20,14 +24,13 @@ void SRC_set_ratio(SRC* src, double out_rate, double in_rate);
 void SRC_reset(SRC* src);
 
 
-/**
- * Convert a chunk of data - linear interpolation.
- * Returns the number of generated samples.
- */
+
+// Convert a chunk of data - linear interpolation.
+// Returns the number of generated samples.
 int SRC_linear_convert(SRC* src, float* in, int in_len, float* out, int out_len);
 
-/**
- * Convert a chunk of data - cubic interpolation.
- * Returns the number of generated samples.
- */
+
+// Convert a chunk of data - cubic interpolation.
+// Returns the number of generated samples.
+
 int SRC_cubic_convert(SRC* src, float* in, int in_len, float* out, int out_len);

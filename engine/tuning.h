@@ -2,6 +2,7 @@
   Copyright (C) 2012 Davorin Šego
 */
 
+
 typedef struct {
   char letter;
   char sign[4];

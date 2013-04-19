@@ -30,8 +30,6 @@ Config* Config_create()
   // strobe display
   cfg->strobe_framerate  = 60;
   cfg->strobe_gain       = 1000;
-  cfg->strobe_background = (RGB) { .r = 0.157, .g = 0.110, .b = 0.055 };
-  cfg->strobe_foreground = (RGB) { .r = 0.984, .g = 0.627, .b = 0.106 };
 
   // strobe bands
   cfg->periods_per_frame     = 1;
@@ -43,12 +41,12 @@ Config* Config_create()
   cfg->samples_per_period[2] = 256;
 
   // standard guitar tuning (in cents)
-  cfg->ins_notes[0] = -2900;
-  cfg->ins_notes[1] = -2400;
-  cfg->ins_notes[2] = -1900;
-  cfg->ins_notes[3] = -1400;
-  cfg->ins_notes[4] = -1000;
-  cfg->ins_notes[5] = -500;
+  cfg->instrument_notes[0] = -2900;
+  cfg->instrument_notes[1] = -2400;
+  cfg->instrument_notes[2] = -1900;
+  cfg->instrument_notes[3] = -1400;
+  cfg->instrument_notes[4] = -1000;
+  cfg->instrument_notes[5] = -500;
 
   return cfg;
 }

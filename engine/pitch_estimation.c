@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "pitch_estimation.h" // redefine kiss_fft_scalar to double
+#include "pitch_estimation.h"
 #include "kiss_fftr.h"
 
 PitchEstimation* PitchEstimation_create(int sample_rate, int fft_length)
@@ -63,7 +63,7 @@ double PitchEstimation_parabolic(double y0, double y1, double y2)
 
 double PitchEstimation_pitch_from_autocorrelation(PitchEstimation* pe, float* data, int data_len)
 {
-  // important!
+  // important to get more consistent and accurate results!
   PitchEstimation_normalize_and_center_clip(data, data_len);
 
   // pad with zeros

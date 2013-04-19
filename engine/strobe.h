@@ -6,6 +6,8 @@
 #include "biquad.h"
 #include "src.h"
 
+
+// creates a strobe effect by re-sampling the signal to a multiple of the note's frequency
 typedef struct {
   int sample_rate;
   int samples_per_period;
@@ -35,6 +37,7 @@ typedef struct {
 
 Strobe* Strobe_create(int buffer_length, int resampled_buffer_length, int sample_rate, int samples_per_period);
 void Strobe_destroy(Strobe* str);
+
 
 // Read the newest data from the ring buffer
 void Strobe_read(Strobe* str, float* output, int output_length);

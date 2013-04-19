@@ -5,6 +5,7 @@
 #include "portaudio.h"
 #include "pa_ringbuffer.h"
 
+// a simple interface to a PortAudio ring buffer
 typedef struct {
   PaUtilRingBuffer* ringbuffer;
   float* ringbuffer_data;
