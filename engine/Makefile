@@ -10,8 +10,15 @@ PORTAUDIO = ../../portaudio/src/common/pa_ringbuffer.c -I../../portaudio/include
 GLFW      = -I/usr/local/includes/GL/glfw -lglfw
 
 
-all:
+engine:
 	cc -c $(KISS_FFT) $(PORTAUDIO) *.c
-	ar rcs libengine.a *.o
+	ar rcs engine.a *.o
 	rm *.o
-	cc $(KISS_FFT) $(PORTAUDIO) $(GLFW) main.c libengine.a -lportaudio -framework opengl -o test
+
+test:
+	make engine
+	cc $(KISS_FFT) $(PORTAUDIO) $(GLFW) main.c engine.a -lportaudio -framework opengl -o test
+
+mac:
+	make engine
+	cc $(KISS_FFT) $(PORTAUDIO) -framework Cocoa engine.a -lportaudio
