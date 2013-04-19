@@ -1,36 +1,11 @@
+/*
+  Copyright (C) 2013 Davorin Šego
+*/
+
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
-
-//
-//  IIR Biquad filter
-//
-//  Biquad formulas from:
-//    Nigel Redmon
-//    http://www.earlevel.com/main/2011/01/02/biquad-formulas/
-//
-
-static const int MAX_SECTION_COUNT = 10;
-
-typedef struct {
-
-  // delay line
-  double z1[MAX_SECTION_COUNT];
-  double z2[MAX_SECTION_COUNT];
-
-  // cascade multiple biquads
-  int sectionCount;
-
-  // coefficients
-  double a0;
-  double a1;
-  double a2;
-  double b1;
-  double b2;
-
-} Biquad;
-
-
+#include "biquad.h"
 
 Biquad* Biquad_create(int sectionCount)
 {
@@ -42,11 +17,10 @@ Biquad* Biquad_create(int sectionCount)
 
 void Biquad_destroy(Biquad* bq)
 {
-  assert(bq != NULL);
   free(bq);
+  bq = NULL;
 }
 
-// redefine filter coefficients
 void Biquad_lowpass(Biquad* bq, double cutoff, double samplerate, double Q)
 {
   double K    = tan(M_PI * cutoff / samplerate);
@@ -58,7 +32,6 @@ void Biquad_lowpass(Biquad* bq, double cutoff, double samplerate, double Q)
   bq->b2      = (1 - K / Q + K * K) * norm;
 }
 
-// redefine filter coefficients
 void Biquad_highpass(Biquad* bq, double cutoff, double samplerate, double Q)
 {
   double K    = tan(M_PI * cutoff / samplerate);
@@ -70,7 +43,6 @@ void Biquad_highpass(Biquad* bq, double cutoff, double samplerate, double Q)
   bq->b2      = (1 - K / Q + K * K) * norm;
 }
 
-// redefine filter coefficients
 void Biquad_bandpass(Biquad* bq, double cutoff, double samplerate, double Q)
 {
   double K    = tan(M_PI * cutoff / samplerate);
@@ -82,7 +54,6 @@ void Biquad_bandpass(Biquad* bq, double cutoff, double samplerate, double Q)
   bq->b2      = (1 - K / Q + K * K) * norm;
 }
 
-// reset the delay line
 void Biquad_reset(Biquad* bq)
 {
   for (int i = 0; i < bq->sectionCount; ++i) {
@@ -91,7 +62,7 @@ void Biquad_reset(Biquad* bq)
   }
 }
 
-void Biquad_filter(Biquad* bq, double* input, int input_len, double* output, int output_len)
+void Biquad_filter(Biquad* bq, float* input, int input_len, float* output, int output_len)
 {
   double y = 0.0;
   double x = 0.0;
@@ -99,20 +70,19 @@ void Biquad_filter(Biquad* bq, double* input, int input_len, double* output, int
   assert(input_len == output_len);
 
   for (int i = 0; i < input_len; ++i) {
-    x = input[i];
+    x = (double) input[i];
 
     // Cascade
     for (int j = 0; j < bq->sectionCount; ++j) {
-
       // Transposed direct form II
       //   z2   = a2 * x[n-2] – b2 * y[n-2]
       //   z1   = a1 * x[n-1] – b1 * y[n-1] + z2
       //   y[n] = a0 * input[i]
 
-      y     = x * bq->a0 + bq->z1[j];
+      y         = x * bq->a0 + bq->z1[j];
       bq->z1[j] = x * bq->a1 + bq->z2[j] - bq->b1 * y;
       bq->z2[j] = x * bq->a2 - bq->b2 * y;
-      x     = y;
+      x         = y;
     }
     output[i] = (float) y;
   }
