@@ -33,6 +33,7 @@ typedef struct {
 
 Engine* Engine_create();
 void Engine_destroy(Engine* engine);
+
 bool Engine_init_audio(Engine* engine);
 void Engine_read_strobes(Engine* engine, Note note);
 double Engine_estimate_pitch(Engine* engine);

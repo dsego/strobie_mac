@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     x = -1;
     for (int i = 0; i < engine->config->fft_length; ++i) {
       // glVertex2d(x, -engine->audio_buffer[i]);
-      glVertex2d(x, -engine->pitch_estimation->autocorr_data[i] * 10.0);
+      // glVertex2d(x, -engine->pitch_estimation->autocorr_data[i] * 10.0);
       x += dx;
     }
     glEnd();

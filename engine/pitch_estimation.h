@@ -2,7 +2,7 @@
   Copyright (C) 2013 Davorin Šego
 */
 
-// #define kiss_fft_scalar double
+#include "kiss_fft.h"
 #include "kiss_fftr.h"
 
 
