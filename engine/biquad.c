@@ -70,7 +70,7 @@ void Biquad_filter(Biquad* bq, float* input, int input_len, float* output, int o
   assert(input_len == output_len);
 
   for (int i = 0; i < input_len; ++i) {
-    x = input[i];
+    x = (double) input[i];
 
     // Cascade
     for (int j = 0; j < bq->sectionCount; ++j) {
