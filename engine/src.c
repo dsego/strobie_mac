@@ -28,6 +28,7 @@ SRC* SRC_create(double out_rate, double in_rate)
 void SRC_destroy(SRC* src)
 {
   free(src);
+  src = NULL;
 }
 
 void SRC_reset(SRC* src)

@@ -29,13 +29,14 @@ void PitchEstimation_destroy(PitchEstimation* pe)
   free(pe->padded_data);
   free(pe->autocorr_data);
   free(pe);
+  pe = NULL;
 }
 
 void PitchEstimation_normalize_and_center_clip(float* data, int data_len)
 {
   double max = 0;
 
-  /* find absolute max */
+  // find absolute max
   for (int i = 0; i < data_len; ++i) {
     if (data[i] > max)
       max = data[i];

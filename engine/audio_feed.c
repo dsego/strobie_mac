@@ -27,6 +27,7 @@ void AudioFeed_destroy(AudioFeed* af)
   free(af->ringbuffer_data);
   free(af->ringbuffer);
   free(af);
+  af = NULL;
 }
 
 void AudioFeed_read(AudioFeed* af, float* output, int output_length)

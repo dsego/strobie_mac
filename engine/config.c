@@ -57,4 +57,5 @@ Config* Config_create()
 void Config_destroy(Config* cfg)
 {
   free(cfg);
+  cfg = NULL;
 }

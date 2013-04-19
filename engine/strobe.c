@@ -40,6 +40,7 @@ void Strobe_destroy(Strobe* str)
   free(str->ringbuffer_data);
   free(str->ringbuffer);
   free(str);
+  str = NULL;
 }
 
 void Strobe_read(Strobe* str, float* output, int output_length)

@@ -18,6 +18,7 @@ Biquad* Biquad_create(int sectionCount)
 void Biquad_destroy(Biquad* bq)
 {
   free(bq);
+  bq = NULL;
 }
 
 void Biquad_lowpass(Biquad* bq, double cutoff, double samplerate, double Q)
