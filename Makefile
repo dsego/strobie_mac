@@ -11,7 +11,7 @@ GLFW      = -I/usr/local/includes/GL/glfw -lglfw
 
 
 engine:
-	cc -c $(KISS_FFT) $(PORTAUDIO) src/engine/*.c
+	cc -c -O2 $(KISS_FFT) $(PORTAUDIO) src/engine/*.c
 	ar rcs engine.a *.o
 	rm *.o
 
@@ -21,5 +21,5 @@ test:
 
 mac:
 	make engine
-	cc -fobjc-arc $(KISS_FFT) $(PORTAUDIO) -framework Cocoa -framework AppKit engine.a -lportaudio src/mac/*.m \
+	cc -fobjc-arc -O2 $(KISS_FFT) $(PORTAUDIO) -framework Cocoa -framework AppKit engine.a -lportaudio src/mac/*.m \
 		 -o Strobie.app/Contents/MacOS/strobie
