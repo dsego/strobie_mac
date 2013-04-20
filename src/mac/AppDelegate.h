@@ -10,5 +10,7 @@
 @property (strong) IBOutlet NSWindowController *windowController;
 // @property (weak) IBOutlet StrobeView *strobeView;
 // @property (weak) IBOutlet NSTextField *label;
+//
+-(IBAction) openOnlineDocumentation:(id)sender;
 
 @end

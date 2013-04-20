@@ -13,13 +13,8 @@ Note note;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-  engine = Engine_create();
-  Engine_init_audio(engine);
-
-
   // manually allocate and initialize the window
   NSRect windowRect = NSMakeRect(0, 0, 500, 500);
-
   NSUInteger styleMask = (NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask);
   self.window = [[NSWindow alloc] initWithContentRect:windowRect
                                   styleMask:styleMask
@@ -29,6 +24,10 @@ Note note;
   [self.window setTitle:@"Strobie"];
   [self.window center];
   [self.window makeKeyAndOrderFront:self];
+
+
+  engine = Engine_create();
+  Engine_init_audio(engine);
 
   // window controller
   // self.windowController = [[NSWindowController alloc] initWithWindow:self.window];
@@ -73,4 +72,9 @@ Note note;
   return YES;
 }
 
+-(IBAction)openOnlineDocumentation:(id)sender
+{
+  id url = [NSURL URLWithString:@"http://www.google.com"];
+  [[NSWorkspace sharedWorkspace] openURL:url];
+}
 @end
