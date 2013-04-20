@@ -1,6 +1,6 @@
-/*
-  Copyright (C) 2013 Davorin Šego
-*/
+//
+//  Copyright (c) 2013 Davorin Šego. All rights reserved.
+//
 
 #include "kiss_fft.h"
 #include "kiss_fftr.h"

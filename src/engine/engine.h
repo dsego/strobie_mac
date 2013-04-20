@@ -1,14 +1,14 @@
-/*
-  Copyright (C) 2013 Davorin Šego
-*/
+//
+//  Copyright (c) 2013 Davorin Šego. All rights reserved.
+//
 
 #include <stdbool.h>
 #include "portaudio.h"
-#include "tuning.h"
-#include "config.h"
-#include "pitch_estimation.h"
-#include "audio_feed.h"
-#include "strobe.h"
+#include "Tuning.h"
+#include "Config.h"
+#include "PitchEstimation.h"
+#include "AudioFeed.h"
+#include "Strobe.h"
 
 #define MAX_STROBES 10
 

@@ -1,11 +1,11 @@
-/*
-  Copyright (C) 2013 Davorin Šego
-*/
+//
+//  Copyright (c) 2013 Davorin Šego. All rights reserved.
+//
 
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
-#include "biquad.h"
+#include "Biquad.h"
 
 Biquad* Biquad_create(int sectionCount)
 {

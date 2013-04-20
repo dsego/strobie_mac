@@ -1,10 +1,11 @@
-/*
-  Copyright (C) 2013 Davorin Šego
-*/
+//
+//  Copyright (c) 2013 Davorin Šego. All rights reserved.
+//
+
 #include "portaudio.h"
 #include "pa_ringbuffer.h"
-#include "biquad.h"
-#include "src.h"
+#include "Biquad.h"
+#include "SRC.h"
 
 
 // creates a strobe effect by re-sampling the signal to a multiple of the note's frequency

@@ -1,10 +1,10 @@
-/*
-  Copyright (C) 2013 Davorin Šego
-*/
+//
+//  Copyright (c) 2013 Davorin Šego. All rights reserved.
+//
 
 #include <stdlib.h>
 #include <assert.h>
-#include "strobe.h"
+#include "Strobe.h"
 
 
 Strobe* Strobe_create(int buffer_length, int resampled_buffer_length, int sample_rate, int samples_per_period)

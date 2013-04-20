@@ -1,6 +1,6 @@
-/*
-  Copyright (C) 2012 Davorin Šego
-*/
+//
+//  Copyright (c) 2013 Davorin Šego. All rights reserved.
+//
 
 
 typedef struct {

@@ -1,3 +1,7 @@
+//
+//  Copyright (c) 2013 Davorin Šego. All rights reserved.
+//
+
 double to_dbfs(double value)
 {
   return 20 * log10(value);

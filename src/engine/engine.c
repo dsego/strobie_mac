@@ -1,10 +1,10 @@
-/*
-  Copyright (C) 2013 Davorin Šego
-*/
+//
+//  Copyright (c) 2013 Davorin Šego. All rights reserved.
+//
 
 #include <stdlib.h>
 #include <math.h>
-#include "engine.h"
+#include "Engine.h"
 #include "utils.h"
 
 

@@ -1,3 +1,7 @@
+//
+//  Copyright (c) 2013 Davorin Šego. All rights reserved.
+//
+
 #include <unistd.h>
 #include <GL/glfw.h>
 #include <OpenGL/gl.h>

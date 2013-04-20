@@ -1,11 +1,11 @@
-/*
-  Copyright (C) 2012 Davorin Šego
-*/
+//
+//  Copyright (c) 2013 Davorin Šego. All rights reserved.
+//
 
 
 #include <math.h>
 #include <string.h>
-#include "tuning.h"
+#include "Tuning.h"
 
 
 double Tuning12TET_freq_to_cents(double freq, double pitch_standard)

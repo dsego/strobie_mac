@@ -1,10 +1,10 @@
-/*
-  Copyright (C) 2013 Davorin Šego
-*/
+//
+//  Copyright (c) 2013 Davorin Šego. All rights reserved.
+//
 
 #include <stdlib.h>
 #include <assert.h>
-#include "audio_feed.h"
+#include "AudioFeed.h"
 
 
 AudioFeed* AudioFeed_create()
