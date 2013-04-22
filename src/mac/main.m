@@ -3,28 +3,25 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <AppKit/NSMenuItem.h>
 #import "AppDelegate.h"
 
-NSMenu* initMainMenu(NSString* appName);
+void buildMainMenu();
 
 int main(int argc, char *argv[])
 {
   AppDelegate* delegate = [[AppDelegate alloc] init];
-  [[NSApplication sharedApplication] setDelegate:delegate];
-
-  NSString* appName = [[NSProcessInfo processInfo] processName];
-
-  // add a main men
-  [NSApp setMainMenu:initMainMenu(appName)];
-
+  id sharedApplication = [NSApplication sharedApplication];
+  [sharedApplication setDelegate:delegate];
+  buildMainMenu();
   [NSApp run];
   return 0;
 }
 
 
-NSMenu* initMainMenu(NSString* appName)
+void buildMainMenu()
 {
+  NSString* appName = [[NSProcessInfo processInfo] processName];
+
   id mainMenu = [[NSMenu alloc] init];
 
   // application
@@ -121,5 +118,6 @@ NSMenu* initMainMenu(NSString* appName)
                                         keyEquivalent:@""];
   [helpMenu addItem:docsMenuItem];
 
-  return mainMenu;
+  // add a main men
+  [NSApp setMainMenu:mainMenu];
 }
