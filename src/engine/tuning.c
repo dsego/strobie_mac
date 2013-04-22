@@ -38,8 +38,8 @@ Note Tuning12TET_cents_to_note(double cents, double pitch_standard, double cents
     case -11:
       note.letter     = 'A';
       note.alt_letter = 'B';
-      strcpy(note.sign, "♯");
-      strcpy(note.alt_sign, "♭");
+      strcpy(note.accidental, "♯");
+      strcpy(note.alt_accidental, "♭");
       break;
     case   2:
     case -10:
@@ -55,8 +55,8 @@ Note Tuning12TET_cents_to_note(double cents, double pitch_standard, double cents
     case -8:
       note.letter     = 'C';
       note.alt_letter = 'D';
-      strcpy(note.sign, "♯");
-      strcpy(note.alt_sign, "♭");
+      strcpy(note.accidental, "♯");
+      strcpy(note.alt_accidental, "♭");
       break;
     case  5:
     case -7:
@@ -67,8 +67,8 @@ Note Tuning12TET_cents_to_note(double cents, double pitch_standard, double cents
     case -6:
       note.letter     = 'D';
       note.alt_letter = 'E';
-      strcpy(note.sign, "♯");
-      strcpy(note.alt_sign, "♭");
+      strcpy(note.accidental, "♯");
+      strcpy(note.alt_accidental, "♭");
       break;
     case  7:
     case -5:
@@ -84,8 +84,8 @@ Note Tuning12TET_cents_to_note(double cents, double pitch_standard, double cents
     case -3:
       note.letter     = 'F';
       note.alt_letter = 'G';
-      strcpy(note.sign, "♯");
-      strcpy(note.alt_sign, "♭");
+      strcpy(note.accidental, "♯");
+      strcpy(note.alt_accidental, "♭");
       break;
     case 10:
     case -2:
@@ -96,8 +96,8 @@ Note Tuning12TET_cents_to_note(double cents, double pitch_standard, double cents
     case -1:
       note.letter     = 'G';
       note.alt_letter = 'A';
-      strcpy(note.sign, "♯");
-      strcpy(note.alt_sign, "♭");
+      strcpy(note.accidental, "♯");
+      strcpy(note.alt_accidental, "♭");
       break;
   }
 

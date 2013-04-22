@@ -5,9 +5,9 @@
 
 typedef struct {
   char letter;
-  char sign[4];
+  char accidental[4];
   char alt_letter;
-  char alt_sign[4];
+  char alt_accidental[4];
   int octave;
   double cents;
   double frequency;
