@@ -137,14 +137,18 @@ bool Engine_init_audio(Engine* engine)
 
 
 
+void Engine_set_strobe_freq(Engine* engine, double frequency)
+{
+  for (int i = 0; i < engine->strobe_count; ++i) {
+    Strobe_set_freq(engine->strobes[i], frequency * engine->config->partials[i]);
+  }
+}
 
 
-
-void Engine_read_strobes(Engine* engine, Note note)
+void Engine_read_strobes(Engine* engine)
 {
   for (int i = 0; i < engine->strobe_count; ++i) {
     Strobe_read(engine->strobes[i], engine->strobe_buffers[i], engine->strobe_buffer_lengths[i]);
-    Strobe_set_freq(engine->strobes[i], note.frequency * engine->config->partials[i]);
   }
 }
 

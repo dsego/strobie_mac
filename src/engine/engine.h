@@ -33,5 +33,6 @@ Engine* Engine_create();
 void Engine_destroy(Engine* engine);
 
 bool Engine_init_audio(Engine* engine);
-void Engine_read_strobes(Engine* engine, Note note);
+void Engine_read_strobes(Engine* engine);
+void Engine_set_strobe_freq(Engine* engine, double frequency);
 double Engine_estimate_pitch(Engine* engine);
