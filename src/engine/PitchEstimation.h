@@ -8,17 +8,17 @@
 
 // a pitch estimator based on autocorrelation
 typedef struct {
-  float* padded_data;
-  float* autocorr_data;
-  int sample_rate;
-  int fft_len;
+  float* paddedData;
+  float* autocorrData;
+  int samplerate;
+  int fftLength;
   kiss_fft_cpx* fft;
-  kiss_fftr_cfg fft_cfg;
-  kiss_fftr_cfg ifft_cfg;
+  kiss_fftr_cfg fftCfg;
+  kiss_fftr_cfg ifftCfg;
 } PitchEstimation;
 
 
-PitchEstimation* PitchEstimation_create(int sample_rate, int fft_length);
+PitchEstimation* PitchEstimation_create(int sample_rate, int fftLength);
 void PitchEstimation_destroy(PitchEstimation* pe);
 
-double PitchEstimation_pitch_from_autocorrelation(PitchEstimation* pe, float* data, int data_len);
+double PitchEstimation_pitchFromAutocorrelation(PitchEstimation* pe, float* data, int dataLength);

@@ -10,20 +10,20 @@
 #define CONFIG_MAX_NOTES    50
 
 typedef struct {
-  int sample_rate;
-  int fft_sample_rate;
-  int fft_length;
-  int buffer_length;
-  int resampled_buffer_length;
-  int periods_per_frame;
-  double audio_threshold;
-  double pitch_standard;
-  bool display_flats;
+  int samplerate;
+  int fftSamplerate;
+  int fftLength;
+  int bufferLength;
+  int resampledBufferLength;
+  int periodsPerFrame;
+  double audioThreshold;
+  double pitchStandard;
+  bool displayFlats;
   int transpose;
-  double cents_offset;
+  double centsOffset;
   int partials[CONFIG_MAX_PARTIALS];
-  int samples_per_period[CONFIG_MAX_PARTIALS];
-  double instrument_notes[CONFIG_MAX_NOTES];
+  int samplesPerPeriod[CONFIG_MAX_PARTIALS];
+  double instrumentNotes[CONFIG_MAX_NOTES];
 } Config;
 
 

@@ -27,9 +27,9 @@ double clamp(double val, double lower, double upper)
   return min(max(val, lower), upper);
 }
 
-double find_peak(float* buffer, int buffer_len) {
+double findPeak(float* buffer, int bufferLength) {
   double peak = 0;
-  for (int i = 0; i < buffer_len; ++i) {
+  for (int i = 0; i < bufferLength; ++i) {
     if (buffer[i] < -peak)
       peak = -buffer[i];
     else if (buffer[i] > peak)

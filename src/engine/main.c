@@ -11,7 +11,7 @@
 int main(int argc, char *argv[])
 {
   Engine* engine = Engine_create();
-  Engine_init_audio(engine);
+  Engine_initAudio(engine);
   Note note;
   note.frequency = 440;
 
@@ -23,11 +23,11 @@ int main(int argc, char *argv[])
   if (!glfwOpenWindow(500, 500, 8, 8, 8, 0, 24, 0, GLFW_WINDOW))
     return -1;
 
-  double dx = 2.0 / engine->config->fft_length;
+  double dx = 2.0 / engine->config->fftLength;
   double x  = -1;
 
   while (glfwGetWindowParam(GLFW_OPENED)) {
-    AudioFeed_read(engine->audio_feed, engine->audio_buffer, engine->config->fft_length);
+    AudioFeed_read(engine->audioFeed, engine->audioBuffer, engine->config->fftLength);
 
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     glBegin(GL_POINTS);
 
     x = -1;
-    for (int i = 0; i < engine->config->fft_length; ++i) {
+    for (int i = 0; i < engine->config->fftLength; ++i) {
       // glVertex2d(x, -engine->audio_buffer[i]);
       // glVertex2d(x, -engine->pitch_estimation->autocorr_data[i] * 10.0);
       x += dx;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     glfwSwapBuffers();
     // glFlush();
     // Engine_read_strobes(engine, note);
-    pitch = Engine_estimate_pitch(engine);
+    pitch = Engine_estimatePitch(engine);
     printf("%.2f\n", pitch);
     usleep(20000);
   }

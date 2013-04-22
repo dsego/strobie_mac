@@ -14,25 +14,24 @@
 
 typedef struct {
   Config* config;
-  AudioFeed* audio_feed;
-  PitchEstimation* pitch_estimation;
+  AudioFeed* audioFeed;
+  PitchEstimation* pitchEstimation;
   Strobe* strobes[MAX_STROBES];
-  int strobe_count;
-  float* strobe_buffers[MAX_STROBES];
-  int strobe_buffer_lengths[MAX_STROBES];
-  float* audio_buffer;
-  float* conversion_buffer;
+  int strobeCount;
+  float* strobeBuffers[MAX_STROBES];
+  int strobeBufferLengths[MAX_STROBES];
+  float* audioBuffer;
   PaStream* stream;
   double threshold;
   PaUtilRingBuffer* ringbuffer;
-  float* ringbuffer_data;
+  float* ringbufferData;
 } Engine;
 
 
 Engine* Engine_create();
 void Engine_destroy(Engine* engine);
 
-bool Engine_init_audio(Engine* engine);
-void Engine_read_strobes(Engine* engine);
-void Engine_set_strobe_freq(Engine* engine, double frequency);
-double Engine_estimate_pitch(Engine* engine);
+bool Engine_initAudio(Engine* engine);
+void Engine_readStrobes(Engine* engine);
+void Engine_setStrobeFreq(Engine* engine, double frequency);
+double Engine_estimatePitch(Engine* engine);

@@ -10,18 +10,11 @@
 #include "SRC.h"
 
 
-
-void SRC_set_ratio(SRC* src, double out_rate, double in_rate)
-{
-  src->ratio    = out_rate / in_rate;
-  src->interval = 1.0 / src->ratio;
-}
-
-SRC* SRC_create(double out_rate, double in_rate)
+SRC* SRC_create(double outRate, double inRate)
 {
   SRC* src = malloc(sizeof(SRC));
   assert(src != NULL);
-  SRC_set_ratio(src, out_rate, in_rate);
+  SRC_setRatio(src, outRate, inRate);
   return src;
 }
 
@@ -29,6 +22,12 @@ void SRC_destroy(SRC* src)
 {
   free(src);
   src = NULL;
+}
+
+void SRC_setRatio(SRC* src, double outRate, double inRate)
+{
+  src->ratio    = outRate / inRate;
+  src->interval = 1.0 / src->ratio;
 }
 
 void SRC_reset(SRC* src)
@@ -39,13 +38,13 @@ void SRC_reset(SRC* src)
   src->time = 0;
 }
 
-void SRC_reset_indices(SRC* src)
+void SRC_resetIndices(SRC* src)
 {
   src->in_i  = (int) floor(src->time);
   src->out_i = 0;
 }
 
-void SRC_increment_time(SRC* src)
+void SRC_incrementTime(SRC* src)
 {
   src->time  += src->interval;
   src->out_i += 1;
@@ -102,27 +101,27 @@ double SRC_cubic(double y0, double y1, double y2, double y3, double t)
 }
 
 
-int SRC_linear_convert(SRC* src, float* in, int in_len, float* out, int out_len) {
+int SRC_linearConvert(SRC* src, float* in, int inLength, float* out, int outLength) {
   // Sanity check
-  if ((int) (src->ratio * in_len) > out_len) {
-    printf("Output buffer is too small (need %i, buffer size %i).\n", (int) (src->ratio * in_len), out_len);
+  if ((int) (src->ratio * inLength) > outLength) {
+    printf("Output buffer is too small (need %i, buffer size %i).\n", (int) (src->ratio * inLength), outLength);
     return 0;
   }
 
-  SRC_reset_indices(src);
+  SRC_resetIndices(src);
 
   // interval  before the first sample, from -1 to 0
-  while (src->time < 0 && in_len >= 1) {
+  while (src->time < 0 && inLength >= 1) {
     out[src->out_i] = SRC_linear(src->rems[0], in[0], src->time + 1);
-    SRC_increment_time(src);
+    SRC_incrementTime(src);
   }
 
-  int last = in_len - 1;
+  int last = inLength - 1;
 
   // For every two (relevant) input samples calculate the output
   while (src->in_i < last) {
     out[src->out_i] = SRC_linear(in[src->in_i], in[src->in_i + 1], src->t);
-    SRC_increment_time(src);
+    SRC_incrementTime(src);
   }
 
   // Save the last sample
@@ -136,39 +135,39 @@ int SRC_linear_convert(SRC* src, float* in, int in_len, float* out, int out_len)
 
 }
 
-int SRC_cubic_convert(SRC* src, float* in, int in_len, float* out, int out_len) {
+int SRC_cubicConvert(SRC* src, float* in, int inLength, float* out, int outLength) {
 
   // Sanity check
-  if ((int) (src->ratio * in_len) > out_len) {
-    printf("Output buffer is too small (need %i, buffer size %i).\n", (int) (src->ratio * in_len), out_len);
+  if ((int) (src->ratio * inLength) > outLength) {
+    printf("Output buffer is too small (need %i, buffer size %i).\n", (int) (src->ratio * inLength), outLength);
     return 0;
   }
 
-  SRC_reset_indices(src);
+  SRC_resetIndices(src);
 
   //  from -2 to -1
-  while (src->time < -1 && in_len >= 1) {
+  while (src->time < -1 && inLength >= 1) {
     out[src->out_i] = SRC_cubic(src->rems[0], src->rems[1], src->rems[2], in[0], src->time + 2);
-    SRC_increment_time(src);
+    SRC_incrementTime(src);
   }
 
   // interval before the first sample, from -1 to 0
-  while (src->time < 0 && in_len >= 2) {
+  while (src->time < 0 && inLength >= 2) {
     out[src->out_i] = SRC_cubic(src->rems[1], src->rems[2],  in[0], in[1], src->time + 1);
-    SRC_increment_time(src);
+    SRC_incrementTime(src);
   }
 
   // interval from 0 to 1
-  while (src->time < 1 && in_len >= 3) {
+  while (src->time < 1 && inLength >= 3) {
     out[src->out_i] = SRC_cubic(src->rems[2], in[0], in[1], in[2], src->time);
-    SRC_increment_time(src);
+    SRC_incrementTime(src);
   }
 
-  int last = in_len - 2;
+  int last = inLength - 2;
 
   while (src->in_i < last) {
     out[src->out_i] = SRC_cubic(in[src->in_i - 1], in[src->in_i], in[src->in_i + 1], in[src->in_i + 2], src->t);
-    SRC_increment_time(src);
+    SRC_incrementTime(src);
   }
 
   // save the last 3 samples for next call

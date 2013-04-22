@@ -13,35 +13,35 @@ Config* Config_create()
   assert(cfg != NULL);
 
   // general
-  cfg->sample_rate                = 44100;
-  cfg->buffer_length              = 512;
-  cfg->resampled_buffer_length    = 512 * 25;
+  cfg->samplerate             = 44100;
+  cfg->bufferLength           = 512;
+  cfg->resampledBufferLength    = 512 * 25;
 
   // pitch recognition
-  cfg->fft_sample_rate      = 44100;
-  cfg->fft_length           = 4096;
-  cfg->audio_threshold      = -60;
-  cfg->pitch_standard       = 440;
-  cfg->display_flats        = false;
-  cfg->transpose            = 0;
-  cfg->cents_offset         = 0;
+  cfg->fftSamplerate       = 44100;
+  cfg->fftLength           = 4096;
+  cfg->audioThreshold      = -60;
+  cfg->pitchStandard       = 440;
+  cfg->displayFlats        = false;
+  cfg->transpose           = 0;
+  cfg->centsOffset         = 0;
 
   // strobe bands
-  cfg->periods_per_frame     = 1;
-  cfg->partials[0]           = 1;
-  cfg->partials[1]           = 2;
-  cfg->partials[2]           = 4;
-  cfg->samples_per_period[0] = 64;
-  cfg->samples_per_period[1] = 128;
-  cfg->samples_per_period[2] = 256;
+  cfg->periodsPerFrame     = 1;
+  cfg->partials[0]         = 1;
+  cfg->partials[1]         = 2;
+  cfg->partials[2]         = 4;
+  cfg->samplesPerPeriod[0] = 64;
+  cfg->samplesPerPeriod[1] = 128;
+  cfg->samplesPerPeriod[2] = 256;
 
   // standard guitar tuning (in cents)
-  cfg->instrument_notes[0] = -2900;
-  cfg->instrument_notes[1] = -2400;
-  cfg->instrument_notes[2] = -1900;
-  cfg->instrument_notes[3] = -1400;
-  cfg->instrument_notes[4] = -1000;
-  cfg->instrument_notes[5] = -500;
+  cfg->instrumentNotes[0] = -2900;
+  cfg->instrumentNotes[1] = -2400;
+  cfg->instrumentNotes[2] = -1900;
+  cfg->instrumentNotes[3] = -1400;
+  cfg->instrumentNotes[4] = -1000;
+  cfg->instrumentNotes[5] = -500;
 
   return cfg;
 }

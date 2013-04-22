@@ -17,20 +17,20 @@ typedef struct {
 } SRC;
 
 
-SRC* SRC_create(double out_rate, double in_rate);
+SRC* SRC_create(double outRate, double inRate);
 void SRC_destroy(SRC* src);
 
-void SRC_set_ratio(SRC* src, double out_rate, double in_rate);
+void SRC_setRatio(SRC* src, double outRate, double inRate);
 void SRC_reset(SRC* src);
 
 
 
 // Convert a chunk of data - linear interpolation.
 // Returns the number of generated samples.
-int SRC_linear_convert(SRC* src, float* in, int in_len, float* out, int out_len);
+int SRC_linearConvert(SRC* src, float* in, int inLength, float* out, int outLength);
 
 
 // Convert a chunk of data - cubic interpolation.
 // Returns the number of generated samples.
 
-int SRC_cubic_convert(SRC* src, float* in, int in_len, float* out, int out_len);
+int SRC_cubicConvert(SRC* src, float* in, int inLength, float* out, int outLength);

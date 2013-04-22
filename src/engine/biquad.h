@@ -45,4 +45,4 @@ void Biquad_bandpass(Biquad* bq, double cutoff, double samplerate, double Q);
 void Biquad_reset(Biquad* bq);
 
 // filter audio
-void Biquad_filter(Biquad* bq, float* input, int input_len, float* output, int output_len);
+void Biquad_filter(Biquad* bq, float* input, int inputLength, float* output, int outputLength);

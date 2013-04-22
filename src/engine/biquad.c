@@ -62,14 +62,14 @@ void Biquad_reset(Biquad* bq)
   }
 }
 
-void Biquad_filter(Biquad* bq, float* input, int input_len, float* output, int output_len)
+void Biquad_filter(Biquad* bq, float* input, int inputLength, float* output, int outputLength)
 {
   double y = 0.0;
   double x = 0.0;
 
-  assert(input_len == output_len);
+  assert(inputLength == outputLength);
 
-  for (int i = 0; i < input_len; ++i) {
+  for (int i = 0; i < inputLength; ++i) {
     x = (double) input[i];
 
     // Cascade
