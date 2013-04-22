@@ -95,7 +95,7 @@ int Engine_stream_callback(const void* input, void* output, unsigned long nframe
   int length = (int) nframes;
 
   // process in batches because nframes can be bigger than config->buffer_length
-  while (nframes > engine->config->buffer_length) {
+  while (length > engine->config->buffer_length) {
     Engine_process_signal(engine, &finput[index], engine->config->buffer_length);
     length -= engine->config->buffer_length;
     index  += engine->config->buffer_length;
