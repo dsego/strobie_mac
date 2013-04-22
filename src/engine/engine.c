@@ -16,15 +16,6 @@ Engine* Engine_create()
   Config* config = engine->config = Config_create();
   engine->audio_feed = AudioFeed_create();
 
-  // frame rates
-  double estimation_framerate = clamp(config->estimation_framerate, 1, 100);
-  double strobe_framerate     = clamp(config->strobe_framerate, 1, 100);
-
-  // sleep in microseconds
-  engine->estimation_delay = 1000000 / estimation_framerate;
-  engine->strobe_delay     = 1000000 / strobe_framerate;
-
-
   // initialize strobes
   int i = 0;
   while (i < CONFIG_MAX_PARTIALS && i < MAX_STROBES && config->partials[i] > 0 && config->samples_per_period[i] > 0) {

@@ -23,8 +23,6 @@ typedef struct {
   float* audio_buffer;
   float* conversion_buffer;
   PaStream* stream;
-  double estimation_delay;
-  double strobe_delay;
   double threshold;
   PaUtilRingBuffer* ringbuffer;
   float* ringbuffer_data;

@@ -18,7 +18,6 @@ Config* Config_create()
   cfg->resampled_buffer_length    = 512 * 25;
 
   // pitch recognition
-  cfg->estimation_framerate = 20;
   cfg->fft_sample_rate      = 44100;
   cfg->fft_length           = 4096;
   cfg->audio_threshold      = -60;
@@ -26,10 +25,6 @@ Config* Config_create()
   cfg->display_flats        = false;
   cfg->transpose            = 0;
   cfg->cents_offset         = 0;
-
-  // strobe display
-  cfg->strobe_framerate  = 60;
-  cfg->strobe_gain       = 1000;
 
   // strobe bands
   cfg->periods_per_frame     = 1;

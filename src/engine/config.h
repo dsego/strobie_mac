@@ -16,10 +16,7 @@ typedef struct {
   int buffer_length;
   int resampled_buffer_length;
   int periods_per_frame;
-  int estimation_framerate;
-  int strobe_framerate;
   double audio_threshold;
-  double strobe_gain;
   double pitch_standard;
   bool display_flats;
   int transpose;
