@@ -66,7 +66,6 @@ Engine* Engine_create()
 
 void Engine_destroy(Engine* engine)
 {
-  Pa_Terminate();
   Config_destroy(engine->config);
   AudioFeed_destroy(engine->audioFeed);
   PitchEstimation_destroy(engine->pitchEstimation);
@@ -116,30 +115,53 @@ int Engine_streamCallback(const void* input, void* output, unsigned long nframes
 }
 
 
+void printPaError(PaError error)
+{
+  printf("PortAudio error: %s\n", Pa_GetErrorText(error));
+}
 
-bool Engine_initAudio(Engine* engine)
+
+bool Engine_startAudio(Engine* engine)
 {
   PaError err;
 
   // start PortAudio and open the input stream
+  // (if Pa_Initialize() returns an error code, Pa_Terminate() should NOT be called)
   err = Pa_Initialize();
-  if (err != paNoError)
+  if (err != paNoError) {
+    printPaError(err);
     return false;
+  }
 
   err = Pa_OpenDefaultStream(&engine->stream, 1, 0, paFloat32,
                              engine->config->samplerate,
                              paFramesPerBufferUnspecified,
                              &Engine_streamCallback, engine);
-  if (err != paNoError)
+  if (err != paNoError) {
+    printPaError(err);
+    Pa_Terminate();
     return false;
+  }
 
   err = Pa_StartStream(engine->stream);
-  if (err != paNoError)
+  if (err != paNoError) {
+    printPaError(err);
+    Pa_Terminate();
     return false;
+  }
 
   return true;
 }
 
+// From PortAudio docs:
+//    Pa_Terminate() MUST be called before exiting a program which uses PortAudio.
+//    Failure to do so may result in serious resource leaks, such as audio devices not being available until the next reboot.
+void Engine_stopAudio(Engine* engine)
+{
+  Pa_StopStream(engine->stream);
+  //  Pa_Terminate() will automatically close any PortAudio streams that are still open.
+  Pa_Terminate();
+}
 
 
 

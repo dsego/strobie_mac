@@ -31,7 +31,9 @@ typedef struct {
 Engine* Engine_create();
 void Engine_destroy(Engine* engine);
 
-bool Engine_initAudio(Engine* engine);
+bool Engine_startAudio(Engine* engine);
+void Engine_stopAudio(Engine* engine);
+
 void Engine_readStrobes(Engine* engine);
 void Engine_setStrobeFreq(Engine* engine, double frequency);
 double Engine_estimatePitch(Engine* engine);
