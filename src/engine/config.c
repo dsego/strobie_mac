@@ -15,7 +15,7 @@ Config* Config_create()
   // general
   cfg->samplerate             = 44100;
   cfg->bufferLength           = 512;
-  cfg->resampledBufferLength    = 512 * 25;
+  cfg->resampledBufferLength  = 512 * 25;
 
   // pitch recognition
   cfg->fftSamplerate       = 44100;
@@ -28,6 +28,7 @@ Config* Config_create()
 
   // strobe bands
   cfg->periodsPerFrame     = 1;
+  cfg->partialsLength      = 3;
   cfg->partials[0]         = 1;
   cfg->partials[1]         = 2;
   cfg->partials[2]         = 4;

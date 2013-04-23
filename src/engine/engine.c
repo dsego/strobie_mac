@@ -8,23 +8,6 @@
 #include "utils.h"
 
 
-bool validStrobeIndex(int index)
-{
-  return (index < CONFIG_MAX_PARTIALS && index < MAX_STROBES);
-}
-
-bool validPartial(int partial)
-{
-  return (partial > 0);
-}
-
-bool validSamplesPerPeriod(int samplesPerPeriod)
-{
-  return (samplesPerPeriod > 0);
-}
-
-
-
 
 
 
@@ -36,9 +19,12 @@ Engine* Engine_create()
   Config* config = engine->config = Config_create();
   engine->audioFeed = AudioFeed_create();
 
+  engine->strobeCount = (config->partialsLength < MAX_STROBES) ?
+                         config->partialsLength :
+                         MAX_STROBES;
+
   // initialize strobes
-  int i = 0;
-  while (validStrobeIndex(i) && validPartial(config->partials[i]) && validSamplesPerPeriod(config->samplesPerPeriod[i])) {
+  for (int i = 0; i < engine->strobeCount; ++i) {
     engine->strobes[i] = Strobe_create(config->bufferLength,
                                        config->resampledBufferLength,
                                        config->samplerate,
@@ -46,19 +32,21 @@ Engine* Engine_create()
     engine->strobeBufferLengths[i] = config->samplesPerPeriod[i] * config->periodsPerFrame * config->partials[i];
     engine->strobeBuffers[i] = calloc(engine->strobeBufferLengths[i], sizeof(float));
     assert(engine->strobeBuffers[i] != NULL);
-    i = i + 1;
-    engine->strobeCount += 1;
   }
 
   // initialize pitch recognition
   engine->pitchEstimation = PitchEstimation_create(config->fftSamplerate, config->fftLength);
   engine->threshold       = from_dbfs(engine->config->audioThreshold);
+
   engine->audioBuffer     = calloc(engine->config->fftLength, sizeof(float));
                             assert(engine->audioBuffer != NULL);
+
   engine->ringbufferData  = malloc(32768 * sizeof(float));
                             assert(engine->ringbufferData != NULL);
+
   engine->ringbuffer      = malloc(sizeof(PaUtilRingBuffer));
                             assert(engine->ringbuffer != NULL);
+
   PaUtil_InitializeRingBuffer(engine->ringbuffer, sizeof(float), 32768, engine->ringbufferData);
 
   return engine;
@@ -75,6 +63,7 @@ void Engine_destroy(Engine* engine)
   }
   free(engine->audioBuffer);
   free(engine);
+  engine = NULL;
 }
 
 
@@ -93,6 +82,10 @@ int Engine_streamCallback(const void* input, void* output, unsigned long nframes
                           const PaStreamCallbackTimeInfo* timeInfo,
                           PaStreamCallbackFlags statusFlags, void *userData)
 {
+  return 0;
+  // nothing to process
+  if (statusFlags == paInputUnderflow) return 0;
+
   float* finput  = (float*) input;
   Engine* engine = (Engine*) userData;
 

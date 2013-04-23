@@ -12,17 +12,23 @@
 typedef struct {
   int samplerate;
   int fftSamplerate;
+
   int fftLength;
   int bufferLength;
   int resampledBufferLength;
+
   int periodsPerFrame;
   double audioThreshold;
   double pitchStandard;
   bool displayFlats;
   int transpose;
   double centsOffset;
+
+  // the same number of elements in partials and samplesPerPeriod arrays
+  int partialsLength;
   int partials[CONFIG_MAX_PARTIALS];
   int samplesPerPeriod[CONFIG_MAX_PARTIALS];
+
   double instrumentNotes[CONFIG_MAX_NOTES];
 } Config;
 
