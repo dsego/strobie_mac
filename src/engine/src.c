@@ -95,9 +95,9 @@ double SRC_cubic(double y0, double y1, double y2, double y3, double t)
            t   * ((y2 - y0) / 2) +
            y1
   */
-  return y1 + ( ( ( (-y2 * 3/2) + (y1 * 3/2) - (y0 / 2) + (y3 / 2) ) * t
-                + ((2 * y2)  - (y3 / 2) + y0 - (y1 * 5/2)) ) * t
-                + ((y2 - y0) / 2) ) * t;
+  return y1 + ((((-y2 * 3/2) + (y1 * 3/2) - (y0 / 2) + (y3 / 2)) * t
+            + ((2 * y2)  - (y3 / 2) + y0 - (y1 * 5/2))) * t
+            + ((y2 - y0) / 2) ) * t;
 }
 
 

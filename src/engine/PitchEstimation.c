@@ -10,14 +10,23 @@
 
 PitchEstimation* PitchEstimation_create(int samplerate, int fftLength)
 {
-  PitchEstimation* pe = malloc(sizeof(PitchEstimation)); assert(pe != NULL);
+  PitchEstimation* pe = malloc(sizeof(PitchEstimation));
+                        assert(pe != NULL);
+
   pe->samplerate      = samplerate;
   pe->fftLength       = fftLength;
+
   pe->fftCfg          = kiss_fftr_alloc(fftLength, 0, NULL, NULL);
   pe->ifftCfg         = kiss_fftr_alloc(fftLength, 1, NULL, NULL);
-  pe->fft             = malloc(sizeof(kiss_fft_cpx) * fftLength / 2 + 1); assert(pe->fft != NULL);
-  pe->paddedData      = calloc(sizeof(float),  fftLength * 2); assert(pe->paddedData != NULL);
-  pe->autocorrData    = malloc(sizeof(float) * fftLength); assert(pe->autocorrData != NULL);
+
+  pe->fft             = malloc(sizeof(kiss_fft_cpx) * fftLength / 2 + 1);
+                        assert(pe->fft != NULL);
+
+  pe->paddedData      = calloc(sizeof(float),  fftLength * 2);
+                        assert(pe->paddedData != NULL);
+
+  pe->autocorrData    = malloc(sizeof(float) * fftLength);
+                        assert(pe->autocorrData != NULL);
   return pe;
 }
 

@@ -19,15 +19,20 @@ Strobe* Strobe_create(int bufferLength, int resampledBufferLength, int samplerat
 
   str->bandpass         = Biquad_create(3);
   str->src              = SRC_create(1, 1);
-  str->filteredBuffer   = malloc(bufferLength * sizeof(double)); assert(str->filteredBuffer != NULL);
-  str->resampledBuffer  = malloc(resampledBufferLength * sizeof(double));
+
+  str->filteredBuffer   = malloc(bufferLength * sizeof(float));
+                          assert(str->filteredBuffer != NULL);
+
+  str->resampledBuffer  = malloc(resampledBufferLength * sizeof(float));
                           assert(str->resampledBuffer != NULL);
-  str->ringbufferData   = malloc(65536 * sizeof(double));
+
+  str->ringbufferData   = malloc(65536 * sizeof(float));
                           assert(str->ringbufferData != NULL);
+
   str->ringbuffer       = malloc(sizeof(PaUtilRingBuffer));
                           assert(str->ringbuffer != NULL);
-  PaUtil_InitializeRingBuffer(str->ringbuffer, sizeof(double), 65536, str->ringbufferData);
 
+  PaUtil_InitializeRingBuffer(str->ringbuffer, sizeof(float), 65536, str->ringbufferData);
   return str;
 }
 
@@ -45,14 +50,16 @@ void Strobe_destroy(Strobe* str)
 
 void Strobe_read(Strobe* str, float* output, int output_length)
 {
-  while (PaUtil_GetRingBufferReadAvailable(str->ringbuffer) >=  output_length)
+  while (PaUtil_GetRingBufferReadAvailable(str->ringbuffer) >=  output_length) {
     PaUtil_ReadRingBuffer(str->ringbuffer, output, output_length);
+  }
 }
 
 void Strobe_setFreq(Strobe* str, double freq)
 {
-  if (freq == str->freq)
+  if (freq == str->freq) {
     return;
+  }
 
   str->freq = freq;
   SRC_setRatio(str->src, freq * str->samplesPerPeriod, str->samplerate);
@@ -61,9 +68,15 @@ void Strobe_setFreq(Strobe* str, double freq)
   Biquad_bandpass(str->bandpass, freq, str->samplerate, 10);
 }
 
-void Strobe_process(Strobe* str, float* input, int input_length)
+void Strobe_process(Strobe* str, float* input, int inputLength)
 {
-  Biquad_filter(str->bandpass, input, input_length, str->filteredBuffer, input_length);
-  int count = SRC_cubicConvert(str->src, str->filteredBuffer, input_length, str->resampledBuffer, str->resampledBufferLength);
-  PaUtil_WriteRingBuffer(str->ringbuffer, str->resampledBuffer, count);
+  Biquad_filter(str->bandpass, input, inputLength, str->filteredBuffer, str->bufferLength);
+  int count = SRC_cubicConvert(str->src,
+                               str->filteredBuffer,
+                               str->bufferLength,
+                               str->resampledBuffer,
+                               str->resampledBufferLength);
+  if (count > 0) {
+    PaUtil_WriteRingBuffer(str->ringbuffer, str->resampledBuffer, count);
+  }
 }
