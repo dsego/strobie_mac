@@ -38,23 +38,29 @@ void PitchEstimation_normalizeAndCenterClip(float* data, int dataLength)
 
   // find absolute max
   for (int i = 0; i < dataLength; ++i) {
-    if (data[i] > max)
+    if (data[i] > max) {
       max = data[i];
-    else if (data[i] < -max)
+    }
+    else if (data[i] < -max) {
       max = -data[i];
+    }
   }
+
+  // normalization coefficient
   double k = 1.0 / max;
 
+  // normalize & center clip
   for (int i = 0; i < dataLength; ++i) {
     data[i] *= k;
-    if (-0.5 < data[i] && data[i] < 0.5)
+    if (-0.5 < data[i] && data[i] < 0.5) {
       data[i] = 0;
+    }
   }
 }
 
 // Quadratic Interpolation of Spectral Peaks
 //   https://ccrma.stanford.edu/~jos/sasp/Quadratic_Interpolation_Spectral_Peaks.html */
-double PitchEstimation_parabolic(double y0, double y1, double y2)
+double PitchEstimation_parabolaPeakLocation(double y0, double y1, double y2)
 {
   return 0.5 * (y0 - y2) / (y0 - 2.0 * y1 + y2);
 }
@@ -108,10 +114,11 @@ double PitchEstimation_pitchFromAutocorrelation(PitchEstimation* pe, float* data
 
   double pitch = 0;
 
-  // interpolate
-  if (x != 0) {
-    pitch = x + PitchEstimation_parabolic(pe->autocorrData[x - 1], pe->autocorrData[x], pe->autocorrData[x + 1]);
-    pitch = (double) pe->samplerate / pitch;
+  // estimate true peak via parabolic interpolation
+  double peakLocation = x + PitchEstimation_parabolaPeakLocation(pe->autocorrData[x - 1], pe->autocorrData[x], pe->autocorrData[x + 1]);
+
+  if (peakLocation != 0) {
+    pitch = (double) pe->samplerate / peakLocation;
   }
 
   return pitch;

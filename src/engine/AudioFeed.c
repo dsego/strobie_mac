@@ -32,8 +32,9 @@ void AudioFeed_destroy(AudioFeed* af)
 
 void AudioFeed_read(AudioFeed* af, float* output, int outputLength)
 {
-  while (PaUtil_GetRingBufferReadAvailable(af->ringbuffer) >= outputLength)
+  while (PaUtil_GetRingBufferReadAvailable(af->ringbuffer) >= outputLength) {
     PaUtil_ReadRingBuffer(af->ringbuffer, output, outputLength);
+  }
 }
 
 void AudioFeed_process(AudioFeed* af, float* input, int inputLength)

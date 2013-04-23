@@ -8,12 +8,12 @@
 //  (supports streaming data and arbitrary conversion factors)
 typedef struct {
   double ratio;         // output sample rate / input sample rate
-  double interval;      // time distance between generated samples
+  double interval;      // time distance between generated (output) samples
   double rems[3];       // remaining samples
-  double t;             // position of the output sample between two input samples
-  int in_i;             // input index
-  int out_i;            // output index
-  double time;          // output time
+  double outPos;        // position of the output sample between two input samples
+  int inIndex;          // input index
+  int outIndex;         // output index
+  double outTime;       // output time (incremented by interval = 1 / ratio )
 } SRC;
 
 

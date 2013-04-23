@@ -8,6 +8,26 @@
 #include "utils.h"
 
 
+bool validStrobeIndex(int index)
+{
+  return (index < CONFIG_MAX_PARTIALS && index < MAX_STROBES);
+}
+
+bool validPartial(int partial)
+{
+  return (partial > 0);
+}
+
+bool validSamplesPerPeriod(int samplesPerPeriod)
+{
+  return (samplesPerPeriod > 0);
+}
+
+
+
+
+
+
 Engine* Engine_create()
 {
   Engine* engine = malloc(sizeof(Engine));
@@ -18,7 +38,7 @@ Engine* Engine_create()
 
   // initialize strobes
   int i = 0;
-  while (i < CONFIG_MAX_PARTIALS && i < MAX_STROBES && config->partials[i] > 0 && config->samplesPerPeriod[i] > 0) {
+  while (validStrobeIndex(i) && validPartial(config->partials[i]) && validSamplesPerPeriod(config->samplesPerPeriod[i])) {
     engine->strobes[i] = Strobe_create(config->bufferLength,
                                        config->resampledBufferLength,
                                        config->samplerate,
@@ -27,9 +47,8 @@ Engine* Engine_create()
     engine->strobeBuffers[i] = calloc(engine->strobeBufferLengths[i], sizeof(float));
     assert(engine->strobeBuffers[i] != NULL);
     i = i + 1;
+    engine->strobeCount += 1;
   }
-  engine->strobeCount = i - 1;
-
 
   // initialize pitch recognition
   engine->pitchEstimation = PitchEstimation_create(config->fftSamplerate, config->fftLength);
@@ -62,10 +81,6 @@ void Engine_destroy(Engine* engine)
 
 
 
-
-
-
-
 void Engine_processSignal(Engine* engine, float* input, int inputLength) {
   AudioFeed_process(engine->audioFeed, input, inputLength);
   for (int i = 0; i < engine->strobeCount; ++i) {
@@ -76,8 +91,8 @@ void Engine_processSignal(Engine* engine, float* input, int inputLength) {
 
 // fetch audio data from the sound card and process
 int Engine_streamCallback(const void* input, void* output, unsigned long nframes,
-                           const PaStreamCallbackTimeInfo* timeInfo,
-                           PaStreamCallbackFlags statusFlags, void *userData)
+                          const PaStreamCallbackTimeInfo* timeInfo,
+                          PaStreamCallbackFlags statusFlags, void *userData)
 {
   float* finput  = (float*) input;
   Engine* engine = (Engine*) userData;

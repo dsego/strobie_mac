@@ -30,10 +30,12 @@ double clamp(double val, double lower, double upper)
 double findPeak(float* buffer, int bufferLength) {
   double peak = 0;
   for (int i = 0; i < bufferLength; ++i) {
-    if (buffer[i] < -peak)
+    if (buffer[i] < -peak) {
       peak = -buffer[i];
-    else if (buffer[i] > peak)
+    }
+    else if (buffer[i] > peak) {
       peak = buffer[i];
+    }
   }
   return peak;
 }

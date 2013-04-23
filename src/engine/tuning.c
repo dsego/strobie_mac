@@ -32,70 +32,70 @@ Note Tuning12TET_centsToNote(double cents, double pitchStandard, double centsOff
   switch (transposed % 12) {
     case 0:
       note.letter     = 'A';
-      note.altLetter = 'A';
+      note.altLetter  = 'A';
       break;
     case   1:
     case -11:
       note.letter     = 'A';
-      note.altLetter = 'B';
+      note.altLetter  = 'B';
       strcpy(note.accidental, "♯");
       strcpy(note.altAccidental, "♭");
       break;
     case   2:
     case -10:
       note.letter     = 'B';
-      note.altLetter = 'B';
+      note.altLetter  = 'B';
       break;
     case  3:
     case -9:
       note.letter     = 'C';
-      note.altLetter = 'C';
+      note.altLetter  = 'C';
       break;
     case  4:
     case -8:
       note.letter     = 'C';
-      note.altLetter = 'D';
+      note.altLetter  = 'D';
       strcpy(note.accidental, "♯");
       strcpy(note.altAccidental, "♭");
       break;
     case  5:
     case -7:
       note.letter     = 'D';
-      note.altLetter = 'D';
+      note.altLetter  = 'D';
       break;
     case  6:
     case -6:
       note.letter     = 'D';
-      note.altLetter = 'E';
+      note.altLetter  = 'E';
       strcpy(note.accidental, "♯");
       strcpy(note.altAccidental, "♭");
       break;
     case  7:
     case -5:
       note.letter     = 'E';
-      note.altLetter = 'E';
+      note.altLetter  = 'E';
       break;
     case  8:
     case -4:
       note.letter     = 'F';
-      note.altLetter = 'F';
+      note.altLetter  = 'F';
       break;
     case  9:
     case -3:
       note.letter     = 'F';
-      note.altLetter = 'G';
+      note.altLetter  = 'G';
       strcpy(note.accidental, "♯");
       strcpy(note.altAccidental, "♭");
       break;
     case 10:
     case -2:
       note.letter     = 'G';
-      note.altLetter = 'G';
+      note.altLetter  = 'G';
       break;
     case 11:
     case -1:
       note.letter     = 'G';
-      note.altLetter = 'A';
+      note.altLetter  = 'A';
       strcpy(note.accidental, "♯");
       strcpy(note.altAccidental, "♭");
       break;

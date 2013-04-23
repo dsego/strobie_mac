@@ -35,21 +35,21 @@ void SRC_reset(SRC* src)
   src->rems[0] = 0.0;
   src->rems[1] = 0.0;
   src->rems[2] = 0.0;
-  src->time = 0;
+  src->outTime = 0;
 }
 
 void SRC_resetIndices(SRC* src)
 {
-  src->in_i  = (int) floor(src->time);
-  src->out_i = 0;
+  src->inIndex  = (int) floor(src->outTime);
+  src->outIndex = 0;
 }
 
 void SRC_incrementTime(SRC* src)
 {
-  src->time  += src->interval;
-  src->out_i += 1;
-  src->in_i  = (int) floor(src->time);
-  src->t     = src->time - src->in_i;
+  src->outTime  += src->interval;
+  src->outIndex += 1;
+  src->inIndex   = (int) floor(src->outTime);
+  src->outPos    = src->outTime - src->inIndex;
 }
 
 double SRC_linear(double y0, double y1, double t)
@@ -111,16 +111,16 @@ int SRC_linearConvert(SRC* src, float* in, int inLength, float* out, int outLeng
   SRC_resetIndices(src);
 
   // interval  before the first sample, from -1 to 0
-  while (src->time < 0 && inLength >= 1) {
-    out[src->out_i] = SRC_linear(src->rems[0], in[0], src->time + 1);
+  while (src->outTime < 0 && inLength >= 1) {
+    out[src->outIndex] = SRC_linear(src->rems[0], in[0], src->outTime + 1);
     SRC_incrementTime(src);
   }
 
   int last = inLength - 1;
 
   // For every two (relevant) input samples calculate the output
-  while (src->in_i < last) {
-    out[src->out_i] = SRC_linear(in[src->in_i], in[src->in_i + 1], src->t);
+  while (src->inIndex < last) {
+    out[src->outIndex] = SRC_linear(in[src->inIndex], in[src->inIndex + 1], src->outPos);
     SRC_incrementTime(src);
   }
 
@@ -128,10 +128,10 @@ int SRC_linearConvert(SRC* src, float* in, int inLength, float* out, int outLeng
   src->rems[0] = in[last];
 
   // Wrap around
-  src->time = src->time - last - 1;
+  src->outTime = src->outTime - last - 1;
 
   // Number of generated samples
-  return src->out_i;
+  return src->outIndex;
 
 }
 
@@ -146,27 +146,27 @@ int SRC_cubicConvert(SRC* src, float* in, int inLength, float* out, int outLengt
   SRC_resetIndices(src);
 
   //  from -2 to -1
-  while (src->time < -1 && inLength >= 1) {
-    out[src->out_i] = SRC_cubic(src->rems[0], src->rems[1], src->rems[2], in[0], src->time + 2);
+  while (src->outTime < -1 && inLength >= 1) {
+    out[src->outIndex] = SRC_cubic(src->rems[0], src->rems[1], src->rems[2], in[0], src->outTime + 2);
     SRC_incrementTime(src);
   }
 
   // interval before the first sample, from -1 to 0
-  while (src->time < 0 && inLength >= 2) {
-    out[src->out_i] = SRC_cubic(src->rems[1], src->rems[2],  in[0], in[1], src->time + 1);
+  while (src->outTime < 0 && inLength >= 2) {
+    out[src->outIndex] = SRC_cubic(src->rems[1], src->rems[2],  in[0], in[1], src->outTime + 1);
     SRC_incrementTime(src);
   }
 
   // interval from 0 to 1
-  while (src->time < 1 && inLength >= 3) {
-    out[src->out_i] = SRC_cubic(src->rems[2], in[0], in[1], in[2], src->time);
+  while (src->outTime < 1 && inLength >= 3) {
+    out[src->outIndex] = SRC_cubic(src->rems[2], in[0], in[1], in[2], src->outTime);
     SRC_incrementTime(src);
   }
 
   int last = inLength - 2;
 
-  while (src->in_i < last) {
-    out[src->out_i] = SRC_cubic(in[src->in_i - 1], in[src->in_i], in[src->in_i + 1], in[src->in_i + 2], src->t);
+  while (src->inIndex < last) {
+    out[src->outIndex] = SRC_cubic(in[src->inIndex - 1], in[src->inIndex], in[src->inIndex + 1], in[src->inIndex + 2], src->outPos);
     SRC_incrementTime(src);
   }
 
@@ -176,9 +176,9 @@ int SRC_cubicConvert(SRC* src, float* in, int inLength, float* out, int outLengt
   src->rems[2] = in[last + 1];
 
   // wrap around
-  src->time = src->time - last - 2;
+  src->outTime = src->outTime - last - 2;
 
   // Number of generated samples
-  return src->out_i;
+  return src->outIndex;
 
 }

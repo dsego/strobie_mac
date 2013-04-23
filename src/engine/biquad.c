@@ -72,17 +72,16 @@ void Biquad_filter(Biquad* bq, float* input, int inputLength, float* output, int
   for (int i = 0; i < inputLength; ++i) {
     x = (double) input[i];
 
-    // Cascade
-    for (int j = 0; j < bq->sectionCount; ++j) {
+    // Cascade into multiple bi-quad sections or stages
+    for (int section = 0; section < bq->sectionCount; ++section) {
       // Transposed direct form II
       //   z2   = a2 * x[n-2] – b2 * y[n-2]
       //   z1   = a1 * x[n-1] – b1 * y[n-1] + z2
       //   y[n] = a0 * input[i]
-
-      y         = x * bq->a0 + bq->z1[j];
-      bq->z1[j] = x * bq->a1 + bq->z2[j] - bq->b1 * y;
-      bq->z2[j] = x * bq->a2 - bq->b2 * y;
-      x         = y;
+      y               = x * bq->a0 + bq->z1[section];
+      bq->z1[section] = x * bq->a1 + bq->z2[section] - bq->b1 * y;
+      bq->z2[section] = x * bq->a2 - bq->b2 * y;
+      x               = y;
     }
     output[i] = (float) y;
   }
