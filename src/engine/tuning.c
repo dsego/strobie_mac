@@ -1,6 +1,6 @@
-//
-//  Copyright (c) 2013 Davorin Šego. All rights reserved.
-//
+/*
+    Copyright (c) 2013 Davorin Šego. All rights reserved.
+*/
 
 
 #include <math.h>
@@ -8,18 +8,22 @@
 #include "Tuning.h"
 
 
-double Tuning12TET_freqToCents(double freq, double pitchStandard)
-{
+double Tuning12TET_freqToCents(double freq, double pitchStandard) {
+
   return 1200.0 * log2(freq / pitchStandard);
+
 }
 
-double Tuning12TET_centsToFreq(double cents, double pitchStandard)
-{
+
+double Tuning12TET_centsToFreq(double cents, double pitchStandard) {
+
   return pitchStandard * pow(2.0, cents / 1200.0);
+
 }
 
-Note Tuning12TET_centsToNote(double cents, double pitchStandard, double centsOffset, int transpose)
-{
+
+Note Tuning12TET_centsToNote(double cents, double pitchStandard, double centsOffset, int transpose) {
+
   int nearest       = (int) round(cents / 100.0);
   int transposed    = nearest + transpose;
   int octave        = (int) ((transposed / 12.0) + 4.75);
@@ -102,32 +106,46 @@ Note Tuning12TET_centsToNote(double cents, double pitchStandard, double centsOff
   }
 
   return note;
+
 }
 
-Note Tuning12TET_find(double freq, double pitchStandard, double centsOffset, int transpose)
-{
+
+Note Tuning12TET_find(double freq, double pitchStandard, double centsOffset, int transpose) {
+
   double cents = Tuning12TET_freqToCents(freq, pitchStandard);
   return Tuning12TET_centsToNote(cents, pitchStandard, centsOffset, transpose);
+
 }
 
+
 // A simple binary search, slightly modified to find the nearest value.
-Note Tuning12TET_findNearest(double freq, double* notesInCents, int notesLength, double pitchStandard)
-{
+Note Tuning12TET_findNearest(double freq, double* notesInCents, int notesLength, double pitchStandard) {
+
   int cents = Tuning12TET_freqToCents(freq, pitchStandard);
   int mid = 0;
   int low = 0;
   int high = notesLength - 1;
+
   while (high - low > 1) {
     mid = low + ((high - low) / 2);
-    if (notesInCents[mid] >= cents)
+    if (notesInCents[mid] >= cents) {
       high = mid;
-    else
+    }
+    else {
       low = mid;
+    }
   }
-  cents = fabs(cents);
 
-  if (fabs(fabs(notesInCents[low]) - cents) < fabs(fabs(notesInCents[high]) - cents))
+  cents = fabs(cents);
+  double distanceToLow = fabs(fabs(notesInCents[low]) - cents);
+  double distanceToHigh = fabs(fabs(notesInCents[high]) - cents);
+
+  // return nearest note
+  if (distanceToLow < distanceToHigh) {
     return Tuning12TET_centsToNote(notesInCents[low], pitchStandard, 0, 0);
-  else
+  }
+  else {
     return Tuning12TET_centsToNote(notesInCents[high], pitchStandard, 0, 0);
+  }
+
 }

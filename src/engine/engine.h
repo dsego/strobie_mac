@@ -1,6 +1,6 @@
-//
-//  Copyright (c) 2013 Davorin Šego. All rights reserved.
-//
+/*
+    Copyright (c) 2013 Davorin Šego. All rights reserved.
+*/
 
 #include <stdbool.h>
 #include "portaudio.h"
@@ -13,18 +13,20 @@
 #define MAX_STROBES 10
 
 typedef struct {
+
   Config* config;
+  PaStream* stream;
   AudioFeed* audioFeed;
+
   PitchEstimation* pitchEstimation;
+  float* audioBuffer;
+  double threshold;
+
   Strobe* strobes[MAX_STROBES];
   int strobeCount;
   float* strobeBuffers[MAX_STROBES];
   int strobeBufferLengths[MAX_STROBES];
-  float* audioBuffer;
-  PaStream* stream;
-  double threshold;
-  PaUtilRingBuffer* ringbuffer;
-  float* ringbufferData;
+
 } Engine;
 
 

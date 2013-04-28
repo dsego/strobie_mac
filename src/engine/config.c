@@ -1,14 +1,14 @@
-//
-//  Copyright (c) 2013 Davorin Šego. All rights reserved.
-//
+/*
+    Copyright (c) 2013 Davorin Šego. All rights reserved.
+*/
 
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
 #include "Config.h"
 
-Config* Config_create()
-{
+Config* Config_create() {
+
   Config* cfg = malloc(sizeof(Config));
   assert(cfg != NULL);
 
@@ -45,11 +45,13 @@ Config* Config_create()
   cfg->instrumentNotes[5] = -500;
 
   return cfg;
+
 }
 
 
-void Config_destroy(Config* cfg)
-{
+void Config_destroy(Config* cfg) {
+
   free(cfg);
   cfg = NULL;
+
 }

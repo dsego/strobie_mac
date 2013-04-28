@@ -1,6 +1,6 @@
-//
-//  Copyright (c) 2013 Davorin Šego. All rights reserved.
-//
+/*
+    Copyright (c) 2013 Davorin Šego. All rights reserved.
+*/
 
 #include <stdlib.h>
 #include <string.h>
@@ -8,8 +8,8 @@
 #include "PitchEstimation.h"
 #include "kiss_fftr.h"
 
-PitchEstimation* PitchEstimation_create(int samplerate, int fftLength)
-{
+PitchEstimation* PitchEstimation_create(int samplerate, int fftLength) {
+
   PitchEstimation* pe = malloc(sizeof(PitchEstimation));
                         assert(pe != NULL);
 
@@ -22,16 +22,18 @@ PitchEstimation* PitchEstimation_create(int samplerate, int fftLength)
   pe->fft             = malloc(sizeof(kiss_fft_cpx) * fftLength / 2 + 1);
                         assert(pe->fft != NULL);
 
-  pe->paddedData      = calloc(sizeof(float),  fftLength * 2);
+  pe->paddedData      = calloc(fftLength * 2, sizeof(float));
                         assert(pe->paddedData != NULL);
 
   pe->autocorrData    = malloc(sizeof(float) * fftLength);
                         assert(pe->autocorrData != NULL);
   return pe;
+
 }
 
-void PitchEstimation_destroy(PitchEstimation* pe)
-{
+
+void PitchEstimation_destroy(PitchEstimation* pe) {
+
   kiss_fftr_free(pe->fftCfg);
   kiss_fftr_free(pe->ifftCfg);
   free(pe->fft);
@@ -39,10 +41,12 @@ void PitchEstimation_destroy(PitchEstimation* pe)
   free(pe->autocorrData);
   free(pe);
   pe = NULL;
+
 }
 
-void PitchEstimation_normalizeAndCenterClip(float* data, int dataLength)
-{
+
+void PitchEstimation_normalizeAndCenterClip(float* data, int dataLength) {
+
   double max = 0;
 
   // find absolute max
@@ -65,19 +69,22 @@ void PitchEstimation_normalizeAndCenterClip(float* data, int dataLength)
       data[i] = 0;
     }
   }
+
 }
+
 
 // Quadratic Interpolation of Spectral Peaks
 //   https://ccrma.stanford.edu/~jos/sasp/Quadratic_Interpolation_Spectral_Peaks.html */
-double PitchEstimation_parabolaPeakLocation(double y0, double y1, double y2)
-{
+double PitchEstimation_parabolaPeakLocation(double y0, double y1, double y2) {
+
   return 0.5 * (y0 - y2) / (y0 - 2.0 * y1 + y2);
+
 }
 
 
 
-double PitchEstimation_pitchFromAutocorrelation(PitchEstimation* pe, float* data, int dataLength)
-{
+double PitchEstimation_fromAutocorrelation(PitchEstimation* pe, float* data, int dataLength) {
+
   // important to get more consistent and accurate results!
   PitchEstimation_normalizeAndCenterClip(data, dataLength);
 
@@ -124,11 +131,16 @@ double PitchEstimation_pitchFromAutocorrelation(PitchEstimation* pe, float* data
   double pitch = 0;
 
   // estimate true peak via parabolic interpolation
-  double peakLocation = x + PitchEstimation_parabolaPeakLocation(pe->autocorrData[x - 1], pe->autocorrData[x], pe->autocorrData[x + 1]);
+  double peakLocation = x + PitchEstimation_parabolaPeakLocation(
+    pe->autocorrData[x - 1],
+    pe->autocorrData[x],
+    pe->autocorrData[x + 1]
+  );
 
   if (peakLocation != 0) {
     pitch = (double) pe->samplerate / peakLocation;
   }
 
   return pitch;
+
 }

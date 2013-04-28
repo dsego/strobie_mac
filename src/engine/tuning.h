@@ -1,9 +1,10 @@
-//
-//  Copyright (c) 2013 Davorin Šego. All rights reserved.
-//
+/*
+    Copyright (c) 2013 Davorin Šego. All rights reserved.
+*/
 
 
 typedef struct {
+
   char letter;
   char accidental[4];
   char altLetter;
@@ -11,7 +12,9 @@ typedef struct {
   int octave;
   double cents;
   double frequency;
+
 } Note;
+
 
 // given a frequency, find the closest note in equal temperament
 Note Tuning12TET_find(double freq, double pitchStandard, double centsOffset, int transpose);
@@ -21,5 +24,7 @@ Note Tuning12TET_findNearest(double freq, double* notesInCents, int notesLength,
 
 
 double Tuning12TET_freqToCents(double freq, double pitchStandard);
+
 double Tuning12TET_centsToFreq(double cents, double pitchStandard);
+
 Note Tuning12TET_centsToNote(double cents, double pitchStandard, double centsOffset, int transpose);

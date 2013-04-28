@@ -1,15 +1,16 @@
-//
-//  Copyright (c) 2013 Davorin Šego. All rights reserved.
-//
+/*
+    Copyright (c) 2013 Davorin Šego. All rights reserved.
+*/
 
 #include "portaudio.h"
 #include "pa_ringbuffer.h"
 #include "Biquad.h"
-#include "SRC.h"
+#include "Interpolator.h"
 
 
 // creates a strobe effect by re-sampling the signal to a multiple of the note's frequency
 typedef struct {
+
   int samplerate;
   int samplesPerPeriod;
   int bufferLength;
@@ -26,7 +27,7 @@ typedef struct {
   Biquad*  bandpass;
 
   // sample rate converter
-  SRC* src;
+  Interpolator* src;
 
   // circular buffer
   PaUtilRingBuffer* ringbuffer;
@@ -37,8 +38,8 @@ typedef struct {
 
 
 Strobe* Strobe_create(int bufferLength, int resampledBufferLength, int samplerate, int samplesPerPeriod);
-void Strobe_destroy(Strobe* str);
 
+void Strobe_destroy(Strobe* str);
 
 // Read the newest data from the ring buffer
 void Strobe_read(Strobe* str, float* output, int outputLength);
