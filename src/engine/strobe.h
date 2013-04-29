@@ -8,7 +8,8 @@
 #include "Interpolator.h"
 
 
-// creates a strobe effect by re-sampling the signal to a multiple of the note's frequency
+// creates a strobe effect by re-sampling the signal
+//  to a multiple of the note's frequency
 typedef struct {
 
   int samplerate;
@@ -37,7 +38,12 @@ typedef struct {
 
 
 
-Strobe* Strobe_create(int bufferLength, int resampledBufferLength, int samplerate, int samplesPerPeriod);
+Strobe* Strobe_create(
+  int bufferLength,
+  int resampledBufferLength,
+  int samplerate,
+  int samplesPerPeriod
+);
 
 void Strobe_destroy(Strobe* str);
 

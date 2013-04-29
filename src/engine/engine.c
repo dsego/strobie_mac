@@ -30,7 +30,9 @@ Engine* Engine_create() {
       config->samplesPerPeriod[i]
     );
 
-    engine->strobeBufferLengths[i] = config->samplesPerPeriod[i] * config->periodsPerFrame * config->partials[i];
+    engine->strobeBufferLengths[i] = config->samplesPerPeriod[i] *
+      config->periodsPerFrame *
+      config->partials[i];
 
     engine->strobeBuffers[i] = calloc(engine->strobeBufferLengths[i], sizeof(float));
     assert(engine->strobeBuffers[i] != NULL);
@@ -39,7 +41,10 @@ Engine* Engine_create() {
 
   // initialize pitch recognition
 
-  engine->pitchEstimation = PitchEstimation_create(config->fftSamplerate, config->fftLength);
+  engine->pitchEstimation = PitchEstimation_create(
+    config->fftSamplerate,
+    config->fftLength
+  );
 
   engine->threshold = from_dBFS(engine->config->audioThreshold);
 
@@ -85,7 +90,7 @@ void Engine_processSignal(Engine* engine, float* input, int inputLength) {
 int Engine_streamCallback(
   const void* input,
   void* output,
-  unsigned long nframes,
+  unsigned long frameCount,
   const PaStreamCallbackTimeInfo* timeInfo,
   PaStreamCallbackFlags statusFlags,
   void *userData
@@ -100,9 +105,9 @@ int Engine_streamCallback(
   Engine* engine = (Engine*) userData;
 
   int index  = 0;
-  int length = (int) nframes;
+  int length = (int) frameCount;
 
-  // process in batches because nframes can be bigger than bufferLength
+  // process in batches because frameCount can be bigger than bufferLength
   while (length > engine->config->bufferLength) {
 
     Engine_processSignal(engine, &finput[index], engine->config->bufferLength);
@@ -133,7 +138,8 @@ bool Engine_startAudio(Engine* engine) {
   PaError err;
 
   // start PortAudio and open the input stream
-  //  ... if Pa_Initialize() returns an error code, Pa_Terminate() should NOT be called
+  //  ... if Pa_Initialize() returns an error code,
+  //      Pa_Terminate() should NOT be called
   //
   err = Pa_Initialize();
   if (err != paNoError) {
@@ -168,10 +174,10 @@ bool Engine_startAudio(Engine* engine) {
 
 
 /*
-   PortAudio docs say:
-      Pa_Terminate() MUST be called before exiting a program which uses PortAudio.
-      Failure to do so may result in serious resource leaks,
-      such as audio devices not being available until the next reboot.
+  PortAudio docs say:
+    Pa_Terminate() MUST be called before exiting a program which uses PortAudio.
+    Failure to do so may result in serious resource leaks,
+    such as audio devices not being available until the next reboot.
  */
 void Engine_stopAudio(Engine* engine) {
 
@@ -196,7 +202,11 @@ void Engine_setStrobeFreq(Engine* engine, double frequency) {
 void Engine_readStrobes(Engine* engine) {
 
   for (int i = 0; i < engine->strobeCount; ++i) {
-    Strobe_read(engine->strobes[i], engine->strobeBuffers[i], engine->strobeBufferLengths[i]);
+    Strobe_read(
+      engine->strobes[i],
+      engine->strobeBuffers[i],
+      engine->strobeBufferLengths[i]
+    );
   }
 
 }

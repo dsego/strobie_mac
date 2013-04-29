@@ -37,4 +37,4 @@ typedef struct {
 
 Config* Config_create();
 
-void Config_destroy(Config* cfg);
+void Config_destroy(Config* self);

@@ -20,7 +20,7 @@ AudioFeed* AudioFeed_create();
 void AudioFeed_destroy();
 
 // Read the newest data from the ring buffer
-void AudioFeed_read(AudioFeed* af, float* output, int outputLength);
+void AudioFeed_read(AudioFeed* self, float* output, int outputLength);
 
 // write into the ring buffer
-void AudioFeed_process(AudioFeed* af, float* input, int inputLength);
+void AudioFeed_process(AudioFeed* self, float* input, int inputLength);

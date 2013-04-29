@@ -9,49 +9,49 @@
 
 Config* Config_create() {
 
-  Config* cfg = malloc(sizeof(Config));
-  assert(cfg != NULL);
+  Config* self = malloc(sizeof(Config));
+  assert(self != NULL);
 
   // general
-  cfg->samplerate             = 44100;
-  cfg->bufferLength           = 512;
-  cfg->resampledBufferLength  = 512 * 25;
+  self->samplerate             = 44100;
+  self->bufferLength           = 512;
+  self->resampledBufferLength  = 512 * 25;
 
   // pitch recognition
-  cfg->fftSamplerate       = 44100;
-  cfg->fftLength           = 4096;
-  cfg->audioThreshold      = -60;
-  cfg->pitchStandard       = 440;
-  cfg->displayFlats        = false;
-  cfg->transpose           = 0;
-  cfg->centsOffset         = 0;
+  self->fftSamplerate       = 44100;
+  self->fftLength           = 4096;
+  self->audioThreshold      = -60;
+  self->pitchStandard       = 440;
+  self->displayFlats        = false;
+  self->transpose           = 0;
+  self->centsOffset         = 0;
 
   // strobe bands
-  cfg->periodsPerFrame     = 1;
-  cfg->partialsLength      = 3;
-  cfg->partials[0]         = 1;
-  cfg->partials[1]         = 2;
-  cfg->partials[2]         = 4;
-  cfg->samplesPerPeriod[0] = 64;
-  cfg->samplesPerPeriod[1] = 128;
-  cfg->samplesPerPeriod[2] = 256;
+  self->periodsPerFrame     = 1;
+  self->partialsLength      = 3;
+  self->partials[0]         = 1;
+  self->partials[1]         = 2;
+  self->partials[2]         = 4;
+  self->samplesPerPeriod[0] = 64;
+  self->samplesPerPeriod[1] = 128;
+  self->samplesPerPeriod[2] = 256;
 
   // standard guitar tuning (in cents)
-  cfg->instrumentNotes[0] = -2900;
-  cfg->instrumentNotes[1] = -2400;
-  cfg->instrumentNotes[2] = -1900;
-  cfg->instrumentNotes[3] = -1400;
-  cfg->instrumentNotes[4] = -1000;
-  cfg->instrumentNotes[5] = -500;
+  self->instrumentNotes[0] = -2900;
+  self->instrumentNotes[1] = -2400;
+  self->instrumentNotes[2] = -1900;
+  self->instrumentNotes[3] = -1400;
+  self->instrumentNotes[4] = -1000;
+  self->instrumentNotes[5] = -500;
 
-  return cfg;
+  return self;
 
 }
 
 
-void Config_destroy(Config* cfg) {
+void Config_destroy(Config* self) {
 
-  free(cfg);
-  cfg = NULL;
+  free(self);
+  self = NULL;
 
 }

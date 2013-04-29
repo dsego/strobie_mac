@@ -11,43 +11,48 @@
 
 AudioFeed* AudioFeed_create() {
 
-  AudioFeed* af = malloc(sizeof(AudioFeed));
-  assert(af != NULL);
+  AudioFeed* self = malloc(sizeof(AudioFeed));
+  assert(self != NULL);
 
-  af->ringbufferData = malloc(32768 * sizeof(float));
-  assert(af->ringbufferData != NULL);
+  self->ringbufferData = malloc(32768 * sizeof(float));
+  assert(self->ringbufferData != NULL);
 
-  af->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
-  assert(af->ringbuffer != NULL);
+  self->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
+  assert(self->ringbuffer != NULL);
 
-  PaUtil_InitializeRingBuffer(af->ringbuffer, sizeof(float), 32768, af->ringbufferData);
+  PaUtil_InitializeRingBuffer(
+    self->ringbuffer,
+    sizeof(float),
+    32768,
+    self->ringbufferData
+  );
 
-  return af;
-
-}
-
-
-void AudioFeed_destroy(AudioFeed* af) {
-
-  free(af->ringbufferData);
-  free(af->ringbuffer);
-  free(af);
-  af = NULL;
+  return self;
 
 }
 
 
-void AudioFeed_read(AudioFeed* af, float* output, int outputLength) {
+void AudioFeed_destroy(AudioFeed* self) {
 
-  while (PaUtil_GetRingBufferReadAvailable(af->ringbuffer) >= outputLength) {
-    PaUtil_ReadRingBuffer(af->ringbuffer, output, outputLength);
+  free(self->ringbufferData);
+  free(self->ringbuffer);
+  free(self);
+  self = NULL;
+
+}
+
+
+void AudioFeed_read(AudioFeed* self, float* output, int outputLength) {
+
+  while (PaUtil_GetRingBufferReadAvailable(self->ringbuffer)) {
+    PaUtil_ReadRingBuffer(self->ringbuffer, output, outputLength);
   }
 
 }
 
 
-void AudioFeed_process(AudioFeed* af, float* input, int inputLength) {
+void AudioFeed_process(AudioFeed* self, float* input, int inputLength) {
 
-  PaUtil_WriteRingBuffer(af->ringbuffer, input, inputLength);
+  PaUtil_WriteRingBuffer(self->ringbuffer, input, inputLength);
 
 }

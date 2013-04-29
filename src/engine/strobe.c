@@ -14,103 +14,107 @@ Strobe* Strobe_create(
   int samplesPerPeriod
 ) {
 
-  Strobe* str = malloc(sizeof(Strobe));
-  assert(str != NULL);
+  Strobe* self = malloc(sizeof(Strobe));
+  assert(self != NULL);
 
-  str->samplerate            = samplerate;
-  str->samplesPerPeriod      = samplesPerPeriod;
-  str->bufferLength          = bufferLength;
-  str->resampledBufferLength = resampledBufferLength;
+  self->samplerate            = samplerate;
+  self->samplesPerPeriod      = samplesPerPeriod;
+  self->bufferLength          = bufferLength;
+  self->resampledBufferLength = resampledBufferLength;
 
 
-  str->bandpass = Biquad_create(3);
-  str->src      = Interpolator_create(1, 1);
+  self->bandpass = Biquad_create(3);
+  self->src      = Interpolator_create(1, 1);
 
-  str->filteredBuffer = malloc(bufferLength * sizeof(float));
-  assert(str->filteredBuffer != NULL);
+  self->filteredBuffer = malloc(bufferLength * sizeof(float));
+  assert(self->filteredBuffer != NULL);
 
-  str->resampledBuffer = malloc(resampledBufferLength * sizeof(float));
-  assert(str->resampledBuffer != NULL);
+  self->resampledBuffer = malloc(resampledBufferLength * sizeof(float));
+  assert(self->resampledBuffer != NULL);
 
-  str->ringbufferData = malloc(65536 * sizeof(float));
-  assert(str->ringbufferData != NULL);
+  self->ringbufferData = malloc(65536 * sizeof(float));
+  assert(self->ringbufferData != NULL);
 
-  str->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
-  assert(str->ringbuffer != NULL);
+  self->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
+  assert(self->ringbuffer != NULL);
 
   PaUtil_InitializeRingBuffer(
-    str->ringbuffer,
+    self->ringbuffer,
     sizeof(float),
     65536,
-    str->ringbufferData
+    self->ringbufferData
   );
 
-  return str;
+  return self;
 
 }
 
 
-void Strobe_destroy(Strobe* str) {
+void Strobe_destroy(Strobe* self) {
 
-  Biquad_destroy(str->bandpass);
-  Interpolator_destroy(str->src);
+  Biquad_destroy(self->bandpass);
+  Interpolator_destroy(self->src);
 
-  free(str->filteredBuffer);
-  free(str->resampledBuffer);
-  free(str->ringbufferData);
-  free(str->ringbuffer);
+  free(self->filteredBuffer);
+  free(self->resampledBuffer);
+  free(self->ringbufferData);
+  free(self->ringbuffer);
 
-  free(str);
-  str = NULL;
+  free(self);
+  self = NULL;
 
 }
 
 
-void Strobe_read(Strobe* str, float* output, int output_length) {
+void Strobe_read(Strobe* self, float* output, int output_length) {
 
-  int available = PaUtil_GetRingBufferReadAvailable(str->ringbuffer);
-
-  while (available >=  output_length) {
-    PaUtil_ReadRingBuffer(str->ringbuffer, output, output_length);
+  while (PaUtil_GetRingBufferReadAvailable(self->ringbuffer) >= output_length) {
+    PaUtil_ReadRingBuffer(self->ringbuffer, output, output_length);
   }
 
 }
 
 
-void Strobe_setFreq(Strobe* str, double freq) {
+void Strobe_setFreq(Strobe* self, double freq) {
 
-  if (freq == str->freq) {
+  if (freq == self->freq) {
     return;
   }
 
-  str->freq = freq;
-  Interpolator_setRatio(str->src, freq * str->samplesPerPeriod, str->samplerate);
-  Interpolator_reset(str->src);
-  Biquad_reset(str->bandpass);
-  Biquad_bandpass(str->bandpass, freq, str->samplerate, 10);
+  self->freq = freq;
+
+  Interpolator_setRatio(
+    self->src,
+    freq * self->samplesPerPeriod,
+    self->samplerate
+  );
+
+  Interpolator_reset(self->src);
+  Biquad_reset(self->bandpass);
+  Biquad_bandpass(self->bandpass, freq, self->samplerate, 10);
 
 }
 
 
-void Strobe_process(Strobe* str, float* input, int inputLength) {
+void Strobe_process(Strobe* self, float* input, int inputLength) {
 
   Biquad_filter(
-    str->bandpass,
+    self->bandpass,
     input,
-    str->filteredBuffer,
+    self->filteredBuffer,
     inputLength
   );
 
   int count = Interpolator_cubicConvert(
-    str->src,
-    str->filteredBuffer,
-    str->bufferLength,
-    str->resampledBuffer,
-    str->resampledBufferLength
+    self->src,
+    self->filteredBuffer,
+    self->bufferLength,
+    self->resampledBuffer,
+    self->resampledBufferLength
   );
 
   if (count > 0) {
-    PaUtil_WriteRingBuffer(str->ringbuffer, str->resampledBuffer, count);
+    PaUtil_WriteRingBuffer(self->ringbuffer, self->resampledBuffer, count);
   }
 
 }
