@@ -232,6 +232,14 @@ double Engine_estimatePitch(Engine* engine) {
       engine->audioBuffer,
       engine->config->fftLength
     );
+
+    // pitch = PitchEstimation_fromFFT(
+    //   engine->pitchEstimation,
+    //   engine->audioBuffer,
+    //   engine->config->fftLength
+    // );
+
+
     // pitch = clamp(pitch, 27.5000, 4186.01); // A0 - C8
 
   // }
