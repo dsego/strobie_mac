@@ -6,6 +6,8 @@
 #include <assert.h>
 #include "Strobe.h"
 
+#define STROBE_RB_LENGTH 65536
+
 
 Strobe* Strobe_create(
   int bufferLength,
@@ -32,7 +34,7 @@ Strobe* Strobe_create(
   self->resampledBuffer = malloc(resampledBufferLength * sizeof(float));
   assert(self->resampledBuffer != NULL);
 
-  self->ringbufferData = malloc(65536 * sizeof(float));
+  self->ringbufferData = malloc(STROBE_RB_LENGTH * sizeof(float));
   assert(self->ringbufferData != NULL);
 
   self->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
@@ -41,7 +43,7 @@ Strobe* Strobe_create(
   PaUtil_InitializeRingBuffer(
     self->ringbuffer,
     sizeof(float),
-    65536,
+    STROBE_RB_LENGTH,
     self->ringbufferData
   );
 
