@@ -23,7 +23,11 @@ double Tuning12TET_centsToFreq(double cents, double pitchStandard) {
 
 
 Note Tuning12TET_centsToNote(
-  double cents, double pitchStandard, double centsOffset, int transpose) {
+  double cents,
+  double pitchStandard,
+  double centsOffset,
+  int transpose
+) {
 
   int nearest    = (int) round(cents / 100.0);
   int transposed = nearest + transpose;
@@ -112,7 +116,11 @@ Note Tuning12TET_centsToNote(
 
 
 Note Tuning12TET_find(
-  double freq, double pitchStandard, double centsOffset, int transpose) {
+  double freq,
+  double pitchStandard,
+  double centsOffset,
+  int transpose
+) {
 
   double cents = Tuning12TET_freqToCents(freq, pitchStandard);
   return Tuning12TET_centsToNote(cents, pitchStandard, centsOffset, transpose);
@@ -122,7 +130,11 @@ Note Tuning12TET_find(
 
 // A simple binary search, slightly modified to find the nearest value.
 Note Tuning12TET_findNearest(
-  double freq, double* notesInCents, int notesLength, double pitchStandard) {
+  double freq,
+  double* notesInCents,
+  int notesLength,
+  double pitchStandard
+) {
 
   int cents = Tuning12TET_freqToCents(freq, pitchStandard);
   int mid = 0;
