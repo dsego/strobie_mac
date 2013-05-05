@@ -213,8 +213,8 @@ IIR* IIR_CreateThreePercEllip() {
   IIR* self = malloc(sizeof(IIR));
   assert(self != NULL);
 
-  self->numSecondOrderStages = 4;
-  self->firstOrderStage      = 1;
+  self->numSecondOrderStages = 5;
+  self->firstOrderStage      = 0;
   memset(self->w, 0.0, sizeof(self->w));
 
   self->a[0][0]  = 6.3536264177563107e-01;
