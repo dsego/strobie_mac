@@ -108,16 +108,15 @@ void AudioFeed_process(AudioFeed* self, float* input, int inputLength) {
     int k = 0;
 
     // sub sample
-    int limit = inputLength - self->decimationRate + 1;
-    while (n < limit) {
+    while (n < inputLength) {
       self->decimatedData[k] = self->filteredData[n];
       n += self->decimationRate;
       k += 1;
     }
 
-    self->decimationCounter = inputLength - n - 1;
+    self->decimationCounter = n - inputLength;
 
-    PaUtil_WriteRingBuffer(self->ringbuffer, self->filteredData, k);
+    PaUtil_WriteRingBuffer(self->ringbuffer, self->decimatedData, k);
 
   }
   else {
