@@ -1,80 +1,100 @@
-//
-//  Copyright (c) 2013 Davorin Šego. All rights reserved.
-//
+/*
+    Copyright (c) 2013 Davorin Šego. All rights reserved.
+*/
 
+#import <AppKit/NSMenuItem.h>
 #import "AppDelegate.h"
-#import "../engine/engine.h"
+#import "../engine/Engine.h"
+
 
 @implementation AppDelegate
 
-Engine *engine;
-Note note;
+NSThread* estimatePitchThread;
 
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification
-{
-  // manually allocate and initialize the window
-  NSRect windowRect = NSMakeRect(0, 0, 500, 500);
-  NSUInteger styleMask = (NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask);
-  self.window = [[NSWindow alloc] initWithContentRect:windowRect
-                                  styleMask:styleMask
-                                  backing:NSBackingStoreBuffered
-                                  defer:NO];
+  _engine = Engine_create();
+  Engine_startAudio(_engine);
 
-  [self.window setTitle:@"Strobie"];
-  [self.window center];
-  [self.window makeKeyAndOrderFront:self];
-
-
-  engine = Engine_create();
-  Engine_init_audio(engine);
-
-  // window controller
-  // self.windowController = [[NSWindowController alloc] initWithWindow:self.window];
-
-  // [self.windowController showWindow:self];
-
-
+  self.mainController = [[MainController alloc] init];
+  self.mainController.strobeLayer.engine = _engine;
+  [self.mainController showWindow];
 //    NSTimer* timer = [NSTimer scheduledTimerWithTimeInterval:0.02
 //                                                      target:self
 //                                                    selector:@selector(refreshNote)
 //                                                    userInfo:nil
 //                                                     repeats:YES];
-
-
-  // NSThread* thread = [[NSThread alloc] initWithTarget:self
-  //                                            selector:@selector(estimatePitch)
-  //                                              object:nil];
-  // [thread start];
 //    [timer fire];
+
+
+  estimatePitchThread = [[NSThread alloc] initWithTarget:self
+                                          selector:@selector(estimatePitch)
+                                          object:nil];
+
+  [estimatePitchThread start];
+
+
+  // NSThread* refreshStrobeThread = [[NSThread alloc] initWithTarget:self
+  //                                                   selector:@selector(refreshStrobe:)
+  //                                                   object:nil];
+  // [refreshStrobeThread start];
 }
 
-- (void)estimatePitch
-{
-  double pitch;
+
+- (void)applicationWillTerminate:(NSNotification *)aNotification {
+
+  [estimatePitchThread cancel];
+  Engine_stopAudio(_engine);
+  Engine_destroy(_engine);
+
+}
+
+
+- (void)estimatePitch {
+
+  double pitch = 0;
   while (true) {
-    pitch = Engine_estimate_pitch(engine);
-    note  = Tuning12TET_find(pitch, 440.0, 0.0, 0);
-//        NSLog([NSString stringWithFormat:@"%f", pitch]);
+    if ([estimatePitchThread isCancelled]) {
+      break;
+    }
+
+    pitch = Engine_estimatePitch(_engine);
+    [_mainController refreshPitch:pitch peak:0];
+
+    // Note note  = Tuning12TET_find(pitch, 440.0, 0.0, 0);
+    // Engine_setStrobeFreq(engine, note.frequency);
+     // NSLog([NSString stringWithFormat:@"%f", pitch]);
 //        [self.label setStringValue:[NSString stringWithFormat:@"%f", pitch]];
     // [self.label setStringValue:[NSString stringWithFormat:@"%c%d", note.letter, note.octave]];
-    usleep(50000);
+    usleep(200000);
+    // usleep(50000);
   }
-}
-
--(void)refreshStrobe
-{
 
 }
 
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
-{
+
+-(void)refreshStrobe {
+
+  // Engine_readStrobes(engine);
+  // [self.mainController drawStrobe: engine];
+
+}
+
+
+
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
+
   return YES;
+
 }
 
--(IBAction)openOnlineDocumentation:(id)sender
-{
+
+-(IBAction)openOnlineDocumentation:(id)sender {
+
   id url = [NSURL URLWithString:@"http://www.google.com"];
   [[NSWorkspace sharedWorkspace] openURL:url];
+
 }
+
+
 @end

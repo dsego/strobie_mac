@@ -1,16 +1,15 @@
-//
-//  Copyright (c) 2013 Davorin Šego. All rights reserved.
-//
+/*
+    Copyright (c) 2013 Davorin Šego. All rights reserved.
+*/
 
 #import <Cocoa/Cocoa.h>
+#import "MainController.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-@property (strong) IBOutlet NSWindow *window;
-@property (strong) IBOutlet NSWindowController *windowController;
-// @property (weak) IBOutlet StrobeView *strobeView;
-// @property (weak) IBOutlet NSTextField *label;
-//
+@property Engine* engine;
+@property (strong) MainController* mainController;
+
 -(IBAction) openOnlineDocumentation:(id)sender;
 
 @end
