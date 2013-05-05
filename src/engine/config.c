@@ -18,8 +18,10 @@ Config* Config_create() {
   self->resampledBufferLength  = 512 * 25;
 
   // pitch recognition
-  self->fftSamplerate       = 44100;
+  self->decimationRate      = 4;
+  self->fftSamplerate       = self->samplerate / self->decimationRate;
   self->fftLength           = 4096;
+  self->overlapFactor       = 1;
   self->audioThreshold      = -60;
   self->pitchStandard       = 440;
   self->displayFlats        = false;

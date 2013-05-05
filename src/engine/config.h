@@ -12,18 +12,20 @@
 typedef struct {
 
   int samplerate;
-  int fftSamplerate;
-
-  int fftLength;
   int bufferLength;
   int resampledBufferLength;
 
-  int periodsPerFrame;
+  int decimationRate;
+  int fftSamplerate;
+  int fftLength;
+  double overlapFactor;
   double audioThreshold;
   double pitchStandard;
   bool displayFlats;
   int transpose;
   double centsOffset;
+
+  int periodsPerFrame;
 
   // partials and samplesPerPeriod arrays should be the same length
   int partialsLength;
