@@ -35,21 +35,30 @@ Engine* Engine_create() {
       config->periodsPerFrame *
       config->partials[i];
 
-    engine->strobeBuffers[i] = calloc(engine->strobeBufferLengths[i], sizeof(float));
+    engine->strobeBuffers[i] = calloc(
+      engine->strobeBufferLengths[i],
+      sizeof(float)
+    );
     assert(engine->strobeBuffers[i] != NULL);
 
   }
 
   // initialize pitch recognition
 
-  engine->pitchEstimation = PitchEstimation_create(
+  engine->autocorrPitch = AutocorrPitch_create(
     config->fftSamplerate,
     config->fftLength
   );
 
+  engine->fftPitch = FFT_Pitch_create(
+    config->fftSamplerate,
+    config->fftLength,
+    config->overlapFactor
+  );
+
   engine->threshold = from_dBFS(engine->config->audioThreshold);
 
-  engine->audioBuffer = calloc(engine->config->fftLength, sizeof(float));
+  engine->audioBuffer = calloc(engine->config->fftLength * 2, sizeof(float));
   assert(engine->audioBuffer != NULL);
 
   return engine;
@@ -61,7 +70,9 @@ void Engine_destroy(Engine* engine) {
 
   Config_destroy(engine->config);
   AudioFeed_destroy(engine->audioFeed);
-  PitchEstimation_destroy(engine->pitchEstimation);
+
+  AutocorrPitch_destroy(engine->autocorrPitch);
+  FFT_Pitch_destroy(engine->fftPitch);
 
   for (int i = 0; i < engine->strobeCount; ++i) {
     Strobe_destroy(engine->strobes[i]);
@@ -148,11 +159,43 @@ bool Engine_startAudio(Engine* engine) {
     return false;
   }
 
-  err = Pa_OpenDefaultStream(
-    &engine->stream, 1, 0, paFloat32,
+
+
+  PaDeviceIndex count = Pa_GetDeviceCount();
+  for (int i = 0; i < count; ++i) {
+
+    const PaDeviceInfo* info = Pa_GetDeviceInfo(i);
+    printf("%i: %s\n", i, info->name);
+
+  }
+
+
+  // err = Pa_OpenDefaultStream(
+  //   &engine->stream,
+  //   1, 0, paFloat32,
+  //   engine->config->samplerate,
+  //   paFramesPerBufferUnspecified,
+  //   &Engine_streamCallback, engine
+  // );
+
+  const PaDeviceInfo* info = Pa_GetDeviceInfo(2);
+  PaStreamParameters* inputParameters = malloc(sizeof(PaStreamParameters));
+
+  inputParameters->device = 2;
+  inputParameters->channelCount = 1;
+  inputParameters->sampleFormat = paFloat32;
+  inputParameters->suggestedLatency = info->defaultLowInputLatency;
+  inputParameters->hostApiSpecificStreamInfo = NULL;
+
+  err = Pa_OpenStream(
+    &engine->stream,
+    inputParameters,
+    NULL,
     engine->config->samplerate,
     paFramesPerBufferUnspecified,
-    &Engine_streamCallback, engine
+    paNoFlag,
+    &Engine_streamCallback,
+    engine
   );
 
   if (err != paNoError) {
@@ -168,6 +211,11 @@ bool Engine_startAudio(Engine* engine) {
     Pa_Terminate();
     return false;
   }
+
+
+  const PaStreamInfo* streamInfo = Pa_GetStreamInfo(engine->stream);
+
+  printf("%f\n", streamInfo->sampleRate);
 
   return true;
 
@@ -217,28 +265,43 @@ double Engine_estimatePitch(Engine* engine) {
 
   static double pitch = 27.5000;
 
-  // read in new data from the ring buffer
-  AudioFeed_read(
-    engine->audioFeed,
-    engine->audioBuffer,
-    engine->config->fftLength
-  );
+
 
   // double peak = findPeak(engine->audioBuffer, engine->config->fftLength);
 
   // if (peak > engine->threshold) {
 
-    pitch = PitchEstimation_fromAutocorrelation(
-      engine->pitchEstimation,
-      engine->audioBuffer,
-      engine->config->fftLength
-    );
 
-    // pitch = PitchEstimation_fromFFT(
-    //   engine->pitchEstimation,
-    //   engine->audioBuffer,
-    //   engine->config->fftLength
-    // );
+  int dataLength = engine->config->fftLength; // + engine->fftPitch->hopSize;
+
+
+  // read in new data from the ring buffer
+  AudioFeed_read(
+    engine->audioFeed,
+    engine->audioBuffer,
+    dataLength
+  );
+
+  // pitch = FFT_Pitch_estimateByInterpolation(
+  //   engine->fftPitch,
+  //   engine->audioBuffer,
+  //   dataLength
+  // );
+
+
+  pitch = FFT_Pitch_estimateFromPhase(
+    engine->fftPitch,
+    engine->audioBuffer,
+    dataLength
+  );
+
+
+  // pitch = AutocorrPitch_estimate(
+  //   engine->autocorrPitch,
+  //   engine->audioBuffer,
+  //   engine->config->fftLength
+  // );
+
 
 
     // pitch = clamp(pitch, 27.5000, 4186.01); // A0 - C8

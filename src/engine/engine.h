@@ -6,7 +6,8 @@
 #include "portaudio.h"
 #include "Tuning.h"
 #include "Config.h"
-#include "PitchEstimation.h"
+#include "AutocorrPitch.h"
+#include "FFT_Pitch.h"
 #include "AudioFeed.h"
 #include "Strobe.h"
 
@@ -18,7 +19,9 @@ typedef struct {
   PaStream* stream;
   AudioFeed* audioFeed;
 
-  PitchEstimation* pitchEstimation;
+  AutocorrPitch* autocorrPitch;
+  FFT_Pitch* fftPitch;
+
   float* audioBuffer;
   double threshold;
 
@@ -31,11 +34,15 @@ typedef struct {
 
 
 Engine* Engine_create();
+
 void Engine_destroy(Engine* engine);
 
 bool Engine_startAudio(Engine* engine);
+
 void Engine_stopAudio(Engine* engine);
 
 void Engine_readStrobes(Engine* engine);
+
 void Engine_setStrobeFreq(Engine* engine, double frequency);
+
 double Engine_estimatePitch(Engine* engine);
