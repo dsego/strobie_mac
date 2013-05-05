@@ -16,6 +16,7 @@ Engine* Engine_create() {
   Config* config = engine->config = Config_create();
 
   engine->audioFeed = AudioFeed_create();
+  AudioFeed_setDecimationRate(engine->audioFeed, config->decimationRate);
 
   engine->strobeCount = min(config->partialsLength, MAX_STROBES);
 
