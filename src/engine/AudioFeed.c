@@ -45,29 +45,32 @@ AudioFeed* AudioFeed_create() {
 
 void AudioFeed_setDecimationRate(AudioFeed* self, DecimationRate decimationRate) {
 
-  self->decimationRate = decimationRate;
-
   switch (self->decimationRate) {
-
-    case DECIMATE_NONE:
-      self->activeIIR = NULL;
-      break;
 
     case DECIMATE_BY_TWO:
       self->activeIIR = self->halfbandIIR;
+      self->decimationRate = DECIMATE_BY_TWO;
+      IIR_reset(self->activeIIR);
       break;
 
     case DECIMATE_BY_FOUR:
       self->activeIIR = self->quartbandIIR;
+      self->decimationRate = DECIMATE_BY_FOUR;
+      IIR_reset(self->activeIIR);
       break;
 
     case DECIMATE_BY_THIRTY:
       self->activeIIR = self->threePercIIR;
+      self->decimationRate = DECIMATE_BY_THIRTY;
+      IIR_reset(self->activeIIR);
       break;
 
+    case DECIMATE_NONE:
+    default:
+      self->activeIIR = NULL;
+      self->decimationRate = DECIMATE_NONE;
+      break;
   }
-
-  IIR_reset(self->activeIIR);
 
 }
 
