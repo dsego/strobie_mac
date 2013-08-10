@@ -7,6 +7,8 @@
 #include <stdbool.h>
 #include "Config.h"
 
+
+
 Config* Config_create() {
 
   Config* self = malloc(sizeof(Config));
@@ -18,10 +20,11 @@ Config* Config_create() {
   self->resampledBufferLength  = 512 * 25;
 
   // pitch recognition
-  self->decimationRate      = 4;
+  self->averageCount        = 0;
+  self->decimationRate      = 1;
   self->fftSamplerate       = self->samplerate / self->decimationRate;
   self->fftLength           = 4096;
-  self->overlapFactor       = 1;
+  self->overlapFactor       = 2;
   self->audioThreshold      = -60;
   self->pitchStandard       = 440;
   self->displayFlats        = false;

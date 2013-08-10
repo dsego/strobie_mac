@@ -19,17 +19,11 @@ typedef struct {
 
 
 IIR* IIR_CreateHalfbandEllip();
-
 IIR* IIR_CreateHalfbandCheby();
-
 IIR* IIR_CreateQuartbandEllip();
-
 IIR* IIR_CreateQuartbandCheby();
-
 IIR* IIR_CreateThreePercEllip();
-
 IIR* IIR_CreateThreePercCheby();
 
 void IIR_filter(IIR* self, float* input, float* output, int length);
-
 void IIR_reset(IIR* self);

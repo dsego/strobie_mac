@@ -6,8 +6,11 @@
 #include <assert.h>
 #include <stdbool.h>
 
+
 #define CONFIG_MAX_PARTIALS 10
 #define CONFIG_MAX_NOTES    50
+
+
 
 typedef struct {
 
@@ -15,6 +18,7 @@ typedef struct {
   int bufferLength;
   int resampledBufferLength;
 
+  int averageCount;
   int decimationRate;
   int fftSamplerate;
   int fftLength;
@@ -37,6 +41,6 @@ typedef struct {
 } Config;
 
 
-Config* Config_create();
 
+Config* Config_create();
 void Config_destroy(Config* self);

@@ -7,6 +7,7 @@
 #include "AudioFeed.h"
 
 
+
 AudioFeed* AudioFeed_create() {
 
   AudioFeed* self = malloc(sizeof(AudioFeed));
@@ -45,7 +46,7 @@ AudioFeed* AudioFeed_create() {
 
 void AudioFeed_setDecimationRate(AudioFeed* self, DecimationRate decimationRate) {
 
-  switch (self->decimationRate) {
+  switch (decimationRate) {
 
     case DECIMATE_BY_TWO:
       self->activeIIR = self->halfbandIIR;

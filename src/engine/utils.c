@@ -5,6 +5,7 @@
 
 #include <math.h>
 
+
 /*
   Decibels relative to full scale (dBFS),
     measures decibel amplitude levels in digital systems
@@ -83,5 +84,13 @@ double findPeak(float* buffer, int bufferLength) {
   }
 
   return peak;
+
+}
+
+
+// Parabolic interpolation
+double parabolaPeakPosition(double a, double b, double c) {
+
+  return (a - c) / (2 * (a - 2 * b + c));
 
 }

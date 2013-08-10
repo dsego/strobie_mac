@@ -368,5 +368,7 @@ void IIR_filter(IIR* self, float* input, float* output, int length) {
 
 
 void IIR_reset(IIR* self) {
+
   memset(self->w, 0.0, sizeof(self->w));
+
 }
