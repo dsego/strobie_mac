@@ -8,91 +8,81 @@
 #include "utils.h"
 
 
+
+
+
 Engine* Engine_create() {
 
-  Engine* engine = malloc(sizeof(Engine));
-  assert(engine != NULL);
+  Engine* self = malloc(sizeof(Engine));
+  assert(self != NULL);
 
-  Config* config = engine->config = Config_create();
+  Config* config = self->config = Config_create();
 
-  engine->audioFeed = AudioFeed_create();
-  AudioFeed_setDecimationRate(engine->audioFeed, config->decimationRate);
+  self->audioFeed = AudioFeed_create();
+  AudioFeed_setDecimationRate(self->audioFeed, config->decimationRate);
 
-  engine->strobeCount = min(config->partialsLength, MAX_STROBES);
+  self->strobeCount = min(config->partialsLength, MAX_STROBES);
 
 
   // initialize strobes
-  for (int i = 0; i < engine->strobeCount; ++i) {
 
-    engine->strobes[i] = Strobe_create(
+  for (int i = 0; i < self->strobeCount; ++i) {
+
+    self->strobes[i] = Strobe_create(
       config->bufferLength,
       config->resampledBufferLength,
       config->samplerate,
       config->samplesPerPeriod[i]
     );
 
-    engine->strobeBufferLengths[i] = config->samplesPerPeriod[i] *
+    self->strobeBufferLengths[i] = config->samplesPerPeriod[i] *
       config->periodsPerFrame *
       config->partials[i];
 
-    engine->strobeBuffers[i] = calloc(
-      engine->strobeBufferLengths[i],
-      sizeof(float)
-    );
-    assert(engine->strobeBuffers[i] != NULL);
+    self->strobeBuffers[i] = calloc(self->strobeBufferLengths[i], sizeof(float));
+    assert(self->strobeBuffers[i] != NULL);
 
   }
+  self->pitch = Pitch_create(config->fftSamplerate, config->fftLength);
 
-  // initialize pitch recognition
+  self->pitchIndex = 0;
+  memset(self->pitches, 0.0, sizeof(self->pitches));
 
-  engine->autocorrPitch = AutocorrPitch_create(
-    config->fftSamplerate,
-    config->fftLength
-  );
+  self->threshold = from_dBFS(self->config->audioThreshold);
 
-  engine->fftPitch = FFT_Pitch_create(
-    config->fftSamplerate,
-    config->fftLength,
-    config->overlapFactor
-  );
+  self->audioBuffer = malloc(self->config->fftLength * sizeof(float));
+  assert(self->audioBuffer != NULL);
 
-  engine->threshold = from_dBFS(engine->config->audioThreshold);
-
-  engine->audioBuffer = calloc(engine->config->fftLength * 2, sizeof(float));
-  assert(engine->audioBuffer != NULL);
-
-  return engine;
+  return self;
 
 }
 
 
-void Engine_destroy(Engine* engine) {
+void Engine_destroy(Engine* self) {
 
-  Config_destroy(engine->config);
-  AudioFeed_destroy(engine->audioFeed);
+  Config_destroy(self->config);
+  AudioFeed_destroy(self->audioFeed);
+  Pitch_destroy(self->pitch);
 
-  AutocorrPitch_destroy(engine->autocorrPitch);
-  FFT_Pitch_destroy(engine->fftPitch);
-
-  for (int i = 0; i < engine->strobeCount; ++i) {
-    Strobe_destroy(engine->strobes[i]);
-    free(engine->strobeBuffers[i]);
+  for (int i = 0; i < self->strobeCount; ++i) {
+    Strobe_destroy(self->strobes[i]);
+    free(self->strobeBuffers[i]);
   }
 
-  free(engine->audioBuffer);
-  free(engine);
-  engine = NULL;
+  free(self->audioBuffer);
+  free(self);
+  self = NULL;
 
 }
 
 
-void Engine_processSignal(Engine* engine, float* input, int inputLength) {
+void Engine_processSignal(Engine* self, float* input, int length) {
 
-  AudioFeed_process(engine->audioFeed, input, inputLength);
+  AudioFeed_process(self->audioFeed, input, length);
 
-  for (int i = 0; i < engine->strobeCount; ++i) {
-    Strobe_process(engine->strobes[i], input, inputLength);
-  }
+  // for (int i = 0; i < self->strobeCount; ++i) {
+  //   Strobe_process(self->strobes[i], input, length);
+  // }
 
 }
 
@@ -114,26 +104,26 @@ int Engine_streamCallback(
   }
 
   float* finput  = (float*) input;
-  Engine* engine = (Engine*) userData;
+  Engine* self = (Engine*) userData;
 
   int index  = 0;
   int length = (int) frameCount;
 
   // process in batches because frameCount can be bigger than bufferLength
-  while (length > engine->config->bufferLength) {
+  while (length > self->config->bufferLength) {
 
-    Engine_processSignal(engine, &finput[index], engine->config->bufferLength);
-    length -= engine->config->bufferLength;
-    index  += engine->config->bufferLength;
+    Engine_processSignal(self, &finput[index], self->config->bufferLength);
+    length -= self->config->bufferLength;
+    index  += self->config->bufferLength;
 
   }
 
   // anything left over
   if (length > 0) {
-    Engine_processSignal(engine, &finput[index], length);
+    Engine_processSignal(self, &finput[index], length);
   }
 
-  return 0;
+  return paContinue;
 
 }
 
@@ -145,7 +135,7 @@ void printPaError(PaError error) {
 }
 
 
-bool Engine_startAudio(Engine* engine) {
+bool Engine_startAudio(Engine* self) {
 
   PaError err;
 
@@ -178,24 +168,27 @@ bool Engine_startAudio(Engine* engine) {
   //   &Engine_streamCallback, engine
   // );
 
-  const PaDeviceInfo* info = Pa_GetDeviceInfo(2);
+  int device = self->config->deviceIndex;
+  // int deviceIndex = 0;
+
+  const PaDeviceInfo* info = Pa_GetDeviceInfo(device);
   PaStreamParameters* inputParameters = malloc(sizeof(PaStreamParameters));
 
-  inputParameters->device = 2;
+  inputParameters->device = device;
   inputParameters->channelCount = 1;
   inputParameters->sampleFormat = paFloat32;
   inputParameters->suggestedLatency = info->defaultLowInputLatency;
   inputParameters->hostApiSpecificStreamInfo = NULL;
 
   err = Pa_OpenStream(
-    &engine->stream,
+    &self->stream,
     inputParameters,
     NULL,
-    engine->config->samplerate,
+    self->config->samplerate,
     paFramesPerBufferUnspecified,
     paNoFlag,
     &Engine_streamCallback,
-    engine
+    self
   );
 
   if (err != paNoError) {
@@ -204,7 +197,7 @@ bool Engine_startAudio(Engine* engine) {
     return false;
   }
 
-  err = Pa_StartStream(engine->stream);
+  err = Pa_StartStream(self->stream);
 
   if (err != paNoError) {
     printPaError(err);
@@ -213,9 +206,7 @@ bool Engine_startAudio(Engine* engine) {
   }
 
 
-  const PaStreamInfo* streamInfo = Pa_GetStreamInfo(engine->stream);
-
-  printf("%f\n", streamInfo->sampleRate);
+  // const PaStreamInfo* streamInfo = Pa_GetStreamInfo(self->stream);
 
   return true;
 
@@ -228,9 +219,9 @@ bool Engine_startAudio(Engine* engine) {
     Failure to do so may result in serious resource leaks,
     such as audio devices not being available until the next reboot.
  */
-void Engine_stopAudio(Engine* engine) {
+void Engine_stopAudio(Engine* self) {
 
-  Pa_StopStream(engine->stream);
+  Pa_StopStream(self->stream);
 
   // this will automatically close any PortAudio streams that are still open.
   Pa_Terminate();
@@ -239,68 +230,55 @@ void Engine_stopAudio(Engine* engine) {
 
 
 
-void Engine_setStrobeFreq(Engine* engine, double frequency) {
+void Engine_setStrobeFreq(Engine* self, double frequency) {
 
-  for (int i = 0; i < engine->strobeCount; ++i) {
-    Strobe_setFreq(engine->strobes[i], frequency * engine->config->partials[i]);
+  for (int i = 0; i < self->strobeCount; ++i) {
+    Strobe_setFreq(self->strobes[i], frequency * self->config->partials[i]);
   }
 
 }
 
 
-void Engine_readStrobes(Engine* engine) {
+void Engine_readStrobes(Engine* self) {
 
-  for (int i = 0; i < engine->strobeCount; ++i) {
-    Strobe_read(
-      engine->strobes[i],
-      engine->strobeBuffers[i],
-      engine->strobeBufferLengths[i]
-    );
+  for (int i = 0; i < self->strobeCount; ++i) {
+    Strobe_read(self->strobes[i], self->strobeBuffers[i], self->strobeBufferLengths[i]);
   }
 
 }
 
 
-double Engine_estimatePitch(Engine* engine) {
+double Engine_estimatePitch(Engine* self) {
 
-  static double pitch = 27.5000;
+  // double peak = findPeak(self->audioBuffer, self->config->fftLength);
 
-
-
-  // double peak = findPeak(engine->audioBuffer, engine->config->fftLength);
-
-  // if (peak > engine->threshold) {
+  // if (peak > self->threshold) {
 
 
-  int dataLength = engine->config->fftLength; // + engine->fftPitch->hopSize;
+  // int dataLength = self->config->fftLength + self->config->hopSize;
+  int length = self->config->fftLength;
 
 
   // read in new data from the ring buffer
-  AudioFeed_read(
-    engine->audioFeed,
-    engine->audioBuffer,
-    dataLength
-  );
-
-  // pitch = FFT_Pitch_estimateByInterpolation(
-  //   engine->fftPitch,
-  //   engine->audioBuffer,
-  //   dataLength
-  // );
+  AudioFeed_read(self->audioFeed, self->audioBuffer, length);
 
 
-  pitch = FFT_Pitch_estimateFromPhase(
-    engine->fftPitch,
-    engine->audioBuffer,
-    dataLength
-  );
+  double pitch = Pitch_estimate(self->pitch, self->audioBuffer, length);
 
 
-  // pitch = AutocorrPitch_estimate(
-  //   engine->autocorrPitch,
-  //   engine->audioBuffer,
-  //   engine->config->fftLength
-  // );
+  // self->pitches[self->pitchIndex] = pitch;
+  // self->pitchIndex += 1;
+
+  // if (self->pitchIndex == self->config->averageCount) {
+  //   self->pitchIndex = 0;
+  // }
+
+  // double sum = 0.0;
+  // for (int i = 0; i < self->config->averageCount; ++i) {
+  //   sum += self->pitches[i];
+  // }
+
+  // double avgPitch = sum / (double)self->config->averageCount;
 
 
 

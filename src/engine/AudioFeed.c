@@ -7,29 +7,28 @@
 #include "AudioFeed.h"
 
 
+#define RB_LENGTH 16384
+#define FD_LENGTH 4096
+
+
 
 AudioFeed* AudioFeed_create() {
 
   AudioFeed* self = malloc(sizeof(AudioFeed));
   assert(self != NULL);
 
-  self->ringbufferData = malloc(AF_RB_LENGTH * sizeof(float));
-  assert(self->ringbufferData != NULL);
+  self->rbdata = malloc(RB_LENGTH * sizeof(float));
+  assert(self->rbdata != NULL);
 
   self->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
   assert(self->ringbuffer != NULL);
 
-  PaUtil_InitializeRingBuffer(
-    self->ringbuffer,
-    sizeof(float),
-    AF_RB_LENGTH,
-    self->ringbufferData
-  );
+  PaUtil_InitializeRingBuffer(self->ringbuffer, sizeof(float), RB_LENGTH, self->rbdata);
 
-  self->filteredData = malloc(AF_FD_LENGTH * sizeof(float));
+  self->filteredData = malloc(FD_LENGTH * sizeof(float));
   assert(self->filteredData != NULL);
 
-  self->decimatedData = malloc(AF_FD_LENGTH * sizeof(float));
+  self->decimatedData = malloc(FD_LENGTH * sizeof(float));
   assert(self->decimatedData != NULL);
 
   self->decimationCounter = 0;
@@ -81,7 +80,7 @@ void AudioFeed_destroy(AudioFeed* self) {
   free(self->halfbandIIR);
   free(self->quartbandIIR);
   free(self->threePercIIR);
-  free(self->ringbufferData);
+  free(self->rbdata);
   free(self->ringbuffer);
   free(self);
   self = NULL;
@@ -89,40 +88,67 @@ void AudioFeed_destroy(AudioFeed* self) {
 }
 
 
-void AudioFeed_read(AudioFeed* self, float* output, int outputLength) {
+void AudioFeed_read(AudioFeed* self, float* output, int length) {
 
-  while (PaUtil_GetRingBufferReadAvailable(self->ringbuffer)) {
-    PaUtil_ReadRingBuffer(self->ringbuffer, output, outputLength);
+  while (PaUtil_GetRingBufferReadAvailable(self->ringbuffer) >= length) {
+    PaUtil_ReadRingBuffer(self->ringbuffer, output, length);
   }
 
 }
 
 
-void AudioFeed_process(AudioFeed* self, float* input, int inputLength) {
+// 150Hz high pass Butterworth filter
+inline static void highpass(float *input, float* output, int length) {
+
+  const double a0 = 0.9850016172570234;
+  const double a1 = -1.9700032345140468;
+  const double a2 = 0.9850016172570234;
+  const double b1 = -1.9697782746275025;
+  const double b2 = 0.9702281944005912;
+
+  static double z1 = 0.0;
+  static double z2 = 0.0;
+
+  for (int i = 0; i < length; ++i) {
+
+    // Transposed direct form II
+    output[i] = input[i] * a0 + z1;
+    z1 = input[i] * a1 + z2 - b1 * output[i];
+    z2 = input[i] * a2 - b2 * output[i];
+
+  }
+
+}
+
+
+void AudioFeed_process(AudioFeed* self, float* input, int length) {
 
   if (self->decimationRate != DECIMATE_NONE) {
 
-    // alias filtering
-    IIR_filter(self->activeIIR, input, self->filteredData, inputLength);
+    // anti-alias
+    IIR_filter(self->activeIIR, input, self->filteredData, length);
 
     int n = self->decimationCounter;
     int k = 0;
 
     // sub sample
-    while (n < inputLength) {
+    while (n < length) {
       self->decimatedData[k] = self->filteredData[n];
       n += self->decimationRate;
       k += 1;
     }
 
-    self->decimationCounter = n - inputLength;
+    self->decimationCounter = n - length;
 
     PaUtil_WriteRingBuffer(self->ringbuffer, self->decimatedData, k);
 
   }
   else {
 
-    PaUtil_WriteRingBuffer(self->ringbuffer, input, inputLength);
+    // attenuate below 150Hz
+    // highpass(input, self->filteredData, length);
+    PaUtil_WriteRingBuffer(self->ringbuffer, input, length);
+    // PaUtil_WriteRingBuffer(self->ringbuffer, self->filteredData, length);
 
   }
 

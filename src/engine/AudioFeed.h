@@ -7,10 +7,6 @@
 #include "IIR.h"
 
 
-#define AF_RB_LENGTH 65536
-#define AF_FD_LENGTH 4096
-
-
 
 typedef enum {
 
@@ -27,7 +23,7 @@ typedef enum {
 typedef struct {
 
   PaUtilRingBuffer* ringbuffer;
-  float* ringbufferData;
+  float* rbdata;
 
   float* filteredData;
   float* decimatedData;
