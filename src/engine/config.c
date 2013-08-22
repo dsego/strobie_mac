@@ -15,6 +15,7 @@ Config* Config_create() {
   assert(self != NULL);
 
   // general
+  self->deviceIndex            = 2;
   self->samplerate             = 44100;
   self->bufferLength           = 512;
   self->resampledBufferLength  = 512 * 25;
@@ -23,8 +24,7 @@ Config* Config_create() {
   self->averageCount        = 0;
   self->decimationRate      = 1;
   self->fftSamplerate       = self->samplerate / self->decimationRate;
-  self->fftLength           = 4096;
-  self->overlapFactor       = 2;
+  self->fftLength           = 2048;
   self->audioThreshold      = -60;
   self->pitchStandard       = 440;
   self->displayFlats        = false;

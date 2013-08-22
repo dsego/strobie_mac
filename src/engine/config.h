@@ -14,6 +14,7 @@
 
 typedef struct {
 
+  int deviceIndex;
   int samplerate;
   int bufferLength;
   int resampledBufferLength;
@@ -22,7 +23,6 @@ typedef struct {
   int decimationRate;
   int fftSamplerate;
   int fftLength;
-  double overlapFactor;
   double audioThreshold;
   double pitchStandard;
   bool displayFlats;
