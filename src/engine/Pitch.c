@@ -77,58 +77,28 @@ Pitch* Pitch_create(int samplerate, int fftLength) {
 
   self->samplerate = samplerate;
 
-  // FFT
+  int fftBinCount = fftLength; // + 1 ?
 
-  // self->fftLength = fftLength;
-  self->fftLength = fftLength + fftLength;
-  self->freqPerBin = self->samplerate / (double)self->fftLength;
-  self->fftBinCount = self->fftLength / 2; // + 1 ?
+  // zero-pad (autocorrelation)
+  fftLength = fftLength + fftLength;
 
-  self->fftPlan = ffts_init_1d_real(self->fftLength, -1);
-  self->ifftPlan = ffts_init_1d_real(self->fftLength, 1);
+  self->fftPlan = ffts_init_1d_real(fftLength, -1);
+  self->ifftPlan = ffts_init_1d_real(fftLength, 1);
 
-  // pad to simplify averaging (no need for bounds checking)
-  self->fft = calloc((self->fftBinCount + 8), sizeof(float complex));
-  self->fft = &self->fft[4];
-  assert(self->fft != NULL);
+  self->fft = CpxFloatArray_create(fftBinCount);
+  self->window = FloatArray_create(fftLength);
+  self->audio = FloatArray_create(fftLength);
+  self->acf = FloatArray_create(fftLength);
+  self->sdf = FloatArray_create(fftLength);
+  self->powSpectrum = FloatArray_create(fftBinCount);
+  self->primaryPeaks = IntArray_create(fftLength);
 
-
-  self->powSpectrum = calloc(self->fftBinCount, sizeof(float));
-  assert(self->powSpectrum != NULL);
-
-  // FFT window
-  self->window = malloc(self->fftLength * sizeof(float));
-  assert(self->window != NULL);
-  blackman(self->window, self->fftLength);
-
-
-  // Time data
-  self->audio = calloc(self->fftLength, sizeof(float));
-  assert(self->audio != NULL);
-
-  // Autocorrelation
-  self->acf = malloc(self->fftLength * sizeof(float));
-  assert(self->acf != NULL);
-
-  // Normalized SDF
-  self->sdf = malloc(self->fftLength * sizeof(float));
-  assert(self->sdf != NULL);
-
-  self->primaryPeaks = malloc(self->fftLength * sizeof(int));
-  assert(self->primaryPeaks != NULL);
-
+  blackman(self->window.elements, fftLength);
 
   // Cepstrum
-
-  self->cepLength = fftLength / 2;
-  self->cepBinCount = self->cepLength / 2;
-  self->cepPlan = ffts_init_1d_real(self->cepLength, -1);
-
-  self->cepstrum = malloc((self->cepLength) * sizeof(float complex));
-  assert(self->cepstrum != NULL);
-
-  self->powCepstrum = calloc(self->cepBinCount, sizeof(float));
-  assert(self->powCepstrum != NULL);
+  // self->cepPlan = ffts_init_1d_real(self->cepLength, -1);
+  // self->cepstrum = CpxFloatArray_create(cepLength);
+  // self->powCepstrum = FloatArray_create(cepBinCount);
 
 
   return self;
@@ -138,15 +108,15 @@ Pitch* Pitch_create(int samplerate, int fftLength) {
 
 void Pitch_destroy(Pitch* self) {
 
-  free(self->fft);
-  free(self->window);
-  free(self->audio);
-  free(self->acf);
-  free(self->sdf);
-  free(self->primaryPeaks);
-  free(self->powSpectrum);
-  free(self->cepstrum);
-  free(self->powCepstrum);
+  FloatArray_destroy(self->window);
+  FloatArray_destroy(self->audio);
+  FloatArray_destroy(self->acf);
+  FloatArray_destroy(self->sdf);
+  IntArray_destroy(self->primaryPeaks);
+  FloatArray_destroy(self->powSpectrum);
+  FloatArray_destroy(self->powCepstrum);
+  CpxFloatArray_destroy(self->fft);
+  CpxFloatArray_destroy(self->cepstrum);
   ffts_free(self->fftPlan);
   ffts_free(self->cepPlan);
   ffts_free(self->ifftPlan);
@@ -161,86 +131,86 @@ void Pitch_destroy(Pitch* self) {
 
 
 
-double Pitch_estimate1(Pitch* self, float* data, int length) {
+// double Pitch_estimate1(Pitch* self, float* data, int length) {
 
-  memcpy(self->audio, data, length * sizeof(float));
+//   memcpy(self->audio, data, length * sizeof(float));
 
-  double max = 0;
+//   double max = 0;
 
-  for (int i = 0; i < self->fftLength; ++i) {
-    self->audio[i] *= self->window[i];
-  }
+//   for (int i = 0; i < self->fftLength; ++i) {
+//     self->audio[i] *= self->window[i];
+//   }
 
-  // Fourier transform
-  ffts_execute(self->fftPlan, self->audio, self->fft);
-
-
-  // find the strongest frequency bin
-
-  int bin = 0;
-  double value = 0.0;
-  double strongest = 0.0;
-
-  // find the strongest frequency bin
-  for (int i = 1; i < self->fftBinCount - 1; ++i) {
+//   // Fourier transform
+//   ffts_execute(self->fftPlan, self->audio, self->fft);
 
 
-    // TODO: instead of magnitude, just compare complex numbers?
+//   // find the strongest frequency bin
+
+//   int bin = 0;
+//   double value = 0.0;
+//   double strongest = 0.0;
+
+//   // find the strongest frequency bin
+//   for (int i = 1; i < self->fftBinCount - 1; ++i) {
 
 
-    value = magnitude(self->fft[i]);
+//     // TODO: instead of magnitude, just compare complex numbers?
 
-    if (value > strongest) {
-      strongest = value;
-      bin = i;
-    }
 
-  }
+//     value = magnitude(self->fft[i]);
 
-  // calculate the weighted average
+//     if (value > strongest) {
+//       strongest = value;
+//       bin = i;
+//     }
 
-  double mag, numerator = 0.0, denominator = 0.0;
-  float complex peak;
+//   }
 
-  bin = bin + 2;
-  do {
+//   // calculate the weighted average
 
-    // apply window (cheaper than windowing in the time domain)
-    // peak = blackmanFreq(
-    //   self->fft[bin-2],
-    //   self->fft[bin-1],
-    //   self->fft[bin],
-    //   self->fft[bin+1],
-    //   self->fft[bin+2]
-    // );
+//   double mag, numerator = 0.0, denominator = 0.0;
+//   float complex peak;
 
-    mag = magnitude(self->fft[bin]);
-    // mag = magnitude(peak);
-    numerator += mag * bin;
-    denominator += mag;
+//   bin = bin + 2;
+//   do {
 
-  } while (--bin);
+//     // apply window (cheaper than windowing in the time domain)
+//     // peak = blackmanFreq(
+//     //   self->fft[bin-2],
+//     //   self->fft[bin-1],
+//     //   self->fft[bin],
+//     //   self->fft[bin+1],
+//     //   self->fft[bin+2]
+//     // );
 
-  return (numerator / denominator) * self->freqPerBin;
+//     mag = magnitude(self->fft[bin]);
+//     // mag = magnitude(peak);
+//     numerator += mag * bin;
+//     denominator += mag;
 
-}
+//   } while (--bin);
+
+//   return (numerator / denominator) * self->freqPerBin;
+
+// }
 
 
 
 double Pitch_estimate(Pitch* self, float* data, int length) {
 
-  memcpy(self->audio, data, length * sizeof(float));
+  memcpy(self->audio.elements, data, length * sizeof(float));
 
   // forward Fourier transform
-  ffts_execute(self->fftPlan, self->audio, self->fft);
+  ffts_execute(self->fftPlan, self->audio.elements, self->fft.elements);
 
   // power spectrum
-  for (int i = 0; i < self->fftBinCount; ++i) {
-    self->fft[i] = magnitude(self->fft[i]);
+  for (int i = 0; i < self->fft.length; ++i) {
+    self->fft.elements[i] = magnitude(self->fft.elements[i]);
   }
 
   // inverse Fourier transform --> autocorrelation
-  ffts_execute(self->ifftPlan, self->fft, self->acf);
+  ffts_execute(self->ifftPlan, self->fft.elements, self->acf.elements);
 
 
   /* ----------------------------------------------------------------
@@ -263,16 +233,16 @@ double Pitch_estimate(Pitch* self, float* data, int length) {
 
 
   // left-hand summation for zero lag
-  double lhsum = self->acf[0] / (double)length;
+  double lhsum = self->acf.elements[0] / (double)length;
 
   // normalized SDF
   for (int t = 0; t < length; ++t) {
 
     if (lhsum > 0.0) {
-      self->sdf[t] = self->acf[t] / lhsum;
+      self->sdf.elements[t] = self->acf.elements[t] / lhsum;
     }
     else {
-      self->sdf[t] = 0.0;
+      self->sdf.elements[t] = 0.0;
     }
 
     lhsum -= data[t] * data[t] + data[length-t-1] * data[length-t-1];
@@ -286,34 +256,30 @@ double Pitch_estimate(Pitch* self, float* data, int length) {
   double peak = 0.0;
 
   // first negative zero crossing
-  while (self->sdf[t] > 0.0 && t < length) {
-    ++t;
-  }
+  while (self->sdf.elements[t] > 0.0 && t < length) { ++t; }
 
   // loop over values below zero
-  while (self->sdf[t] < 0.0 && t < length) {
-    ++t;
-  }
+  while (self->sdf.elements[t] < 0.0 && t < length) { ++t; }
 
   // find primary peaks
   while (t < last) {
 
     // find primary peak
-    if (self->sdf[t] > peak) {
-      peak = self->sdf[t];
+    if (self->sdf.elements[t] > peak) {
+      peak = self->sdf.elements[t];
       pos = t;
     }
 
     ++t;
 
     // negatively sloped zero crossing or the ending
-    if (self->sdf[t] < 0.0 || t == last) {
+    if (self->sdf.elements[t] < 0.0 || t == last) {
       peak = 0.0;
-      self->primaryPeaks[index] = pos;
+      self->primaryPeaks.elements[index] = pos;
       ++index;
 
       // loop over values below zero
-      while (self->sdf[t] < 0.0 && t < length) {
+      while (self->sdf.elements[t] < 0.0 && t < length) {
         ++t;
       }
     }
@@ -325,9 +291,9 @@ double Pitch_estimate(Pitch* self, float* data, int length) {
 
   // find the largest primary peak value
   for (int i = 0; i < index; ++i) {
-    int t = self->primaryPeaks[i];
-    if (self->sdf[t] > threshold) {
-      threshold = self->sdf[t];
+    int t = self->primaryPeaks.elements[i];
+    if (self->sdf.elements[t] > threshold) {
+      threshold = self->sdf.elements[t];
     }
   }
 
@@ -337,53 +303,54 @@ double Pitch_estimate(Pitch* self, float* data, int length) {
 
   // first peak larger than the threshold
   for (int i = 0; i < index; ++i) {
-    int t = self->primaryPeaks[i];
-    if (self->sdf[t] > threshold) {
+    int t = self->primaryPeaks.elements[i];
+    if (self->sdf.elements[t] > threshold) {
       lag = t;
       break;
     }
   }
 
-  return self->samplerate / (lag + parabolic(self->sdf[lag-1], self->sdf[lag], self->sdf[lag+1]));
+  double delta = parabolic(self->sdf.elements[lag-1], self->sdf.elements[lag], self->sdf.elements[lag+1]);
+  return self->samplerate / (lag + delta);
 
 }
 
 
 
 
-double Pitch_estimate3(Pitch* self, float* data, int length) {
+// double Pitch_estimate3(Pitch* self, float* data, int length) {
 
-  // apply window
-  for (int i = 0; i < self->fftLength; ++i) {
-    self->audio[i] = data[i] * self->window[i];
-  }
+//   // apply window
+//   for (int i = 0; i < self->fftLength; ++i) {
+//     self->audio[i] = data[i] * self->window[i];
+//   }
 
-  // forward Fourier transform
-  ffts_execute(self->fftPlan, self->audio, self->fft);
+//   // forward Fourier transform
+//   ffts_execute(self->fftPlan, self->audio, self->fft);
 
-  // power spectrum
-  for (int i = 0; i < self->fftBinCount; ++i) {
-    self->powSpectrum[i] = log10(magnitude(self->fft[i]));
-  }
+//   // power spectrum
+//   for (int i = 0; i < self->fftBinCount; ++i) {
+//     self->powSpectrum[i] = log10(magnitude(self->fft[i]));
+//   }
 
-  // inverse Fourier transform --> modified cepstrum
-  ffts_execute(self->cepPlan, self->powSpectrum, self->cepstrum);
-
-
-  // find peak position
-  double peak = 0.0;
-
-  for (int i = 0; i < self->cepBinCount; ++i) {
-
-    self->powCepstrum[i] = log10(magnitude(self->cepstrum[i]));
-
-    // if (self->powerCesptrum[i] > peak) {
-    //   peak = self->powerCesptrum[i];
-    // }
-
-  }
-
-  return peak;
+//   // inverse Fourier transform --> modified cepstrum
+//   ffts_execute(self->cepPlan, self->powSpectrum, self->cepstrum);
 
 
-}
+//   // find peak position
+//   double peak = 0.0;
+
+//   for (int i = 0; i < self->cepBinCount; ++i) {
+
+//     self->powCepstrum[i] = log10(magnitude(self->cepstrum[i]));
+
+//     // if (self->powerCesptrum[i] > peak) {
+//     //   peak = self->powerCesptrum[i];
+//     // }
+
+//   }
+
+//   return peak;
+
+
+// }

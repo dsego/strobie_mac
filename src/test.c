@@ -52,7 +52,7 @@ int main() {
 
     // int length = engine->pitch->fftBinCount;
     // int length = engine->pitch->cepBinCount;
-    int length = engine->pitch->fftLength;
+    int length = engine->config->fftLength;
     double dx = 2.0 / length;
     double x = -1.0;
 
@@ -68,7 +68,7 @@ int main() {
       // glVertex2d(x, 0.05 * engine->pitch->powSpectrum[i]);
       // glVertex2d(x, 0.1 * engine->pitch->powCepstrum[i]);
       // glVertex2d(x, 0.0001 * engine->pitch->sdf[i]);
-      glVertex2d(x, 0.00005 * engine->pitch->sdf[i]);
+      glVertex2d(x, 0.00005 * engine->pitch->sdf.elements[i]);
       x += dx;
     }
 
@@ -77,7 +77,7 @@ int main() {
     glColor3ub(190, 230, 20);
     glBegin(GL_POINTS);
 
-    length = engine->pitch->fftLength;
+    // length = engine->pitch->fftLength;
     // length = engine->pitch->fftLength / 2;
     dx = 2.0 / length;
     x = -1.0;
@@ -91,9 +91,6 @@ int main() {
     }
 
     glEnd();
-
-
-
 
     cents = Tuning12TET_freqToCents(hz, 440.0);
     note = Tuning12TET_centsToNote(cents, 440.0, 0.0, 0);
