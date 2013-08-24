@@ -39,7 +39,7 @@ Engine* Engine_create() {
 
   }
 
-  self->pitch = Pitch_create(config->fftSamplerate, config->fftLength);
+  self->pitch = Pitch_create(config->samplerate, config->fftLength);
   self->threshold = from_dBFS(self->config->audioThreshold);
   self->audioBuffer = FloatArray_create(self->config->fftLength);
 

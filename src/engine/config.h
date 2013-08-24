@@ -17,10 +17,8 @@ typedef struct {
   int deviceIndex;
   int samplerate;
   int bufferLength;
-  int resampledBufferLength;
-
+  int resampledLength;
   int averageCount;
-  int decimationRate;
   int fftSamplerate;
   int fftLength;
   double audioThreshold;
@@ -28,14 +26,10 @@ typedef struct {
   bool displayFlats;
   int transpose;
   double centsOffset;
-
   int periodsPerFrame;
-
-  // partials and samplesPerPeriod arrays should be the same length
   int partialsLength;
   int partials[CONFIG_MAX_PARTIALS];
   int samplesPerPeriod[CONFIG_MAX_PARTIALS];
-
   double instrumentNotes[CONFIG_MAX_NOTES];
 
 } Config;
