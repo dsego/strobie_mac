@@ -19,39 +19,29 @@ Engine* Engine_create() {
   Config* config = self->config = Config_create();
 
   self->audioFeed = AudioFeed_create();
-  AudioFeed_setDecimationRate(self->audioFeed, config->decimationRate);
+  // AudioFeed_setDecimationRate(self->audioFeed, config->decimationRate);
 
   self->strobeCount = min(config->partialsLength, MAX_STROBES);
 
 
   // initialize strobes
-
   for (int i = 0; i < self->strobeCount; ++i) {
 
     self->strobes[i] = Strobe_create(
       config->bufferLength,
-      config->resampledBufferLength,
+      config->resampledLength,
       config->samplerate,
       config->samplesPerPeriod[i]
     );
 
-    self->strobeBufferLengths[i] = config->samplesPerPeriod[i] *
-      config->periodsPerFrame *
-      config->partials[i];
-
-    self->strobeBuffers[i] = calloc(self->strobeBufferLengths[i], sizeof(float));
-    assert(self->strobeBuffers[i] != NULL);
+    int length = config->samplesPerPeriod[i] * config->periodsPerFrame * config->partials[i];
+    self->strobeBuffers[i] = FloatArray_create(length);
 
   }
+
   self->pitch = Pitch_create(config->fftSamplerate, config->fftLength);
-
-  self->pitchIndex = 0;
-  memset(self->pitches, 0.0, sizeof(self->pitches));
-
   self->threshold = from_dBFS(self->config->audioThreshold);
-
-  self->audioBuffer = malloc(self->config->fftLength * sizeof(float));
-  assert(self->audioBuffer != NULL);
+  self->audioBuffer = FloatArray_create(self->config->fftLength);
 
   return self;
 
@@ -66,10 +56,10 @@ void Engine_destroy(Engine* self) {
 
   for (int i = 0; i < self->strobeCount; ++i) {
     Strobe_destroy(self->strobes[i]);
-    free(self->strobeBuffers[i]);
+    FloatArray_destroy(self->strobeBuffers[i]);
   }
 
-  free(self->audioBuffer);
+  FloatArray_destroy(self->audioBuffer);
   free(self);
   self = NULL;
 
@@ -93,29 +83,24 @@ int Engine_streamCallback(
   const void* input,
   void* output,
   unsigned long frameCount,
-  const PaStreamCallbackTimeInfo* timeInfo,
-  PaStreamCallbackFlags statusFlags,
+  const PaStreamCallbackTimeInfo* time,
+  PaStreamCallbackFlags status,
   void *userData
 ) {
 
   // nothing to process
-  if (statusFlags == paInputUnderflow) {
-    return 0;
-  }
+  if (status == paInputUnderflow) { return 0; }
 
   float* finput  = (float*) input;
   Engine* self = (Engine*) userData;
-
   int index  = 0;
   int length = (int) frameCount;
 
   // process in batches because frameCount can be bigger than bufferLength
   while (length > self->config->bufferLength) {
-
     Engine_processSignal(self, &finput[index], self->config->bufferLength);
     length -= self->config->bufferLength;
     index  += self->config->bufferLength;
-
   }
 
   // anything left over
@@ -142,34 +127,14 @@ bool Engine_startAudio(Engine* self) {
   // start PortAudio and open the input stream
   //  ... if Pa_Initialize() returns an error code,
   //      Pa_Terminate() should NOT be called
-  //
+
   err = Pa_Initialize();
   if (err != paNoError) {
     printPaError(err);
     return false;
   }
 
-
-
-  PaDeviceIndex count = Pa_GetDeviceCount();
-  for (int i = 0; i < count; ++i) {
-
-    const PaDeviceInfo* info = Pa_GetDeviceInfo(i);
-    printf("%i: %s\n", i, info->name);
-
-  }
-
-
-  // err = Pa_OpenDefaultStream(
-  //   &engine->stream,
-  //   1, 0, paFloat32,
-  //   engine->config->samplerate,
-  //   paFramesPerBufferUnspecified,
-  //   &Engine_streamCallback, engine
-  // );
-
   int device = self->config->deviceIndex;
-  // int deviceIndex = 0;
 
   const PaDeviceInfo* info = Pa_GetDeviceInfo(device);
   PaStreamParameters* inputParameters = malloc(sizeof(PaStreamParameters));
@@ -205,9 +170,6 @@ bool Engine_startAudio(Engine* self) {
     return false;
   }
 
-
-  // const PaStreamInfo* streamInfo = Pa_GetStreamInfo(self->stream);
-
   return true;
 
 }
@@ -242,7 +204,7 @@ void Engine_setStrobeFreq(Engine* self, double frequency) {
 void Engine_readStrobes(Engine* self) {
 
   for (int i = 0; i < self->strobeCount; ++i) {
-    Strobe_read(self->strobes[i], self->strobeBuffers[i], self->strobeBufferLengths[i]);
+    Strobe_read(self->strobes[i], self->strobeBuffers[i].elements, self->strobeBuffers[i].length);
   }
 
 }
@@ -255,36 +217,11 @@ double Engine_estimatePitch(Engine* self) {
   // if (peak > self->threshold) {
 
 
-  // int dataLength = self->config->fftLength + self->config->hopSize;
-  int length = self->config->fftLength;
-
 
   // read in new data from the ring buffer
-  AudioFeed_read(self->audioFeed, self->audioBuffer, length);
+  AudioFeed_read(self->audioFeed, self->audioBuffer.elements, self->audioBuffer.length);
 
-
-  double pitch = Pitch_estimate(self->pitch, self->audioBuffer, length);
-
-
-  // self->pitches[self->pitchIndex] = pitch;
-  // self->pitchIndex += 1;
-
-  // if (self->pitchIndex == self->config->averageCount) {
-  //   self->pitchIndex = 0;
-  // }
-
-  // double sum = 0.0;
-  // for (int i = 0; i < self->config->averageCount; ++i) {
-  //   sum += self->pitches[i];
-  // }
-
-  // double avgPitch = sum / (double)self->config->averageCount;
-
-
-
-    // pitch = clamp(pitch, 27.5000, 4186.01); // A0 - C8
-
-  // }
+  double pitch = Pitch_estimate(self->pitch, self->audioBuffer.elements, self->audioBuffer.length);
 
   return pitch;
 

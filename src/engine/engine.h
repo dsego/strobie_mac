@@ -8,11 +8,11 @@
 #include "Config.h"
 #include "Pitch.h"
 #include "AudioFeed.h"
+#include "Array.h"
 #include "Strobe.h"
 
 
 #define MAX_STROBES 10
-#define MAX_PITCHES 100
 
 
 
@@ -20,19 +20,15 @@ typedef struct {
 
   Config* config;             // configuration parameters
   PaStream* stream;           // PortAudio stream, provides access to audio hardware
-  AudioFeed* audioFeed;       //
+  AudioFeed* audioFeed;
   Pitch* pitch;               // pitch recognition
 
-  int pitchIndex;
-  double pitches[MAX_PITCHES];
-
-  float* audioBuffer;
+  FloatArray audioBuffer;
   double threshold;
 
-  Strobe* strobes[MAX_STROBES];
   int strobeCount;
-  float* strobeBuffers[MAX_STROBES];
-  int strobeBufferLengths[MAX_STROBES];
+  Strobe* strobes[MAX_STROBES];
+  FloatArray strobeBuffers[MAX_STROBES];
 
 } Engine;
 

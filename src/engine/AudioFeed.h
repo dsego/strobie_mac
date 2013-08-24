@@ -4,6 +4,7 @@
 
 #include "portaudio.h"
 #include "pa_ringbuffer.h"
+#include "Array.h"
 #include "IIR.h"
 
 
@@ -23,10 +24,9 @@ typedef enum {
 typedef struct {
 
   PaUtilRingBuffer* ringbuffer;
-  float* rbdata;
-
-  float* filteredData;
-  float* decimatedData;
+  FloatArray rbdata;
+  FloatArray filteredData;
+  FloatArray decimatedData;
   int decimationCounter;
 
   IIR* activeIIR;       // points to one of the three filters below

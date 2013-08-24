@@ -17,19 +17,15 @@ AudioFeed* AudioFeed_create() {
   AudioFeed* self = malloc(sizeof(AudioFeed));
   assert(self != NULL);
 
-  self->rbdata = malloc(RB_LENGTH * sizeof(float));
-  assert(self->rbdata != NULL);
+  self->rbdata = FloatArray_create(RB_LENGTH);
 
   self->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
   assert(self->ringbuffer != NULL);
 
-  PaUtil_InitializeRingBuffer(self->ringbuffer, sizeof(float), RB_LENGTH, self->rbdata);
+  PaUtil_InitializeRingBuffer(self->ringbuffer, sizeof(float), RB_LENGTH, self->rbdata.elements);
 
-  self->filteredData = malloc(FD_LENGTH * sizeof(float));
-  assert(self->filteredData != NULL);
-
-  self->decimatedData = malloc(FD_LENGTH * sizeof(float));
-  assert(self->decimatedData != NULL);
+  self->filteredData = FloatArray_create(FD_LENGTH);
+  self->decimatedData = FloatArray_create(FD_LENGTH);
 
   self->decimationCounter = 0;
   self->decimationRate = DECIMATE_NONE;
@@ -80,7 +76,9 @@ void AudioFeed_destroy(AudioFeed* self) {
   free(self->halfbandIIR);
   free(self->quartbandIIR);
   free(self->threePercIIR);
-  free(self->rbdata);
+  FloatArray_destroy(self->rbdata);
+  FloatArray_destroy(self->filteredData);
+  FloatArray_destroy(self->decimatedData);
   free(self->ringbuffer);
   free(self);
   self = NULL;
@@ -123,33 +121,33 @@ inline static void highpass(float *input, float* output, int length) {
 
 void AudioFeed_process(AudioFeed* self, float* input, int length) {
 
-  if (self->decimationRate != DECIMATE_NONE) {
+  // if (self->decimationRate != DECIMATE_NONE) {
 
-    // anti-alias
-    IIR_filter(self->activeIIR, input, self->filteredData, length);
+  //   // anti-alias
+  //   IIR_filter(self->activeIIR, input, self->filteredData, length);
 
-    int n = self->decimationCounter;
-    int k = 0;
+  //   int n = self->decimationCounter;
+  //   int k = 0;
 
-    // sub sample
-    while (n < length) {
-      self->decimatedData[k] = self->filteredData[n];
-      n += self->decimationRate;
-      k += 1;
-    }
+  //   // sub sample
+  //   while (n < length) {
+  //     self->decimatedData[k] = self->filteredData[n];
+  //     n += self->decimationRate;
+  //     k += 1;
+  //   }
 
-    self->decimationCounter = n - length;
+  //   self->decimationCounter = n - length;
 
-    PaUtil_WriteRingBuffer(self->ringbuffer, self->decimatedData, k);
+  //   PaUtil_WriteRingBuffer(self->ringbuffer, self->decimatedData, k);
 
-  }
-  else {
+  // }
+  // else {
 
     // attenuate below 150Hz
     // highpass(input, self->filteredData, length);
     PaUtil_WriteRingBuffer(self->ringbuffer, input, length);
     // PaUtil_WriteRingBuffer(self->ringbuffer, self->filteredData, length);
 
-  }
+  // }
 
 }
