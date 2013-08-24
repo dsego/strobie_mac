@@ -4,6 +4,9 @@
 
 #include <complex.h>
 
+#ifndef ARRAY_H
+#define ARRAY_H
+
 
 typedef struct {
 
@@ -41,3 +44,6 @@ void CpxFloatArray_fill(CpxFloatArray array, float complex value);
 void IntArray_destroy(IntArray array);
 void FloatArray_destroy(FloatArray array);
 void CpxFloatArray_destroy(CpxFloatArray array);
+
+
+#endif
