@@ -96,9 +96,11 @@ Pitch* Pitch_create(int samplerate, int fftLength) {
   blackman(self->window.elements, fftLength);
 
   // Cepstrum
-  // self->cepPlan = ffts_init_1d_real(self->cepLength, -1);
-  // self->cepstrum = CpxFloatArray_create(cepLength);
-  // self->powCepstrum = FloatArray_create(cepBinCount);
+  int cepLength = fftLength / 2;
+  int cepBinCount = cepLength / 2;
+  self->cepPlan = ffts_init_1d_real(cepLength, -1);
+  self->cepstrum = CpxFloatArray_create(cepBinCount);
+  self->powCepstrum = FloatArray_create(cepBinCount);
 
 
   return self;
@@ -194,12 +196,11 @@ void Pitch_destroy(Pitch* self) {
 //   return (numerator / denominator) * self->freqPerBin;
 
 // }
+//
 
 
-
-double Pitch_estimate(Pitch* self, float* data, int length) {
-
-  memcpy(self->audio.elements, data, length * sizeof(float));
+// autocorrelation (type 2)
+static void acf2(Pitch* self) {
 
   // forward Fourier transform
   ffts_execute(self->fftPlan, self->audio.elements, self->fft.elements);
@@ -211,6 +212,12 @@ double Pitch_estimate(Pitch* self, float* data, int length) {
 
   // inverse Fourier transform --> autocorrelation
   ffts_execute(self->ifftPlan, self->fft.elements, self->acf.elements);
+
+}
+
+
+// Normalized square difference
+static double nsdf(Pitch* self) {
 
 
   /* ----------------------------------------------------------------
@@ -231,23 +238,33 @@ double Pitch_estimate(Pitch* self, float* data, int length) {
 
     ---------------------------------------------------------------- */
 
+  acf2(self);
+
+  int length = self->acf.length / 2;
+
+  double norm = 1.0 / (double)length;
 
   // left-hand summation for zero lag
-  double lhsum = self->acf.elements[0] / (double)length;
+  double lhsum = norm * self->acf.elements[0];
 
-  // normalized SDF
+  // normalized SDF (via autocorrelation)
   for (int t = 0; t < length; ++t) {
 
     if (lhsum > 0.0) {
-      self->sdf.elements[t] = self->acf.elements[t] / lhsum;
+      self->sdf.elements[t] = norm * self->acf.elements[t] / lhsum;
     }
     else {
       self->sdf.elements[t] = 0.0;
     }
 
-    lhsum -= data[t] * data[t] + data[length-t-1] * data[length-t-1];
+    lhsum -= self->audio.elements[t] *
+      self->audio.elements[t] +
+      self->audio.elements[length-t-1] *
+      self->audio.elements[length-t-1];
 
   }
+
+  // choose peak
 
   int t = 1;
   int index = 0;
@@ -297,7 +314,7 @@ double Pitch_estimate(Pitch* self, float* data, int length) {
     }
   }
 
-  threshold *= 0.6;
+  threshold *= 0.8;
   int lag = 0;
 
 
@@ -316,41 +333,90 @@ double Pitch_estimate(Pitch* self, float* data, int length) {
 }
 
 
+static double yin(Pitch* self) {
+
+  acf2(self);
+
+  int length = self->acf.length / 2;
+
+  double norm = 1.0 / (double)length;
+  double runningSum = 0.0;
+
+  // left-hand summation for zero lag
+  double lhsum = norm * self->acf.elements[0];
 
 
-// double Pitch_estimate3(Pitch* self, float* data, int length) {
+  // SDF via autocorrelation
+  for (int t = 1; t < length; ++t) {
 
-//   // apply window
-//   for (int i = 0; i < self->fftLength; ++i) {
-//     self->audio[i] = data[i] * self->window[i];
-//   }
+    lhsum -= self->audio.elements[t] *
+      self->audio.elements[t] +
+      self->audio.elements[length-t-1] *
+      self->audio.elements[length-t-1];
 
-//   // forward Fourier transform
-//   ffts_execute(self->fftPlan, self->audio, self->fft);
+    self->sdf.elements[t] = lhsum - self->acf.elements[t] * norm;
 
-//   // power spectrum
-//   for (int i = 0; i < self->fftBinCount; ++i) {
-//     self->powSpectrum[i] = log10(magnitude(self->fft[i]));
-//   }
+    // cumulative mean normalized difference function
+    runningSum += self->sdf.elements[t];
+    self->sdf.elements[t] *= t / runningSum;
 
-//   // inverse Fourier transform --> modified cepstrum
-//   ffts_execute(self->cepPlan, self->powSpectrum, self->cepstrum);
+  }
+
+  self->sdf.elements[0] = 1.0;
+
+  int lag;
+  for (int t = 1; t < length; ++t) {
+
+    if (self->sdf.elements[t] < 0.15) {
+      lag = t;
+      break;
+    }
+
+  }
+
+  // double delta = parabolic(self->sdf.elements[lag-1], self->sdf.elements[lag], self->sdf.elements[lag+1]);
+  // return self->samplerate / (lag + delta);
+  return self->samplerate / lag;
+
+}
 
 
-//   // find peak position
-//   double peak = 0.0;
-
-//   for (int i = 0; i < self->cepBinCount; ++i) {
-
-//     self->powCepstrum[i] = log10(magnitude(self->cepstrum[i]));
-
-//     // if (self->powerCesptrum[i] > peak) {
-//     //   peak = self->powerCesptrum[i];
-//     // }
-
-//   }
-
-//   return peak;
 
 
-// }
+static double cepstrum(Pitch* self) {
+
+  // // apply window
+  // for (int i = 0; i < self->fftLength; ++i) {
+  //   self->audio.elements[i] = self->audio.elements[i] * self->window.elements[i];
+  // }
+
+  // forward Fourier transform
+  ffts_execute(self->fftPlan, self->audio.elements, self->fft.elements);
+
+  // power spectrum
+  for (int i = 0; i < self->fft.length; ++i) {
+    self->powSpectrum.elements[i] = log10(magnitude(self->fft.elements[i]));
+  }
+
+  // inverse Fourier transform --> modified cepstrum
+  ffts_execute(self->cepPlan, self->powSpectrum.elements, self->cepstrum.elements);
+
+  for (int i = 0; i < self->cepstrum.length; ++i) {
+    self->powCepstrum.elements[i] = log10(magnitude(self->cepstrum.elements[i]));
+  }
+
+  return 0;
+
+
+}
+
+
+
+double Pitch_estimate(Pitch* self, float* data) {
+
+  memcpy(self->audio.elements, data, (self->audio.length / 2) * sizeof(float));
+  return cepstrum(self);
+  // return nsdf(self);
+  // return yin(self);
+
+}

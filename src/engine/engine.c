@@ -221,7 +221,7 @@ double Engine_estimatePitch(Engine* self) {
   // read in new data from the ring buffer
   AudioFeed_read(self->audioFeed, self->audioBuffer.elements, self->audioBuffer.length);
 
-  double pitch = Pitch_estimate(self->pitch, self->audioBuffer.elements, self->audioBuffer.length);
+  double pitch = Pitch_estimate(self->pitch, self->audioBuffer.elements);
 
   return pitch;
 

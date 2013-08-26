@@ -36,4 +36,4 @@ typedef struct {
 
 Pitch* Pitch_create(int samplerate, int fftLength);
 void Pitch_destroy(Pitch* self);
-double Pitch_estimate(Pitch* self, float* data, int dataLength);
+double Pitch_estimate(Pitch* self, float* data);
