@@ -29,7 +29,7 @@ int main() {
 
   double hz = 0.0;
   double cents = 0.0;
-  double err = 0.0;  // error in cents
+  double err = 0.0;
 
   Note note;
 
@@ -42,7 +42,6 @@ int main() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-
   while (glfwGetWindowParam(GLFW_OPENED)) {
 
     glClearColor(0, 0, 0, 0);
@@ -50,47 +49,24 @@ int main() {
 
     hz = Engine_estimatePitch(engine);
 
-    // int length = engine->pitch->fftBinCount;
-    // int length = engine->pitch->cepBinCount;
-    int length = engine->config->fftLength;
-    double dx = 2.0 / length;
+    // int length = engine->pitch->sdf.length;
+    int length = engine->pitch->powCepstrum.length;
+    double dx = 2.0 / (double)length;
     double x = -1.0;
 
-
     glColor3ub(20, 190, 250);
-
-    // glBegin(GL_POINTS);
-    glBegin(GL_LINE_STRIP);
-
-    for (int i = 0; i < length; ++i) {
-      // glVertex2d(x, 0.06 * log10(fft[i]));
-      // glVertex2d(x, 20 * log10(magnitude(fft[i])) / length);
-      // glVertex2d(x, 0.05 * engine->pitch->powSpectrum[i]);
-      // glVertex2d(x, 0.1 * engine->pitch->powCepstrum[i]);
-      // glVertex2d(x, 0.0001 * engine->pitch->sdf[i]);
-      glVertex2d(x, 0.00005 * engine->pitch->sdf.elements[i]);
-      x += dx;
-    }
-
-    glEnd();
-
-    glColor3ub(190, 230, 20);
     glBegin(GL_POINTS);
-
-    // length = engine->pitch->fftLength;
-    // length = engine->pitch->fftLength / 2;
-    dx = 2.0 / length;
-    x = -1.0;
+    // glBegin(GL_LINE_STRIP);
 
     for (int i = 0; i < length; ++i) {
-      // glVertex2d(x, engine->pitch->fftWindow[i]);
-      // glVertex2d(x, engine->pitch->timeData[i] + 0.5);
-      // glVertex2d(x, 0.0005 * engine->pitch->sdfData[i]);
-      // glVertex2d(x, engine->pitch->timeData[i]);
+      glVertex2d(x, 0.05 * engine->pitch->powCepstrum.elements[i]);
+      // glVertex2d(x, 0.05 * engine->pitch->powSpectrum.elements[i]);
+      // glVertex2d(x, 0.5 * engine->pitch->sdf.elements[i]);
       x += dx;
     }
 
     glEnd();
+
 
     cents = Tuning12TET_freqToCents(hz, 440.0);
     note = Tuning12TET_centsToNote(cents, 440.0, 0.0, 0);
