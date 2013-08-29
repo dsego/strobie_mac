@@ -17,9 +17,6 @@
 
 
 
-
-
-
 inline static void blackman(float* response, int length) {
 
   const int last = length - 1;
@@ -315,7 +312,7 @@ static double nsdf(Pitch* self) {
   }
 
   threshold *= 0.8;
-  int lag = 0;
+  int lag = 1;
 
 
   // first peak larger than the threshold
@@ -364,7 +361,7 @@ static double yin(Pitch* self) {
 
   self->sdf.elements[0] = 1.0;
 
-  int lag;
+  int lag = 1;
   for (int t = 1; t < length; ++t) {
 
     if (self->sdf.elements[t] < 0.15) {
@@ -415,8 +412,11 @@ static double cepstrum(Pitch* self) {
 double Pitch_estimate(Pitch* self, float* data) {
 
   memcpy(self->audio.elements, data, (self->audio.length / 2) * sizeof(float));
-  return cepstrum(self);
-  // return nsdf(self);
+  // return cepstrum(self);
+  return nsdf(self);
   // return yin(self);
 
 }
+
+
+#undef PI
