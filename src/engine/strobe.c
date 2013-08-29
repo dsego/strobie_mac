@@ -101,3 +101,6 @@ void Strobe_process(Strobe* self, float* input, int length) {
   }
 
 }
+
+
+#undef STROBE_RB_LENGTH
