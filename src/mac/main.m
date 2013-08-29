@@ -7,19 +7,21 @@
 
 void buildMainMenu();
 
-int main(int argc, char *argv[])
-{
+
+int main(int argc, char *argv[]) {
+
   AppDelegate* delegate = [[AppDelegate alloc] init];
   id sharedApplication = [NSApplication sharedApplication];
   [sharedApplication setDelegate:delegate];
   buildMainMenu();
   [NSApp run];
   return 0;
+
 }
 
 
-void buildMainMenu()
-{
+void buildMainMenu() {
+
   NSString* appName = [[NSProcessInfo processInfo] processName];
 
   id mainMenu = [[NSMenu alloc] init];
@@ -33,43 +35,57 @@ void buildMainMenu()
   [appMenuItem setSubmenu:appMenu];
 
   // about
-  id aboutMenuItem = [[NSMenuItem alloc] initWithTitle:[@"About " stringByAppendingString:appName]
-                                         action:@selector(orderFrontStandardAboutPanel:)
-                                         keyEquivalent:@""];
+  id aboutMenuItem = [
+    [NSMenuItem alloc] initWithTitle:[@"About " stringByAppendingString:appName]
+    action:@selector(orderFrontStandardAboutPanel:)
+    keyEquivalent:@""
+  ];
+
   [appMenu addItem:aboutMenuItem];
   [appMenu addItem:NSMenuItem.separatorItem];
 
   // preferences
-  id prefMenuItem = [[NSMenuItem alloc] initWithTitle:@"Preferences..."
-                                        action:NULL
-                                        keyEquivalent:@","];
+  id prefMenuItem = [
+    [NSMenuItem alloc] initWithTitle:@"Preferences..."
+    action:NULL
+    keyEquivalent:@","
+  ];
+
   [appMenu addItem:prefMenuItem];
   [appMenu addItem:NSMenuItem.separatorItem];
 
   // hide
-  id hideMenuItem = [[NSMenuItem alloc] initWithTitle:[@"Hide " stringByAppendingString:appName]
-                                        action:@selector(hide:)
-                                        keyEquivalent:@"h"];
+  id hideMenuItem = [
+    [NSMenuItem alloc] initWithTitle: [@"Hide " stringByAppendingString:appName]
+    action: @selector(hide:)
+    keyEquivalent: @"h"
+  ];
   [appMenu addItem:hideMenuItem];
 
   // hide others
-  id hideOthersMenuItem = [[NSMenuItem alloc] initWithTitle:@"Hide Others"
-                                              action:@selector(hideOtherApplications:)
-                                              keyEquivalent:@"h"];
+  id hideOthersMenuItem = [
+    [NSMenuItem alloc] initWithTitle:@"Hide Others"
+    action:@selector(hideOtherApplications:)
+    keyEquivalent:@"h"
+  ];
   [hideOthersMenuItem setKeyEquivalentModifierMask:(NSAlternateKeyMask | NSCommandKeyMask)];
   [appMenu addItem:hideOthersMenuItem];
 
   // show all
-  id showAllMenuItem = [[NSMenuItem alloc] initWithTitle:@"Show All"
-                                           action:@selector(unhideAllApplications:)
-                                           keyEquivalent:@""];
+  id showAllMenuItem = [
+    [NSMenuItem alloc] initWithTitle:@"Show All"
+    action:@selector(unhideAllApplications:)
+    keyEquivalent:@""
+  ];
   [appMenu addItem:showAllMenuItem];
   [appMenu addItem:NSMenuItem.separatorItem];
 
   // quit
-  id quitMenuItem = [[NSMenuItem alloc] initWithTitle:[@"Quit " stringByAppendingString:appName]
-                                        action:@selector(terminate:)
-                                        keyEquivalent:@"q"];
+  id quitMenuItem = [
+    [NSMenuItem alloc] initWithTitle:[@"Quit " stringByAppendingString:appName]
+    action:@selector(terminate:)
+    keyEquivalent:@"q"
+  ];
   [appMenu addItem:quitMenuItem];
 
 
@@ -84,22 +100,28 @@ void buildMainMenu()
   [windowMenuItem setSubmenu:windowMenu];
 
   // minimize
-  id minimizeMenuItem = [[NSMenuItem alloc] initWithTitle:@"Minimize"
-                                            action:@selector(performMiniaturize:)
-                                            keyEquivalent:@"m"];
+  id minimizeMenuItem = [
+    [NSMenuItem alloc] initWithTitle:@"Minimize"
+    action:@selector(performMiniaturize:)
+    keyEquivalent:@"m"
+  ];
   [windowMenu addItem:minimizeMenuItem];
 
   // zoom
-  id zoomMenuItem = [[NSMenuItem alloc] initWithTitle:@"Zoom"
-                                        action:@selector(performZoom:)
-                                        keyEquivalent:@""];
+  id zoomMenuItem = [
+    [NSMenuItem alloc] initWithTitle:@"Zoom"
+    action:@selector(performZoom:)
+    keyEquivalent:@""
+  ];
   [windowMenu addItem:zoomMenuItem];
   [windowMenu addItem:NSMenuItem.separatorItem];
 
   // bring to front
-  id frontMenuItem = [[NSMenuItem alloc] initWithTitle:@"Bring All to Front"
-                                         action:@selector(arrangeInFront:)
-                                         keyEquivalent:@""];
+  id frontMenuItem = [
+    [NSMenuItem alloc] initWithTitle:@"Bring All to Front"
+    action:@selector(arrangeInFront:)
+    keyEquivalent:@""
+  ];
   [windowMenu addItem:frontMenuItem];
 
 
@@ -113,11 +135,14 @@ void buildMainMenu()
   [helpMenuItem setSubmenu:helpMenu];
 
   // documentation
-  id docsMenuItem = [[NSMenuItem alloc] initWithTitle:[appName stringByAppendingString:@" Help"]
-                                        action:@selector(openOnlineDocumentation:)
-                                        keyEquivalent:@""];
+  id docsMenuItem = [
+    [NSMenuItem alloc] initWithTitle:[appName stringByAppendingString:@" Help"]
+    action:@selector(openOnlineDocumentation:)
+    keyEquivalent:@""
+  ];
   [helpMenu addItem:docsMenuItem];
 
   // add a main men
   [NSApp setMainMenu:mainMenu];
+
 }
