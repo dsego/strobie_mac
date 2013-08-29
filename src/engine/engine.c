@@ -19,8 +19,6 @@ Engine* Engine_create() {
   Config* config = self->config = Config_create();
 
   self->audioFeed = AudioFeed_create();
-  // AudioFeed_setDecimationRate(self->audioFeed, config->decimationRate);
-
   self->strobeCount = min(config->partialsLength, MAX_STROBES);
 
 
@@ -70,9 +68,9 @@ void Engine_processSignal(Engine* self, float* input, int length) {
 
   AudioFeed_process(self->audioFeed, input, length);
 
-  // for (int i = 0; i < self->strobeCount; ++i) {
-  //   Strobe_process(self->strobes[i], input, length);
-  // }
+  for (int i = 0; i < self->strobeCount; ++i) {
+    Strobe_process(self->strobes[i], input, length);
+  }
 
 }
 
@@ -215,14 +213,24 @@ double Engine_estimatePitch(Engine* self) {
   // double peak = findPeak(self->audioBuffer, self->config->fftLength);
 
   // if (peak > self->threshold) {
-
+  const int W_LENGTH = 5;
+  static float window[W_LENGTH];
+  static int index = 0;
 
 
   // read in new data from the ring buffer
   AudioFeed_read(self->audioFeed, self->audioBuffer.elements, self->audioBuffer.length);
 
-  double pitch = Pitch_estimate(self->pitch, self->audioBuffer.elements);
+  float pitch = Pitch_estimate(self->pitch, self->audioBuffer.elements);
 
-  return pitch;
+  // // rolling median filter
+  window[index] = pitch;
+  index += 1;
+  if (index >= W_LENGTH) {
+    index = 0;
+  }
+  // printf("%.4f %.4f\n", median5(window), pitch);
+  // return median5(window);
 
+  return median5(window); //Pitch_estimate(self->pitch, self->audioBuffer.elements);
 }
