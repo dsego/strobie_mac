@@ -108,3 +108,53 @@ inline static double parabolic(double a, double b, double c) {
   }
 
 }
+
+
+// http://ndevilla.free.fr/median/median/src/optmed.c
+
+#define SORT(a,b) { if ((a)>(b)) SWAP((a),(b)); }
+#define SWAP(a,b) { float temp=(a);(a)=(b);(b)=temp; }
+
+
+static inline float median5(float *p) {
+
+  SORT(p[0],p[1]);
+  SORT(p[3],p[4]);
+  SORT(p[0],p[3]);
+  SORT(p[1],p[4]);
+  SORT(p[1],p[2]);
+  SORT(p[2],p[3]);
+  SORT(p[1],p[2]);
+  return(p[2]);
+
+}
+
+
+static inline float median9(float * p) {
+
+  SORT(p[1], p[2]);
+  SORT(p[4], p[5]);
+  SORT(p[7], p[8]);
+  SORT(p[0], p[1]);
+  SORT(p[3], p[4]);
+  SORT(p[6], p[7]);
+  SORT(p[1], p[2]);
+  SORT(p[4], p[5]);
+  SORT(p[7], p[8]);
+  SORT(p[0], p[3]);
+  SORT(p[5], p[8]);
+  SORT(p[4], p[7]);
+  SORT(p[3], p[6]);
+  SORT(p[1], p[4]);
+  SORT(p[2], p[5]);
+  SORT(p[4], p[7]);
+  SORT(p[4], p[2]);
+  SORT(p[6], p[4]);
+  SORT(p[4], p[2]);
+  return(p[4]) ;
+
+}
+
+
+#undef SORT
+#undef SWAP
