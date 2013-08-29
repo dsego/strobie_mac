@@ -16,9 +16,8 @@ NSThread* estimatePitchThread;
   _engine = Engine_create();
   Engine_startAudio(_engine);
 
-  self.mainController = [[MainController alloc] init];
-  self.mainController.strobeLayer.engine = _engine;
-  [self.mainController showWindow];
+  _mainController = [[MainController alloc] init: _engine];
+  [_mainController showWindow];
 //    NSTimer* timer = [NSTimer scheduledTimerWithTimeInterval:0.02
 //                                                      target:self
 //                                                    selector:@selector(refreshNote)
@@ -27,17 +26,20 @@ NSThread* estimatePitchThread;
 //    [timer fire];
 
 
-  estimatePitchThread = [[NSThread alloc] initWithTarget:self
-                                          selector:@selector(estimatePitch)
-                                          object:nil];
-
+  estimatePitchThread = [
+    [NSThread alloc] initWithTarget:self
+    selector:@selector(estimatePitch)
+    object:nil
+  ];
   [estimatePitchThread start];
 
+  NSThread* refreshStrobeThread = [
+    [NSThread alloc] initWithTarget:self
+    selector:@selector(refreshStrobe)
+    object:nil
+  ];
+  [refreshStrobeThread start];
 
-  // NSThread* refreshStrobeThread = [[NSThread alloc] initWithTarget:self
-  //                                                   selector:@selector(refreshStrobe:)
-  //                                                   object:nil];
-  // [refreshStrobeThread start];
 }
 
 
@@ -52,22 +54,24 @@ NSThread* estimatePitchThread;
 
 - (void)estimatePitch {
 
-  double pitch = 0;
   while (true) {
+
     if ([estimatePitchThread isCancelled]) {
       break;
     }
 
-    pitch = Engine_estimatePitch(_engine);
-    [_mainController refreshPitch:pitch peak:0];
+    double pitch = Engine_estimatePitch(_engine);
+    [_mainController refreshPitch:pitch];
 
-    // Note note  = Tuning12TET_find(pitch, 440.0, 0.0, 0);
-    // Engine_setStrobeFreq(engine, note.frequency);
-     // NSLog([NSString stringWithFormat:@"%f", pitch]);
-//        [self.label setStringValue:[NSString stringWithFormat:@"%f", pitch]];
+    double standard = _engine->config->pitchStandard;
+    double offset = _engine->config->centsOffset;
+    int transpose = _engine->config->transpose;
+    Note note = Tuning12TET_find(pitch, standard, offset, transpose);
+
+    Engine_setStrobeFreq(_engine, note.frequency);
+// [self.label setStringValue:[NSString stringWithFormat:@"%f", pitch]];
     // [self.label setStringValue:[NSString stringWithFormat:@"%c%d", note.letter, note.octave]];
-    usleep(200000);
-    // usleep(50000);
+    usleep(50000);
   }
 
 }
@@ -75,8 +79,12 @@ NSThread* estimatePitchThread;
 
 -(void)refreshStrobe {
 
-  // Engine_readStrobes(engine);
-  // [self.mainController drawStrobe: engine];
+  while (true) {
+
+    [_mainController drawStrobe];
+    usleep(40000);
+
+  }
 
 }
 
