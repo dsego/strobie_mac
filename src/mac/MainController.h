@@ -3,15 +3,16 @@
 */
 
 #import <AppKit/NSWindowController.h>
-#import "StrobeAnimation.h"
+#import "../engine/Engine.h"
 
 @interface MainController : NSWindowController
 
-@property (strong) NSTextField* pitchLabel;
-@property (strong) NSView* strobeView;
-@property (strong) StrobeAnimation* strobeLayer;
+  @property (strong) NSTextField* pitchLabel;
+  @property (strong) NSOpenGLView* strobeView;
 
--(void)showWindow;
--(void)refreshPitch:(double)pitch peak:(double)peak;
+  -(id)init: (Engine*)engine;
+  -(void)showWindow;
+  -(void)refreshPitch:(double)pitch;
+  -(void)drawStrobe;
 
 @end

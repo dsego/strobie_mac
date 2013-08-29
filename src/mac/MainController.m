@@ -4,11 +4,12 @@
 
 #import <Cocoa/Cocoa.h>
 #import "MainController.h"
+#import "StrobeView.h"
 
 @implementation MainController
 
 
--(id)init {
+-(id)init:(Engine*) engine {
 
   // manually allocate and initialize the window
   NSRect windowRect = NSMakeRect(0, 0, 500, 500);
@@ -20,41 +21,37 @@
     NSResizableWindowMask
   );
 
-  NSWindow* window = [[NSWindow alloc] initWithContentRect:windowRect
-                                       styleMask:styleMask
-                                       backing:NSBackingStoreBuffered
-                                       defer:NO];
-  NSSize minSize = { 400, 400 };
+  NSWindow* window = [
+    [NSWindow alloc] initWithContentRect:windowRect
+    styleMask:styleMask
+    backing:NSBackingStoreBuffered
+    defer:NO
+  ];
 
+  NSSize minSize = { 400, 400 };
   [window setMinSize: minSize];
   [window setTitle:@"Strobie"];
   [window center];
-
   self = [super initWithWindow: window];
-
-  [self initStrobeView];
-
-    _pitchLabel = [[NSTextField alloc] initWithFrame: NSMakeRect(30, 30, 300, 30)];
+  [self initStrobeView: engine];
+  _pitchLabel = [[NSTextField alloc] initWithFrame: NSMakeRect(30, 30, 300, 30)];
   [self.window.contentView addSubview:_pitchLabel];
-
 
   return self;
 
 }
 
 
--(void)drawStrobe:(Engine*) engine {
+-(void)drawStrobe {
 
-  // [strobeView drawStrobeBuffers:engine->strobeBuffers
-  //             bufferLengths:engine->strobeBufferLengths
-  //             numBuffers:engine->strobeCount];
+  [_strobeView setNeedsDisplay: YES];
 
 }
 
 
--(void)refreshPitch:(double)pitch peak:(double)peak {
+-(void)refreshPitch:(double)pitch {
 
-  [_pitchLabel setStringValue:[NSString stringWithFormat:@"%.10lf %.1lf", pitch, pitch]];
+  [_pitchLabel setStringValue:[NSString stringWithFormat:@"%3.2f Hz", pitch]];
 
 }
 
@@ -66,23 +63,18 @@
 }
 
 
--(void)initStrobeView {
+-(void)initStrobeView:(Engine*) engine {
+
 
   // add strobe view to window
-  self.strobeView = [[NSView alloc] initWithFrame:NSMakeRect(0, 100, 500, 400)];
+  _strobeView = [
+    [StrobeView alloc] initWithFrame: NSMakeRect(0, 100, 500, 400)
+    pixelFormat: [NSOpenGLView defaultPixelFormat]
+    engine: engine
+  ];
+
   [self.window.contentView addSubview:self.strobeView];
-  [self.strobeView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-
-  // create and attach animation layer to host view
-  self.strobeLayer = [StrobeAnimation layer];
-
-  self.strobeLayer.asynchronous = YES;
-  self.strobeLayer.needsDisplayOnBoundsChange = YES;
-  self.strobeLayer.backgroundColor = CGColorCreateGenericRGB(0, 0, 0, 1);
-
-  self.strobeView.layer = self.strobeLayer;
-  [self.strobeView.layer setNeedsDisplay];
-  [self.strobeView setWantsLayer:YES];
+  [_strobeView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 
 }
 
