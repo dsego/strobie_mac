@@ -70,13 +70,15 @@ void Strobe_read(Strobe* self, float* output, int length) {
 
 void Strobe_setFreq(Strobe* self, double freq) {
 
-  if (freq == self->freq) { return; }
+  if (freq != self->freq && freq > 1.0 && freq < self->samplerate/2) {
 
-  self->freq = freq;
-  Interpolator_setRatio(self->src, freq * self->samplesPerPeriod, self->samplerate);
-  Interpolator_reset(self->src);
-  Biquad_reset(self->bandpass);
-  Biquad_bandpass(self->bandpass, freq, self->samplerate, 10);
+    self->freq = freq;
+    Interpolator_setRatio(self->src, freq * self->samplesPerPeriod, self->samplerate);
+    Interpolator_reset(self->src);
+    Biquad_reset(self->bandpass);
+    Biquad_bandpass(self->bandpass, freq, self->samplerate, 10);
+
+  }
 
 }
 
