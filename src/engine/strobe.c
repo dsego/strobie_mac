@@ -87,10 +87,11 @@ void Strobe_process(Strobe* self, float* input, int length) {
 
   Biquad_filter(self->bandpass, input, self->filteredBuffer.elements, length);
 
+  // filteredBuffer.length might be larger than length!
   int count = Interpolator_cubicConvert(
     self->src,
     self->filteredBuffer.elements,
-    self->filteredBuffer.length,
+    length,
     self->resampledBuffer.elements,
     self->resampledBuffer.length
   );
