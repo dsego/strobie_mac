@@ -88,9 +88,10 @@ void AudioFeed_destroy(AudioFeed* self) {
 
 void AudioFeed_read(AudioFeed* self, float* output, int length) {
 
-  while (PaUtil_GetRingBufferReadAvailable(self->ringbuffer) >= length) {
-    PaUtil_ReadRingBuffer(self->ringbuffer, output, length);
+  while (PaUtil_GetRingBufferReadAvailable(self->ringbuffer) >= 2 * length) {
+    PaUtil_AdvanceRingBufferReadIndex(self->ringbuffer, length);
   }
+  PaUtil_ReadRingBuffer(self->ringbuffer, output, length);
 
 }
 

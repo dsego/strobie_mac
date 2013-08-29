@@ -60,9 +60,10 @@ void Strobe_destroy(Strobe* self) {
 
 void Strobe_read(Strobe* self, float* output, int length) {
 
-  while (PaUtil_GetRingBufferReadAvailable(self->ringbuffer) >= length) {
-    PaUtil_ReadRingBuffer(self->ringbuffer, output, length);
+  while (PaUtil_GetRingBufferReadAvailable(self->ringbuffer) >= 2 * length) {
+    PaUtil_AdvanceRingBufferReadIndex(self->ringbuffer, length);
   }
+  PaUtil_ReadRingBuffer(self->ringbuffer, output, length);
 
 }
 
