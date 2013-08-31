@@ -134,6 +134,8 @@ typedef struct {
   glClearColor(0, 0, 0, 1);
   glClear(GL_COLOR_BUFFER_BIT);
 
+  float gain = _engine->config->strobeGain;;
+
   for (int s = 0; s < strobeCount; ++s) {
 
     glBindBuffer(GL_ARRAY_BUFFER, strobes[s].vertexBuffer);
@@ -144,7 +146,7 @@ typedef struct {
     int c = 3;
     while (c < 4 * strobes[s].count) {
 
-      float alpha = _engine->strobeBuffers[s].elements[i];
+      float alpha = gain * _engine->strobeBuffers[s].elements[i];
       if (alpha < 0.0) { alpha = 0.0; }
       i += 1;
       strobes[s].colors[c] = (GLubyte) (alpha * 255);
@@ -157,13 +159,10 @@ typedef struct {
     glBindBuffer(GL_ARRAY_BUFFER, strobes[s].colorBuffer);
     glEnableClientState(GL_COLOR_ARRAY);
     glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
-
     glDrawArrays(GL_TRIANGLE_STRIP, 0, strobes[s].count);
 
   }
 
-  // glFinish();
-  // glFlush();
   [[self openGLContext] flushBuffer];
 
 }

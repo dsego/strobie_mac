@@ -25,6 +25,7 @@ Config* Config_create() {
   // self->fftSamplerate       = self->samplerate;
   self->fftLength           = 2048;
   self->audioThreshold      = -60;
+  self->strobeGain          = 1.0;
   self->pitchStandard       = 440;
   self->displayFlats        = false;
   self->transpose           = 0;

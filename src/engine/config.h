@@ -22,6 +22,7 @@ typedef struct {
   int fftSamplerate;
   int fftLength;
   double audioThreshold;
+  double strobeGain;
   double pitchStandard;
   bool displayFlats;
   int transpose;
