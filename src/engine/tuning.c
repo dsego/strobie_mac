@@ -22,6 +22,17 @@ double Tuning12TET_centsToFreq(double cents, double pitchStandard) {
 }
 
 
+double Tuning12TET_centsMoveToOctave(double cents, int octave) {
+
+  if (octave < 0 || octave > 8) return -1;
+
+  int origOctave = (int) ((cents / 1200.0) + 4.75);
+  double transpose = (octave - origOctave) * 1200.0;
+  return cents + transpose;
+
+}
+
+
 Note Tuning12TET_centsToNote(
   double cents,
   double pitchStandard,

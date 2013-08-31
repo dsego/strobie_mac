@@ -25,4 +25,5 @@ Note Tuning12TET_findNearest(double freq, double* notesInCents, int notesLength,
 
 double Tuning12TET_freqToCents(double freq, double pitchStandard);
 double Tuning12TET_centsToFreq(double cents, double pitchStandard);
+double Tuning12TET_centsMoveToOctave(double cents, int octave);
 Note Tuning12TET_centsToNote(double cents, double pitchStandard, double centsOffset, int transpose);
