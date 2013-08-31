@@ -24,7 +24,7 @@ typedef struct {
   Pitch* pitch;               // pitch recognition
 
   FloatArray audioBuffer;
-  double threshold;
+  float threshold;
 
   int strobeCount;
   Strobe* strobes[MAX_STROBES];
@@ -40,5 +40,5 @@ void Engine_destroy(Engine* self);
 bool Engine_startAudio(Engine* self);
 void Engine_stopAudio(Engine* self);
 void Engine_readStrobes(Engine* self);
-void Engine_setStrobeFreq(Engine* self, double frequency);
-double Engine_estimatePitch(Engine* self);
+void Engine_setStrobeFreq(Engine* self, float frequency);
+float Engine_estimatePitch(Engine* self);

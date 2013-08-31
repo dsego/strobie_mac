@@ -15,10 +15,10 @@ Config* Config_create() {
   assert(self != NULL);
 
   // general
-  self->deviceIndex      = 2;
+  self->deviceIndex      = 0;
   self->samplerate       = 44100;
   self->bufferLength     = 512;
-  self->resampledLength  = 512 * 25;
+  self->resampledLength  = 512 * 128;
 
   // pitch recognition
   // self->fftSamplerate       = self->samplerate / self->decimationRate;

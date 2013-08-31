@@ -20,10 +20,10 @@
 inline static void blackman(float* response, int length) {
 
   const int last = length - 1;
-  const double factor = 2.0 * PI / last;
-  const double alpha = 0.42;
-  const double beta = 0.5;
-  const double gamma = 0.08;
+  const float factor = 2.0 * PI / last;
+  const float alpha = 0.42;
+  const float beta = 0.5;
+  const float gamma = 0.08;
 
   for (int i = 0; i <= last; ++i) {
     response[i] = alpha - beta * cos(i * factor) + gamma * cos(2 * i * factor);
@@ -130,11 +130,11 @@ void Pitch_destroy(Pitch* self) {
 
 
 
-// double Pitch_estimate1(Pitch* self, float* data, int length) {
+// float Pitch_estimate1(Pitch* self, float* data, int length) {
 
 //   memcpy(self->audio, data, length * sizeof(float));
 
-//   double max = 0;
+//   float max = 0;
 
 //   for (int i = 0; i < self->fftLength; ++i) {
 //     self->audio[i] *= self->window[i];
@@ -147,8 +147,8 @@ void Pitch_destroy(Pitch* self) {
 //   // find the strongest frequency bin
 
 //   int bin = 0;
-//   double value = 0.0;
-//   double strongest = 0.0;
+//   float value = 0.0;
+//   float strongest = 0.0;
 
 //   // find the strongest frequency bin
 //   for (int i = 1; i < self->fftBinCount - 1; ++i) {
@@ -168,7 +168,7 @@ void Pitch_destroy(Pitch* self) {
 
 //   // calculate the weighted average
 
-//   double mag, numerator = 0.0, denominator = 0.0;
+//   float mag, numerator = 0.0, denominator = 0.0;
 //   float complex peak;
 
 //   bin = bin + 2;
@@ -214,7 +214,7 @@ static void acf2(Pitch* self) {
 
 
 // Normalized square difference
-static double nsdf(Pitch* self) {
+static float nsdf(Pitch* self) {
 
 
   /* ----------------------------------------------------------------
@@ -239,10 +239,10 @@ static double nsdf(Pitch* self) {
 
   int length = self->acf.length / 2;
 
-  double norm = 1.0 / (double)length;
+  float norm = 1.0 / (float)length;
 
   // left-hand summation for zero lag
-  double lhsum = norm * self->acf.elements[0];
+  float lhsum = norm * self->acf.elements[0];
 
   // normalized SDF (via autocorrelation)
   for (int t = 0; t < length; ++t) {
@@ -267,7 +267,7 @@ static double nsdf(Pitch* self) {
   int index = 0;
   int last = length - 1;
   int pos = 0;
-  double peak = 0.0;
+  float peak = 0.0;
 
   // first negative zero crossing
   while (self->sdf.elements[t] > 0.0 && t < length) { ++t; }
@@ -301,7 +301,7 @@ static double nsdf(Pitch* self) {
   }
 
 
-  double threshold = 0.0;
+  float threshold = 0.0;
 
   // find the largest primary peak value
   for (int i = 0; i < index; ++i) {
@@ -324,23 +324,23 @@ static double nsdf(Pitch* self) {
     }
   }
 
-  double delta = parabolic(self->sdf.elements[lag-1], self->sdf.elements[lag], self->sdf.elements[lag+1]);
+  float delta = parabolic(self->sdf.elements[lag-1], self->sdf.elements[lag], self->sdf.elements[lag+1]);
   return self->samplerate / (lag + delta);
 
 }
 
 
-static double yin(Pitch* self) {
+static float yin(Pitch* self) {
 
   acf2(self);
 
   int length = self->acf.length / 2;
 
-  double norm = 1.0 / (double)length;
-  double runningSum = 0.0;
+  float norm = 1.0 / (float)length;
+  float runningSum = 0.0;
 
   // left-hand summation for zero lag
-  double lhsum = norm * self->acf.elements[0];
+  float lhsum = norm * self->acf.elements[0];
 
 
   // SDF via autocorrelation
@@ -371,7 +371,7 @@ static double yin(Pitch* self) {
 
   }
 
-  // double delta = parabolic(self->sdf.elements[lag-1], self->sdf.elements[lag], self->sdf.elements[lag+1]);
+  // float delta = parabolic(self->sdf.elements[lag-1], self->sdf.elements[lag], self->sdf.elements[lag+1]);
   // return self->samplerate / (lag + delta);
   return self->samplerate / lag;
 
@@ -380,7 +380,7 @@ static double yin(Pitch* self) {
 
 
 
-static double cepstrum(Pitch* self) {
+static float cepstrum(Pitch* self) {
 
   // // apply window
   // for (int i = 0; i < self->fftLength; ++i) {
@@ -409,7 +409,7 @@ static double cepstrum(Pitch* self) {
 
 
 
-double Pitch_estimate(Pitch* self, float* data) {
+float Pitch_estimate(Pitch* self, float* data) {
 
   memcpy(self->audio.elements, data, (self->audio.length / 2) * sizeof(float));
   // return cepstrum(self);

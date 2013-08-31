@@ -12,14 +12,14 @@
     measures decibel amplitude levels in digital systems
     which have a defined maximum available peak level.
  */
-inline static double to_dBFS(double value) {
+inline static float to_dBFS(float value) {
 
   return 20 * log10(value);
 
 }
 
 
-inline static double from_dBFS(double value) {
+inline static float from_dBFS(float value) {
 
   return pow(10, value / 20);
 
@@ -27,28 +27,28 @@ inline static double from_dBFS(double value) {
 
 
 
-inline static double min(int a, int b) {
+inline static float min(int a, int b) {
 
   return (a < b) ? a : b;
 
 }
 
 
-inline static double minf(double a, double b) {
+inline static float minf(float a, float b) {
 
   return (a < b) ? a : b;
 
 }
 
 
-inline static double max(int a, int b) {
+inline static float max(int a, int b) {
 
   return (a > b) ? a : b;
 
 }
 
 
-inline static double maxf(double a, double b) {
+inline static float maxf(float a, float b) {
 
   return (a > b) ? a : b;
 
@@ -56,7 +56,7 @@ inline static double maxf(double a, double b) {
 
 
 // limit a value
-inline static double clamp(double val, double lower, double upper) {
+inline static float clamp(float val, float lower, float upper) {
 
   if (val < lower) {
     return lower;
@@ -71,9 +71,9 @@ inline static double clamp(double val, double lower, double upper) {
 }
 
 
-inline static double findWavePeak(float* buffer, int bufferLength) {
+inline static float findWavePeak(float* buffer, int bufferLength) {
 
-  double peak = 0;
+  float peak = 0;
 
   for (int i = 0; i < bufferLength; ++i) {
     if (buffer[i] < -peak) {
@@ -89,7 +89,7 @@ inline static double findWavePeak(float* buffer, int bufferLength) {
 }
 
 
-inline static double magnitude(float complex z) {
+inline static float magnitude(float complex z) {
 
   return creal(z) * creal(z) + cimag(z) * cimag(z);
 
@@ -97,9 +97,9 @@ inline static double magnitude(float complex z) {
 
 
 // find parabolic peak
-inline static double parabolic(double a, double b, double c) {
+inline static float parabolic(float a, float b, float c) {
 
-  double bottom = a - 2.0 * b + c;
+  float bottom = a - 2.0 * b + c;
   if (bottom == 0.0) {
     return 0.0;
   }

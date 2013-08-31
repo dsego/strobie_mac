@@ -26,7 +26,7 @@ typedef struct {
   ffts_plan_t *cepPlan;       // FFTS plan for cepstrum
   ffts_plan_t *ifftPlan;      // FFTS plan (inverse)
 
-  double samplerate;
+  float samplerate;
 
 } Pitch;
 
@@ -36,4 +36,4 @@ typedef struct {
 
 Pitch* Pitch_create(int samplerate, int fftLength);
 void Pitch_destroy(Pitch* self);
-double Pitch_estimate(Pitch* self, float* data);
+float Pitch_estimate(Pitch* self, float* data);

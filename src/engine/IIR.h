@@ -11,9 +11,9 @@ typedef struct {
   int numSecondOrderStages;
   int firstOrderStage;
 
-  double w[MAX_ARRAY_SIZE][3];
-  double a[MAX_ARRAY_SIZE][3];
-  double b[MAX_ARRAY_SIZE][3];
+  float w[MAX_ARRAY_SIZE][3];
+  float a[MAX_ARRAY_SIZE][3];
+  float b[MAX_ARRAY_SIZE][3];
 
 } IIR;
 

@@ -21,17 +21,17 @@ typedef struct {
   int averageCount;
   int fftSamplerate;
   int fftLength;
-  double audioThreshold;
-  double strobeGain;
-  double pitchStandard;
+  float audioThreshold;
+  float strobeGain;
+  float pitchStandard;
   bool displayFlats;
   int transpose;
-  double centsOffset;
+  float centsOffset;
   int periodsPerFrame;
   int partialsCount;
   int partials[CONFIG_MAX_PARTIALS];
   int samplesPerPeriod[CONFIG_MAX_PARTIALS];
-  double instrumentNotes[CONFIG_MAX_NOTES];
+  float instrumentNotes[CONFIG_MAX_NOTES];
 
 } Config;
 

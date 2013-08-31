@@ -8,35 +8,35 @@
 #include "Tuning.h"
 
 
-double Tuning12TET_freqToCents(double freq, double pitchStandard) {
+float Tuning12TET_freqToCents(float freq, float pitchStandard) {
 
   return 1200.0 * log2(freq / pitchStandard);
 
 }
 
 
-double Tuning12TET_centsToFreq(double cents, double pitchStandard) {
+float Tuning12TET_centsToFreq(float cents, float pitchStandard) {
 
   return pitchStandard * pow(2.0, cents / 1200.0);
 
 }
 
 
-double Tuning12TET_centsMoveToOctave(double cents, int octave) {
+float Tuning12TET_centsMoveToOctave(float cents, int octave) {
 
   if (octave < 0 || octave > 8) return -1;
 
   int origOctave = (int) ((cents / 1200.0) + 4.75);
-  double transpose = (octave - origOctave) * 1200.0;
+  float transpose = (octave - origOctave) * 1200.0;
   return cents + transpose;
 
 }
 
 
 Note Tuning12TET_centsToNote(
-  double cents,
-  double pitchStandard,
-  double centsOffset,
+  float cents,
+  float pitchStandard,
+  float centsOffset,
   int transpose
 ) {
 
@@ -127,13 +127,13 @@ Note Tuning12TET_centsToNote(
 
 
 Note Tuning12TET_find(
-  double freq,
-  double pitchStandard,
-  double centsOffset,
+  float freq,
+  float pitchStandard,
+  float centsOffset,
   int transpose
 ) {
 
-  double cents = Tuning12TET_freqToCents(freq, pitchStandard);
+  float cents = Tuning12TET_freqToCents(freq, pitchStandard);
   return Tuning12TET_centsToNote(cents, pitchStandard, centsOffset, transpose);
 
 }
@@ -141,10 +141,10 @@ Note Tuning12TET_find(
 
 // A simple binary search, slightly modified to find the nearest value.
 Note Tuning12TET_findNearest(
-  double freq,
-  double* notesInCents,
+  float freq,
+  float* notesInCents,
   int notesLength,
-  double pitchStandard
+  float pitchStandard
 ) {
 
   int cents = Tuning12TET_freqToCents(freq, pitchStandard);
@@ -163,8 +163,8 @@ Note Tuning12TET_findNearest(
   }
 
   cents = fabs(cents);
-  double distanceToLow = fabs(fabs(notesInCents[low]) - cents);
-  double distanceToHigh = fabs(fabs(notesInCents[high]) - cents);
+  float distanceToLow = fabs(fabs(notesInCents[low]) - cents);
+  float distanceToHigh = fabs(fabs(notesInCents[high]) - cents);
 
   // return nearest note
   if (distanceToLow < distanceToHigh) {

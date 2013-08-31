@@ -104,14 +104,14 @@ void AudioFeed_read(AudioFeed* self, float* output, int length) {
 // 150Hz high pass Butterworth filter
 inline static void highpass(float *input, float* output, int length) {
 
-  const double a0 = 0.9850016172570234;
-  const double a1 = -1.9700032345140468;
-  const double a2 = 0.9850016172570234;
-  const double b1 = -1.9697782746275025;
-  const double b2 = 0.9702281944005912;
+  const float a0 = 0.9850016172570234;
+  const float a1 = -1.9700032345140468;
+  const float a2 = 0.9850016172570234;
+  const float b1 = -1.9697782746275025;
+  const float b2 = 0.9702281944005912;
 
-  static double z1 = 0.0;
-  static double z2 = 0.0;
+  static float z1 = 0.0;
+  static float z2 = 0.0;
 
   for (int i = 0; i < length; ++i) {
 

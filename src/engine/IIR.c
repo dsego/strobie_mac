@@ -311,7 +311,7 @@ IIR* IIR_CreateThreePercCheby() {
 // Modified version of the algorithm function designed by FilterDesignLab-IIR
 void IIR_filter(IIR* self, float* input, float* output, int length) {
 
-  double y0, w0, w1, w2, x0;
+  float y0, w0, w1, w2, x0;
   const int numSecondOrderStages = self->numSecondOrderStages;
   const int firstOrderStage      = self->firstOrderStage;
 

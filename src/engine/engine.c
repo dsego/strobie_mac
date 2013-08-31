@@ -190,7 +190,7 @@ void Engine_stopAudio(Engine* self) {
 
 
 
-void Engine_setStrobeFreq(Engine* self, double frequency) {
+void Engine_setStrobeFreq(Engine* self, float frequency) {
 
   for (int i = 0; i < self->strobeCount; ++i) {
     Strobe_setFreq(self->strobes[i], frequency * self->config->partials[i]);
@@ -208,9 +208,9 @@ void Engine_readStrobes(Engine* self) {
 }
 
 
-double Engine_estimatePitch(Engine* self) {
+float Engine_estimatePitch(Engine* self) {
 
-  // double peak = findPeak(self->audioBuffer, self->config->fftLength);
+  // float peak = findPeak(self->audioBuffer, self->config->fftLength);
 
   // if (peak > self->threshold) {
   const int W_LENGTH = 5;
@@ -223,15 +223,13 @@ double Engine_estimatePitch(Engine* self) {
 
   float pitch = Pitch_estimate(self->pitch, self->audioBuffer.elements);
 
-  // // rolling median filter
+  // rolling median filter
   window[index] = pitch;
   index += 1;
   if (index >= W_LENGTH) {
     index = 0;
   }
-  // printf("%.4f %.4f\n", median5(window), pitch);
-  // return median5(window);
 
-  return median5(window); //Pitch_estimate(self->pitch, self->audioBuffer.elements);
+  return median5(window);
 
 }

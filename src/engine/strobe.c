@@ -73,7 +73,7 @@ void Strobe_read(Strobe* self, float* output, int length) {
 }
 
 
-void Strobe_setFreq(Strobe* self, double freq) {
+void Strobe_setFreq(Strobe* self, float freq) {
 
   if (freq != self->freq && freq > 1.0 && freq < self->samplerate/2) {
 

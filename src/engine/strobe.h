@@ -15,7 +15,7 @@ typedef struct {
 
   int samplerate;
   int samplesPerPeriod;
-  double freq;                  // strobing frequency
+  float freq;                  // strobing frequency
 
   FloatArray filteredBuffer;
   FloatArray resampledBuffer;
@@ -39,7 +39,7 @@ void Strobe_destroy(Strobe* self);
 void Strobe_read(Strobe* self, float* output, int length);
 
 // Set the filter band and the sample rate to a multiple of the target frequency
-void Strobe_setFreq(Strobe* self, double freq);
+void Strobe_setFreq(Strobe* self, float freq);
 
 // Process (IIR, re-sample) the audio input and write into the ring buffer
 void Strobe_process(Strobe* self, float* input, int length);
