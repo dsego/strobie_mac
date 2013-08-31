@@ -79,8 +79,8 @@ typedef struct {
     // generate vertices
     float x = -1.0;
     float dx = 2.0 / (_engine->strobeBuffers[s].length - 1);
-    float y = -1.0 + s / strobeCount;
-    float height = 2.0 / strobeCount;
+    float y = -1.0 + 2.0 * s / (float)strobeCount;
+    float height = 0.95 * 2.0 / strobeCount; // leave some padding in between bands
 
     int v = 0;
     while (v < 2 * count) {
