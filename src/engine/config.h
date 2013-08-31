@@ -28,7 +28,7 @@ typedef struct {
   int transpose;
   double centsOffset;
   int periodsPerFrame;
-  int partialsLength;
+  int partialsCount;
   int partials[CONFIG_MAX_PARTIALS];
   int samplesPerPeriod[CONFIG_MAX_PARTIALS];
   double instrumentNotes[CONFIG_MAX_NOTES];

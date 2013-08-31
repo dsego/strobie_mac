@@ -33,13 +33,21 @@ Config* Config_create() {
 
   // strobe bands
   self->periodsPerFrame     = 1;
-  self->partialsLength      = 3;
+  self->partialsCount       = 4;
   self->partials[0]         = 1;
   self->partials[1]         = 2;
-  self->partials[2]         = 4;
+  self->partials[2]         = 3;
+  self->partials[3]         = 4;
+  // self->partials[4]         = 5;
+  // self->partials[5]         = 6;
+  // self->partials[6]         = 7;
   self->samplesPerPeriod[0] = 64;
   self->samplesPerPeriod[1] = 128;
   self->samplesPerPeriod[2] = 256;
+  self->samplesPerPeriod[3] = 256;
+  // self->samplesPerPeriod[4] = 256;
+  // self->samplesPerPeriod[5] = 256;
+  // self->samplesPerPeriod[6] = 256;
 
   // standard guitar tuning (in cents)
   self->instrumentNotes[0] = -2900;

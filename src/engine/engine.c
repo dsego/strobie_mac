@@ -19,7 +19,7 @@ Engine* Engine_create() {
   Config* config = self->config = Config_create();
 
   self->audioFeed = AudioFeed_create();
-  self->strobeCount = min(config->partialsLength, MAX_STROBES);
+  self->strobeCount = min(config->partialsCount, MAX_STROBES);
 
 
   // initialize strobes
