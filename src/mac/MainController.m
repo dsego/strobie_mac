@@ -11,8 +11,10 @@
 
 -(id)init:(Engine*) engine {
 
+  NSSize minSize = { 400, 480 };
+
   // manually allocate and initialize the window
-  NSRect windowRect = NSMakeRect(0, 0, 400, 480);
+  NSRect windowRect = NSMakeRect(0, 0, minSize.width, minSize.height);
 
   NSUInteger styleMask = (
     NSTitledWindowMask |
@@ -28,7 +30,6 @@
     defer:NO
   ];
 
-  NSSize minSize = { 400, 400 };
   [window setMinSize: minSize];
   [window setTitle:@"Strobie"];
   [window center];
@@ -45,6 +46,7 @@
   [_strobeView setNeedsDisplay: YES];
 
 }
+
 
 -(void)showWindow {
 
