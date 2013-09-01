@@ -20,8 +20,6 @@ Config* Config_create() {
   self->resampledLength  = 512 * 128;
 
   // pitch recognition
-  // self->fftSamplerate       = self->samplerate / self->decimationRate;
-  // self->fftSamplerate       = self->samplerate;
   self->fftLength           = 2048;
   self->audioThreshold      = -60;
   self->strobeGain          = 1.0;
