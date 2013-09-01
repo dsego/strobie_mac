@@ -7,19 +7,14 @@
 #include <math.h>
 
 
-/*
-  Decibels relative to full scale (dBFS),
-    measures decibel amplitude levels in digital systems
-    which have a defined maximum available peak level.
- */
-inline static float to_dBFS(float value) {
+inline static float toDecibel(float value) {
 
   return 20 * log10(value);
 
 }
 
 
-inline static float from_dBFS(float value) {
+inline static float fromDecibel(float value) {
 
   return pow(10, value / 20);
 
