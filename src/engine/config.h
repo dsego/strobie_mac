@@ -14,14 +14,13 @@
 typedef struct {
 
   int deviceIndex;
+  float gain;
   int samplerate;
   int bufferLength;
   int resampledLength;
   int averageCount;
-  int fftSamplerate;
   int fftLength;
   float audioThreshold;
-  float strobeGain;
   float pitchStandard;
   char displayFlats;
   int transpose;

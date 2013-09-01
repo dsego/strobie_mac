@@ -15,6 +15,7 @@ Config* Config_create() {
 
   // general
   self->deviceIndex      = 0;
+  self->gain             = 1000.0;
   self->samplerate       = 44100;
   self->bufferLength     = 512;
   self->resampledLength  = 512 * 128;
@@ -22,7 +23,6 @@ Config* Config_create() {
   // pitch recognition
   self->fftLength           = 2048;
   self->audioThreshold      = -60;
-  self->strobeGain          = 1.0;
   self->pitchStandard       = 440;
   self->displayFlats        = 0;
   self->transpose           = 0;

@@ -66,6 +66,13 @@ void Engine_destroy(Engine* self) {
 
 void Engine_processSignal(Engine* self, float* input, int length) {
 
+  float gain = self->config->gain;
+
+  // apply gain
+  for (int i = 0; i < length; ++i) {
+    input[i] *= gain;
+  }
+
   AudioFeed_process(self->audioFeed, input, length);
 
   for (int i = 0; i < self->strobeCount; ++i) {
