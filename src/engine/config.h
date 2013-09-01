@@ -26,6 +26,8 @@ typedef struct {
   char displayFlats;
   int transpose;
   float centsOffset;
+  unsigned char strobeColor1[3];
+  unsigned char strobeColor2[3];
   int periodsPerFrame;
   int partialsCount;
   int partials[CONFIG_MAX_PARTIALS];

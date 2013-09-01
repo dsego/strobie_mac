@@ -31,6 +31,12 @@ Config* Config_create() {
   self->centsOffset         = 0;
 
   // strobe bands
+  self->strobeColor1[0]     = 253;
+  self->strobeColor1[1]     = 151;
+  self->strobeColor1[2]     = 32;
+  self->strobeColor2[0]     = 43;
+  self->strobeColor2[1]     = 33;
+  self->strobeColor2[2]     = 16;
   self->periodsPerFrame     = 1;
   self->partialsCount       = 4;
   self->partials[0]         = 1;

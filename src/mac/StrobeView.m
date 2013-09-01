@@ -50,9 +50,7 @@ typedef struct {
 - (void)prepareOpenGL {
 
   glDisable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+  glDisable(GL_BLEND);
 
   // allocate buffers
 
@@ -80,7 +78,7 @@ typedef struct {
     float x = -1.0;
     float dx = 2.0 / (_engine->strobeBuffers[s].length - 1);
     float y = -1.0 + 2.0 * s / (float)strobeCount;
-    float height = 0.95 * 2.0 / strobeCount; // leave some padding in between bands
+    float height = 2.0 / strobeCount - 0.01;
 
     int v = 0;
     while (v < 2 * count) {
@@ -96,25 +94,8 @@ typedef struct {
     // Dynamic color data
     glGenBuffers(1, &(strobes[s].colorBuffer));
     glBindBuffer(GL_ARRAY_BUFFER, strobes[s].colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, count * 4 * sizeof(GLubyte), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, count * 3 * sizeof(GLubyte), NULL, GL_DYNAMIC_DRAW);
     strobes[s].colors = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-
-    int c = 0;
-    while (c < 4 * strobes[s].count) {
-
-      // RGBA
-      strobes[s].colors[c++] = 255;
-      strobes[s].colors[c++] = 0;
-      strobes[s].colors[c++] = 0;
-      strobes[s].colors[c++] = 255;
-
-      // RGBA
-      strobes[s].colors[c++] = 255;
-      strobes[s].colors[c++] = 0;
-      strobes[s].colors[c++] = 0;
-      strobes[s].colors[c++] = 255;
-
-    }
 
   }
 
@@ -130,12 +111,18 @@ typedef struct {
 
 - (void)drawRect:(NSRect)rect {
 
+
+  GLubyte redBase     = _engine->config->strobeColor2[0];
+  GLubyte greenBase   = _engine->config->strobeColor2[1];
+  GLubyte blueBase    = _engine->config->strobeColor2[2];
+  GLubyte redFactor   = _engine->config->strobeColor1[0] - _engine->config->strobeColor2[0];
+  GLubyte greenFactor = _engine->config->strobeColor1[1] - _engine->config->strobeColor2[1];
+  GLubyte blueFactor  = _engine->config->strobeColor1[2] - _engine->config->strobeColor2[2];
+
   Engine_readStrobes(_engine);
 
   glClearColor(0, 0, 0, 1);
   glClear(GL_COLOR_BUFFER_BIT);
-
-  float gain = _engine->config->strobeGain;;
 
   for (int s = 0; s < strobeCount; ++s) {
 
@@ -143,23 +130,39 @@ typedef struct {
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);
 
-    int i = 0;
-    int c = 3;
-    while (c < 4 * strobes[s].count) {
+    int i =  _engine->strobeBuffers[s].length;
+    int c = 0;
+    while (c < 3 * strobes[s].count) {
 
-      float alpha = gain * _engine->strobeBuffers[s].elements[i];
-      if (alpha < 0.0) { alpha = 0.0; }
-      i += 1;
-      strobes[s].colors[c] = (GLubyte) (alpha * 255);
-      c += 4;
-      strobes[s].colors[c] = (GLubyte) (alpha * 255);
-      c += 4;
+      i -= 1;
+      float value = _engine->strobeBuffers[s].elements[i];
+
+      if (value < 0.0) {
+        value = 0.0;
+      }
+      else if (value > 1.0) {
+        value = 1.0;
+      }
+
+      GLubyte r = redBase + value * redFactor;
+      GLubyte g = greenBase + value * greenFactor;
+      GLubyte b = blueBase + value * blueFactor;
+
+      // RGB
+      strobes[s].colors[c++] = r;
+      strobes[s].colors[c++] = g;
+      strobes[s].colors[c++] = b;
+
+      // RGB
+      strobes[s].colors[c++] = r;
+      strobes[s].colors[c++] = g;
+      strobes[s].colors[c++] = b;
 
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, strobes[s].colorBuffer);
     glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
+    glColorPointer(3, GL_UNSIGNED_BYTE, 0, 0);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, strobes[s].count);
 
   }
