@@ -7,12 +7,10 @@
 
 @interface MainController : NSWindowController
 
-  @property (strong) NSTextField* pitchLabel;
   @property (strong) NSOpenGLView* strobeView;
 
   -(id)init: (Engine*)engine;
   -(void)showWindow;
-  -(void)refreshPitch:(double)pitch;
   -(void)drawStrobe;
 
 @end

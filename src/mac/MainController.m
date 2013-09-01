@@ -34,8 +34,6 @@
   [window center];
   self = [super initWithWindow: window];
   [self initStrobeView: engine];
-  _pitchLabel = [[NSTextField alloc] initWithFrame: NSMakeRect(30, 30, 300, 30)];
-  [self.window.contentView addSubview:_pitchLabel];
 
   return self;
 
@@ -47,14 +45,6 @@
   [_strobeView setNeedsDisplay: YES];
 
 }
-
-
--(void)refreshPitch:(double)pitch {
-
-  [_pitchLabel setStringValue:[NSString stringWithFormat:@"%3.2f Hz", pitch]];
-
-}
-
 
 -(void)showWindow {
 
