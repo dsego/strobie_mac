@@ -60,17 +60,23 @@ NSThread* estimatePitchThread;
       break;
     }
 
-    double pitch = Engine_estimatePitch(_engine);
-    [_mainController refreshPitch:pitch];
+    float pitch = Engine_estimatePitch(_engine);
 
-    double standard = _engine->config->pitchStandard;
-    double offset = _engine->config->centsOffset;
-    int transpose = _engine->config->transpose;
-    Note note = Tuning12TET_find(pitch, standard, offset, transpose);
 
+    Note note = Tuning12TET_find(
+      pitch,
+      _engine->config->pitchStandard,
+      _engine->config->centsOffset,
+      _engine->config->transpose
+    );
+
+    float cents = Tuning12TET_freqToCents(pitch, _engine->config->pitchStandard);
+    printf("%4.2f Hz   %2.2f c    \r", pitch, cents - note.cents);
+    fflush(stdout);
+
+
+    // Engine_setStrobeFreq(_engine, 82.41);
     Engine_setStrobeFreq(_engine, note.frequency);
-// [self.label setStringValue:[NSString stringWithFormat:@"%f", pitch]];
-    // [self.label setStringValue:[NSString stringWithFormat:@"%c%d", note.letter, note.octave]];
     usleep(50000);
   }
 
