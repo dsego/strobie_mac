@@ -7,9 +7,13 @@
 #import "../engine/Engine.h"
 
 
-@implementation AppDelegate
+@implementation AppDelegate {
 
-NSThread* estimatePitchThread;
+  NSThread* estimatePitchThread;
+  NSThread* refreshStrobeThread;
+
+}
+
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
@@ -17,14 +21,8 @@ NSThread* estimatePitchThread;
   Engine_startAudio(_engine);
 
   _mainController = [[MainController alloc] init: _engine];
+  _prefController = [[PrefController alloc] init: _engine];
   [_mainController showWindow];
-//    NSTimer* timer = [NSTimer scheduledTimerWithTimeInterval:0.02
-//                                                      target:self
-//                                                    selector:@selector(refreshNote)
-//                                                    userInfo:nil
-//                                                     repeats:YES];
-//    [timer fire];
-
 
   estimatePitchThread = [
     [NSThread alloc] initWithTarget:self
@@ -33,7 +31,7 @@ NSThread* estimatePitchThread;
   ];
   [estimatePitchThread start];
 
-  NSThread* refreshStrobeThread = [
+  refreshStrobeThread = [
     [NSThread alloc] initWithTarget:self
     selector:@selector(refreshStrobe)
     object:nil
@@ -46,6 +44,7 @@ NSThread* estimatePitchThread;
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
 
   [estimatePitchThread cancel];
+  [refreshStrobeThread cancel];
   Engine_stopAudio(_engine);
   Engine_destroy(_engine);
 

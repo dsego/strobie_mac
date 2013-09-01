@@ -41,7 +41,7 @@ typedef struct {
     pixelFormat: pixelFormat
   ];
   self.engine = engine;
-  self->strobeCount = _engine->strobeCount;
+  strobeCount = _engine->strobeCount;
   return self;
 
 }
