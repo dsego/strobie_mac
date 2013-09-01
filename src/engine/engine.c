@@ -118,7 +118,7 @@ void printPaError(PaError error) {
 }
 
 
-bool Engine_startAudio(Engine* self) {
+int Engine_startAudio(Engine* self) {
 
   PaError err;
 
@@ -129,7 +129,7 @@ bool Engine_startAudio(Engine* self) {
   err = Pa_Initialize();
   if (err != paNoError) {
     printPaError(err);
-    return false;
+    return 0;
   }
 
   int device = self->config->deviceIndex;
@@ -157,7 +157,7 @@ bool Engine_startAudio(Engine* self) {
   if (err != paNoError) {
     printPaError(err);
     Pa_Terminate();
-    return false;
+    return 0;
   }
 
   err = Pa_StartStream(self->stream);
@@ -165,10 +165,10 @@ bool Engine_startAudio(Engine* self) {
   if (err != paNoError) {
     printPaError(err);
     Pa_Terminate();
-    return false;
+    return 0;
   }
 
-  return true;
+  return 1;
 
 }
 

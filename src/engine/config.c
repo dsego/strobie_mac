@@ -4,7 +4,6 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include <stdbool.h>
 #include "Config.h"
 
 
@@ -27,7 +26,7 @@ Config* Config_create() {
   self->audioThreshold      = -60;
   self->strobeGain          = 1.0;
   self->pitchStandard       = 440;
-  self->displayFlats        = false;
+  self->displayFlats        = 0;
   self->transpose           = 0;
   self->centsOffset         = 0;
 

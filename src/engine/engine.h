@@ -2,7 +2,6 @@
     Copyright (c) 2013 Davorin Šego. All rights reserved.
 */
 
-#include <stdbool.h>
 #include "portaudio.h"
 #include "Tuning.h"
 #include "Config.h"
@@ -37,7 +36,7 @@ typedef struct {
 
 Engine* Engine_create();
 void Engine_destroy(Engine* self);
-bool Engine_startAudio(Engine* self);
+int Engine_startAudio(Engine* self);
 void Engine_stopAudio(Engine* self);
 void Engine_readStrobes(Engine* self);
 void Engine_setStrobeFreq(Engine* self, float frequency);

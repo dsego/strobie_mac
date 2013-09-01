@@ -4,7 +4,6 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include <stdbool.h>
 
 
 #define CONFIG_MAX_PARTIALS 10
@@ -24,7 +23,7 @@ typedef struct {
   float audioThreshold;
   float strobeGain;
   float pitchStandard;
-  bool displayFlats;
+  char displayFlats;
   int transpose;
   float centsOffset;
   int periodsPerFrame;
