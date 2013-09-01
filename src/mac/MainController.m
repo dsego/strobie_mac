@@ -12,7 +12,7 @@
 -(id)init:(Engine*) engine {
 
   // manually allocate and initialize the window
-  NSRect windowRect = NSMakeRect(0, 0, 500, 500);
+  NSRect windowRect = NSMakeRect(0, 0, 400, 480);
 
   NSUInteger styleMask = (
     NSTitledWindowMask |

@@ -37,7 +37,7 @@ typedef struct {
   NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
 
   self = [
-    super initWithFrame: NSMakeRect(0, 100, 500, 400)
+    super initWithFrame: NSMakeRect(0, 100, 400, 380)
     pixelFormat: pixelFormat
   ];
   self.engine = engine;
