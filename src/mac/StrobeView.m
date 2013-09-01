@@ -123,6 +123,7 @@ typedef struct {
 
 - (void)reshape {
 
+  glViewport(0, 0, _bounds.size.width, _bounds.size.height);
 
 }
 
