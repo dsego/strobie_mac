@@ -110,4 +110,11 @@
 }
 
 
+-(IBAction)openPreferences:(id)sender {
+
+  [_prefController showWindow: sender];
+
+}
+
+
 @end

@@ -47,7 +47,7 @@ void buildMainMenu() {
   // preferences
   id prefMenuItem = [
     [NSMenuItem alloc] initWithTitle:@"Preferences..."
-    action:NULL
+    action:@selector(openPreferences:)
     keyEquivalent:@","
   ];
 
