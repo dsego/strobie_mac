@@ -3,7 +3,7 @@
 */
 
 #import <AppKit/NSWindowController.h>
-#import "StrobeLayerDelegate.h";
+#import "StrobeLayerDelegate.h"
 
 @interface MainController : NSWindowController
 
