@@ -41,3 +41,5 @@ void Engine_stopAudio(Engine* self);
 void Engine_readStrobes(Engine* self);
 void Engine_setStrobeFreq(Engine* self, float frequency);
 float Engine_estimatePitch(Engine* self);
+int Engine_deviceCount();
+int Engine_deviceName(int index, char *outName, int *outIsInput, int *outIsOutput);
