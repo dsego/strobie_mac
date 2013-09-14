@@ -3,14 +3,12 @@
 */
 
 #import <AppKit/NSWindowController.h>
-#import "../engine/Engine.h"
+#import "StrobeLayerDelegate.h";
 
 @interface MainController : NSWindowController
 
-  @property (strong) NSOpenGLView* strobeView;
-
-  -(id)init: (Engine*)engine;
-  -(void)showWindow;
-  -(void)drawStrobe;
+  @property (strong) IBOutlet NSView *strobeView;
+  @property (strong) CALayer *strobeLayer;
+  @property (strong) StrobeLayerDelegate *strobeLayerDelegate;
 
 @end

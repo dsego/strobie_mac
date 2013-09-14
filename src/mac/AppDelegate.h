@@ -4,16 +4,11 @@
 
 #import <Cocoa/Cocoa.h>
 #import "MainController.h"
-#import "PrefController.h"
-#import "../engine/Engine.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-  @property Engine* engine;
-  @property (strong) MainController* mainController;
-  @property (strong) PrefController* prefController;
+  @property (strong) IBOutlet MainController *mainController;
 
-  -(IBAction) openOnlineDocumentation:(id)sender;
-  -(IBAction) openPreferences:(id)sender;
+  -(IBAction) showHelp:(id)sender;
 
 @end

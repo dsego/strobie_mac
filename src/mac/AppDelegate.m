@@ -4,7 +4,7 @@
 
 #import <AppKit/NSMenuItem.h>
 #import "AppDelegate.h"
-#import "../engine/Engine.h"
+#import "shared.h"
 
 
 @implementation AppDelegate {
@@ -17,25 +17,22 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
-  _engine = Engine_create();
-  Engine_startAudio(_engine);
-
-  _mainController = [[MainController alloc] init: _engine];
-  _prefController = [[PrefController alloc] init: _engine];
-  [_mainController showWindow];
+  engine = Engine_create();
+  Engine_startAudio(engine);
 
   estimatePitchThread = [
     [NSThread alloc] initWithTarget:self
     selector:@selector(estimatePitch)
     object:nil
   ];
-  [estimatePitchThread start];
 
   refreshStrobeThread = [
     [NSThread alloc] initWithTarget:self
     selector:@selector(refreshStrobe)
     object:nil
   ];
+
+  [estimatePitchThread start];
   [refreshStrobeThread start];
 
 }
@@ -45,8 +42,8 @@
 
   [estimatePitchThread cancel];
   [refreshStrobeThread cancel];
-  Engine_stopAudio(_engine);
-  Engine_destroy(_engine);
+  Engine_stopAudio(engine);
+  Engine_destroy(engine);
 
 }
 
@@ -55,28 +52,22 @@
 
   while (true) {
 
-    if ([estimatePitchThread isCancelled]) {
-      break;
-    }
+    if ([estimatePitchThread isCancelled]) { break; }
 
-    float pitch = Engine_estimatePitch(_engine);
-
+    float pitch = Engine_estimatePitch(engine);
 
     Note note = Tuning12TET_find(
       pitch,
-      _engine->config->pitchStandard,
-      _engine->config->centsOffset,
-      _engine->config->transpose
+      engine->config->pitchStandard,
+      engine->config->centsOffset,
+      engine->config->transpose
     );
 
-    float cents = Tuning12TET_freqToCents(pitch, _engine->config->pitchStandard);
-    printf("%4.2f Hz   %2.2f c    \r", pitch, cents - note.cents);
-    fflush(stdout);
+    float cents = Tuning12TET_freqToCents(pitch, engine->config->pitchStandard);
 
-
-    // Engine_setStrobeFreq(_engine, 82.41);
-    Engine_setStrobeFreq(_engine, note.frequency);
+    Engine_setStrobeFreq(engine, note.frequency);
     usleep(50000);
+
   }
 
 }
@@ -86,13 +77,37 @@
 
   while (true) {
 
-    [_mainController drawStrobe];
+    if ([estimatePitchThread isCancelled]) { break; }
+    // [_mainController.window.contentView setNeedsDisplay: YES];
     usleep(40000);
 
   }
 
 }
 
+
+// -(IBAction)showHelp:(id)sender {
+
+//   id url = [NSURL URLWithString:@"http://www.google.com"];
+//   [[NSWorkspace sharedWorkspace] openURL:url];
+
+// }
+
+
+- (void)applicationWillUnhide:(NSNotification *)aNotification {
+
+  // engine start ?
+  // PaError Pa_StartStream  ( PaStream *  stream  )
+  //
+}
+
+
+- (void)applicationWillHide:(NSNotification *)aNotification {
+
+  // engine stop ?
+  // PaError Pa_StopStream  ( PaStream *  stream  )
+
+}
 
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
@@ -102,19 +117,14 @@
 }
 
 
--(IBAction)openOnlineDocumentation:(id)sender {
+
+-(IBAction)showHelp:(id)sender {
 
   id url = [NSURL URLWithString:@"http://www.google.com"];
   [[NSWorkspace sharedWorkspace] openURL:url];
 
 }
 
-
--(IBAction)openPreferences:(id)sender {
-
-  [_prefController showWindow: sender];
-
-}
 
 
 @end
