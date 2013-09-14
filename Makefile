@@ -45,5 +45,7 @@ mac:
 	make engine
 	cc -Wall -arch x86_64 -fobjc-arc -O2 $(KISS) $(FFTS) $(PORTAUDIO) $(DSP) \
 		-framework Cocoa -framework AppKit -framework QuartzCore -framework OpenGL \
-		engine.a src/mac/*.m \
+		engine.a src/mac/*.m src/mac/*.c \
 		-o Strobie.app/Contents/MacOS/strobie
+		ibtool --compile Strobie.app/Contents/Resources/Application.nib src/mac/Application.xib
+		# cp src/mac/Resources/*.png Strobie.app/Contents/Resources/
