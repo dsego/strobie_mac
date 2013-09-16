@@ -1,39 +1,46 @@
 
 
+PaError Pa_StartStream ( PaStream *  stream  ) 
 
 
-=== MAIN SCREEN LAYOUT ===
-  - 2D canvas
-    - note display (letter, octave, sign)
-    - strobe display
-    - info display (audio level, concert pitch, chromatic or chosen instrument)
-  - Toolbar
-    - Mode toggle button (automatic, manual)
-    - Note selection drop-down (C, C#, D, D#, ...)
-    - Octave selection
+# 2D canvas
+- note display (letter, octave, sign)   -> a dot left or right signals an error of 5-50 cents (more intensity for larger error)
+- strobe display
 
 
-=== PREFERENCES LAYOUT ===
-  = Basic tab
-    - Instrument selection (chromatic, std. guitar ...), combo box
-    - Transpose (e.g. for trumpet Bb -> C), numerical text box
-    - Pitch standard (440.0 Hz), numerical box or combo box (lists historical pitch standards)
-    - Cents offset
-    - Sound input, drop-down box
-    - Enable sound output, check box
+# controls
+- Mode toggle button (automatic, manual)
+- Instrument selection (chromatic, std. guitar ...), combo box
+- Transpose (e.g. for trumpet Bb -> C), numerical box
+- Mute button
 
-  = Advanced tab
-    - Min audio level for pitch recognition (e.g. -40dBFS), slider
-    - Display sharps or flats, drop-down
-    - Strobe gain, slider
-    - Partials, text box
-    - Samples per period, text box   (?)
-    - Strobe color scheme
+
+# preferences
+- Sound input, drop-down box
+- Sound output, drop-down box
+- Partials, text box (drop down with combinations?)
+- Strobe gain, slider
+- Pitch standard (440.0 Hz), numerical box
+- Cents offset, numerical box
+
+# bottom toolbar
+tech info (input, samplerate, bits) ?
 
 
 
 
 
-Future
-  - Scale & temperament presets
-  - Tuner accuracy (strobe speed) adjustment (how?)
+# future (no particular order)
+-------
+- Samples per period, text box   (?)
+- Strobe color scheme
+- Stretch tables
+- Pitch standard -> combo box that lists historical pitch standards
+- Enable sound output, check box
+- Display sharps or flats, drop-down
+- Scale & temperament presets
+- info display (audio level, concert pitch, chromatic or chosen instrument)
+- auto gain (how?)
+- Tuner accuracy (strobe speed) adjustment (how?)
+- suspend button
+- Min audio level (threshold) for pitch recognition (e.g. -40dBFS), slider
