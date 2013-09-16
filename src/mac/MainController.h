@@ -3,7 +3,6 @@
 */
 
 #import <AppKit/NSWindowController.h>
-#import "MainLayerDelegate.h"
 #import "StrobeView.h"
 
 
