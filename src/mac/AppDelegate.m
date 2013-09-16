@@ -2,7 +2,6 @@
     Copyright (c) 2013 Davorin Šego. All rights reserved.
 */
 
-#import <AppKit/NSMenuItem.h>
 #import "AppDelegate.h"
 #import "shared.h"
 
@@ -10,7 +9,6 @@
 @implementation AppDelegate {
 
   NSThread* estimatePitchThread;
-  NSThread* refreshStrobeThread;
 
 }
 
@@ -20,20 +18,15 @@
   engine = Engine_create();
   Engine_startAudio(engine);
 
+  [_mainController.strobeView setupBuffers];
+
   estimatePitchThread = [
     [NSThread alloc] initWithTarget:self
     selector:@selector(estimatePitch)
     object:nil
   ];
 
-  refreshStrobeThread = [
-    [NSThread alloc] initWithTarget:self
-    selector:@selector(refreshStrobe)
-    object:nil
-  ];
-
   [estimatePitchThread start];
-  [refreshStrobeThread start];
 
 }
 
@@ -41,7 +34,6 @@
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
 
   [estimatePitchThread cancel];
-  [refreshStrobeThread cancel];
   Engine_stopAudio(engine);
   Engine_destroy(engine);
 
@@ -50,9 +42,7 @@
 
 - (void)estimatePitch {
 
-  while (true) {
-
-    if ([estimatePitchThread isCancelled]) { break; }
+  while ([estimatePitchThread isCancelled] == NO) {
 
     float pitch = Engine_estimatePitch(engine);
 
@@ -66,32 +56,11 @@
     float cents = Tuning12TET_freqToCents(pitch, engine->config->pitchStandard);
 
     Engine_setStrobeFreq(engine, note.frequency);
-    usleep(50000);
+    [NSThread sleepForTimeInterval:0.05];
 
   }
 
 }
-
-
--(void)refreshStrobe {
-
-  while (true) {
-
-    if ([estimatePitchThread isCancelled]) { break; }
-    // [_mainController.window.contentView setNeedsDisplay: YES];
-    usleep(40000);
-
-  }
-
-}
-
-
-// -(IBAction)showHelp:(id)sender {
-
-//   id url = [NSURL URLWithString:@"http://www.google.com"];
-//   [[NSWorkspace sharedWorkspace] openURL:url];
-
-// }
 
 
 - (void)applicationWillUnhide:(NSNotification *)aNotification {
@@ -99,6 +68,8 @@
   // engine start ?
   // PaError Pa_StartStream  ( PaStream *  stream  )
   //
+
+
 }
 
 

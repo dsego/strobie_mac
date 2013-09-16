@@ -3,12 +3,12 @@
 */
 
 #import <AppKit/NSWindowController.h>
-#import "StrobeLayerDelegate.h"
+#import "MainLayerDelegate.h"
+#import "StrobeView.h"
+
 
 @interface MainController : NSWindowController
 
-  @property (strong) IBOutlet NSView *strobeView;
-  @property (strong) CALayer *strobeLayer;
-  @property (strong) StrobeLayerDelegate *strobeLayerDelegate;
+  @property IBOutlet StrobeView *strobeView;
 
 @end
