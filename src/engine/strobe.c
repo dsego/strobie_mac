@@ -29,6 +29,8 @@ Strobe* Strobe_create(
   self->resampledBuffer = FloatArray_create(resampledLength);
   self->rbdata = FloatArray_create(STROBE_RB_LENGTH);
 
+  self->bufferRatio = resampledLength / bufferLength;
+
   self->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
   assert(self->ringbuffer != NULL);
 
@@ -75,15 +77,22 @@ void Strobe_read(Strobe* self, float* output, int length) {
 
 void Strobe_setFreq(Strobe* self, float freq) {
 
-  if (freq != self->freq && freq > 1.0 && freq < self->samplerate/2) {
+  if (freq == self->freq) { return; }
 
-    self->freq = freq;
-    Interpolator_setRatio(self->src, freq * self->samplesPerPeriod, self->samplerate);
-    Interpolator_reset(self->src);
-    Biquad_reset(self->bandpass);
-    Biquad_bandpass(self->bandpass, freq, self->samplerate, 10);
+  float newRate = freq * self->samplesPerPeriod;
+  float ratio = newRate / self->samplerate;
 
+  // ensure that the re-sampled data can fit into the buffer
+  if (ratio > self->bufferRatio) {
+    printf("Re-sampling buffer is too small")
+    return;
   }
+
+  self->freq = freq;
+  Interpolator_setRatio(self->src, newRate, self->samplerate);
+  Interpolator_reset(self->src);
+  Biquad_reset(self->bandpass);
+  Biquad_bandpass(self->bandpass, freq, self->samplerate, 10);
 
 }
 

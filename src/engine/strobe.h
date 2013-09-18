@@ -14,12 +14,13 @@
 typedef struct {
 
   int samplerate;
-  int samplesPerPeriod;
-  float freq;                  // strobing frequency
+  int samplesPerPeriod;         // number of samples used to describe one sound wave period
+  float freq;                   // strobing frequency
 
-  FloatArray filteredBuffer;
-  FloatArray resampledBuffer;
-  FloatArray rbdata;
+  FloatArray filteredBuffer;    // store filtered data to be re-sampled
+  FloatArray resampledBuffer;   // stores re-sampled data before writing to the circular buffer
+  FloatArray rbdata;            // circular buffer data store
+  float bufferRatio;            // resampledBuffer.length / filteredBuffer.length
 
   Biquad* bandpass;             // band pass filter
   Interpolator* src;            // sample rate converter
