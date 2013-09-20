@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
 #include "Strobe.h"
 
 #define STROBE_RB_LENGTH 16384
@@ -84,7 +85,7 @@ void Strobe_setFreq(Strobe* self, float freq) {
 
   // ensure that the re-sampled data can fit into the buffer
   if (ratio > self->bufferRatio) {
-    printf("Re-sampling buffer is too small")
+    printf("Re-sampling buffer is too small");
     return;
   }
 
