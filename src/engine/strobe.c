@@ -98,7 +98,7 @@ void Strobe_setFreq(Strobe* self, float freq) {
 }
 
 
-void Strobe_process(Strobe* self, float* input, int length) {
+static inline void _process(Strobe* self, float* input, int length) {
 
   Biquad_filter(self->bandpass, input, self->filteredBuffer.elements, length);
 
@@ -116,6 +116,29 @@ void Strobe_process(Strobe* self, float* input, int length) {
   }
 
 }
+
+
+void Strobe_process(Strobe* self, float* input, int length) {
+
+  int index = 0;
+  int inlen = length;
+  int bufflen = self->filteredBuffer.length;
+
+  // break into digestible chunks
+  while (inlen > bufflen) {
+    _process(self, &input[index], bufflen);
+    index += bufflen;
+    inlen -= bufflen;
+  };
+
+  if (inlen > 0) {
+     _process(self, &input[index], inlen);
+  }
+
+}
+
+
+
 
 
 #undef STROBE_RB_LENGTH

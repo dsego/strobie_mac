@@ -96,21 +96,12 @@ int Engine_streamCallback(
   // nothing to process
   if (status == paInputUnderflow) { return 0; }
 
-  float* finput  = (float*) input;
   Engine* self = (Engine*) userData;
-  int index  = 0;
-  int length = (int) frameCount;
 
-  // process in batches because frameCount can be bigger than bufferLength
-  while (length > self->config->bufferLength) {
-    Engine_processSignal(self, &finput[index], self->config->bufferLength);
-    length -= self->config->bufferLength;
-    index  += self->config->bufferLength;
-  }
+  AudioFeed_process(self->audioFeed, (float*)input, frameCount);
 
-  // anything left over
-  if (length > 0) {
-    Engine_processSignal(self, &finput[index], length);
+  for (int i = 0; i < self->strobeCount; ++i) {
+    Strobe_process(self->strobes[i], (float*)input, frameCount);
   }
 
   return paContinue;
