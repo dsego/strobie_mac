@@ -22,15 +22,17 @@ float Tuning12TET_centsToFreq(float cents, float pitchStandard) {
 }
 
 
-float Tuning12TET_centsMoveToOctave(float cents, int octave) {
+Note Tuning12TET_moveToOctave(Note note, int octave) {
 
-  if (octave < 0 || octave > 8) return -1;
-
-  int origOctave = (int) ((cents / 1200.0) + 4.75);
-  float transpose = (octave - origOctave) * 1200.0;
-  return cents + transpose;
+  int octaveDelta = note.octave - octave;
+  Note newNote = note;
+  newNote.octave = octave;
+  newNote.frequency = note.frequency / exp2f(octaveDelta);
+  newNote.cents += octaveDelta * 1200.0;
+  return newNote;
 
 }
+
 
 
 Note Tuning12TET_centsToNote(

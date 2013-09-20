@@ -2,6 +2,8 @@
     Copyright (c) 2013 Davorin Šego. All rights reserved.
 */
 
+#ifndef TUNING_H
+#define TUNING_H
 
 typedef struct {
 
@@ -25,5 +27,8 @@ Note Tuning12TET_findNearest(float freq, float* notesInCents, int notesLength, f
 
 float Tuning12TET_freqToCents(float freq, float pitchStandard);
 float Tuning12TET_centsToFreq(float cents, float pitchStandard);
-float Tuning12TET_centsMoveToOctave(float cents, int octave);
+Note Tuning12TET_moveToOctave(Note note, int octave);
 Note Tuning12TET_centsToNote(float cents, float pitchStandard, float centsOffset, int transpose);
+
+
+#endif
