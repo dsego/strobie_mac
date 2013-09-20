@@ -42,7 +42,7 @@ Note Tuning12TET_centsToNote(
 
   int nearest    = (int) round(cents * 0.01);
   int transposed = nearest + transpose;
-  int octave     = (int) ((transposed * 1.0 / 12.0) + 4.75);
+  int octave     = (int) ((transposed * 1/12) + 4.75);
 
   Note note;
   note.octave    = octave;
