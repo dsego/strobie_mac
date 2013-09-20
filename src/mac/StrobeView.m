@@ -32,7 +32,8 @@ typedef struct {
 - (void) awakeFromNib {
 
   // a timer works on the main thread
-  timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(redraw) userInfo:nil repeats:YES];
+  timer = [NSTimer scheduledTimerWithTimeInterval:0.02 target:self selector:@selector(redraw) userInfo:nil repeats:YES];
+  // [timer setTolerance: 0.01];
 
 }
 
@@ -79,10 +80,8 @@ typedef struct {
   [context makeCurrentContext];
 
   int strobeCount = engine->strobeCount;
-  if (strobeCount == 0) strobeCount = 1;
 
   // allocate buffers
-
   for (int s = 0; s < strobeCount; ++s) {
 
     // 2 vertices per sample
@@ -107,8 +106,8 @@ typedef struct {
     // generate vertices
     float x = -1.0;
     float dx = 2.0 / (engine->strobeBuffers[s].length - 1);
-    float y = -1.0 + 2.0 * s / (float)strobeCount;
-    float height = 2.0 / strobeCount - 0.01;
+    float y = -1.0 + 2.0 * s / (float)(strobeCount - 0.01);
+    float height = 2.0 / (float)strobeCount - 0.01;
 
     int v = 0;
     while (v < 2 * count) {
@@ -150,28 +149,30 @@ typedef struct {
 
   if (engine == NULL) { return; }
 
-  GLubyte redBase     = engine->config->strobeColor2[0];
-  GLubyte greenBase   = engine->config->strobeColor2[1];
-  GLubyte blueBase    = engine->config->strobeColor2[2];
-  GLubyte redFactor   = engine->config->strobeColor1[0] - engine->config->strobeColor2[0];
-  GLubyte greenFactor = engine->config->strobeColor1[1] - engine->config->strobeColor2[1];
-  GLubyte blueFactor  = engine->config->strobeColor1[2] - engine->config->strobeColor2[2];
 
   Engine_readStrobes(engine);
 
   for (int s = 0; s < engine->strobeCount; ++s) {
 
+    GLubyte redBase     = engine->config->strobes[s].color2[0];
+    GLubyte greenBase   = engine->config->strobes[s].color2[1];
+    GLubyte blueBase    = engine->config->strobes[s].color2[2];
+    GLubyte redFactor   = engine->config->strobes[s].color1[0] - engine->config->strobes[s].color2[0];
+    GLubyte greenFactor = engine->config->strobes[s].color1[1] - engine->config->strobes[s].color2[1];
+    GLubyte blueFactor  = engine->config->strobes[s].color1[2] - engine->config->strobes[s].color2[2];
+
     glBindBuffer(GL_ARRAY_BUFFER, strobes[s].vertexBuffer);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);
 
+    float gain = engine->config->strobes[s].gain;
     int i =  engine->strobeBuffers[s].length;
     int c = 0;
 
     while (c < 3 * strobes[s].count) {
 
       i -= 1;
-      float value = engine->strobeBuffers[s].elements[i];
+      float value = engine->strobeBuffers[s].elements[i] * gain;
 
       if (value < 0.0) {
         value = 0.0;

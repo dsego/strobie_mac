@@ -9,6 +9,8 @@
 
 
 
+void Engine_resetStrobeBuffers(Engine* self);
+
 
 
 Engine* Engine_create() {
@@ -19,23 +21,24 @@ Engine* Engine_create() {
   Config* config = self->config = Config_create();
 
   self->audioFeed = AudioFeed_create();
-  self->strobeCount = min(config->partialsCount, MAX_STROBES);
-
+  self->strobeCount = min(config->strobeCount, MAX_STROBES);
 
   // initialize strobes
+
   for (int i = 0; i < self->strobeCount; ++i) {
 
     self->strobes[i] = Strobe_create(
-      config->bufferLength,
-      config->resampledLength,
-      config->samplerate,
-      config->samplesPerPeriod[i]
+      self->config->strobes[i].bufferLength,
+      self->config->strobes[i].resampledLength,
+      self->config->samplerate,
+      self->config->strobes[i].samplesPerPeriod
     );
 
-    int length = config->samplesPerPeriod[i] * config->periodsPerFrame * config->partials[i];
-    self->strobeBuffers[i] = FloatArray_create(length);
+    self->strobeBuffers[i] = FloatArray_create(self->config->strobes[i].periodsPerFrame * self->config->strobes[i].samplesPerPeriod);
 
   }
+
+  Engine_setStrobes(self, config->reference);
 
   self->pitch = Pitch_create(config->samplerate, config->fftLength);
   self->threshold = fromDecibel(self->config->audioThreshold);
@@ -64,27 +67,73 @@ void Engine_destroy(Engine* self) {
 }
 
 
-void Engine_processSignal(Engine* self, float* input, int length) {
-
-  float gain = self->config->gain;
-
-  // apply gain
-  for (int i = 0; i < length; ++i) {
-    input[i] *= gain;
-  }
-
-  AudioFeed_process(self->audioFeed, input, length);
+void Engine_resetStrobeBuffers(Engine* self) {
 
   for (int i = 0; i < self->strobeCount; ++i) {
-    Strobe_process(self->strobes[i], input, length);
+
+    if (self->strobeBuffers[i].elements != NULL) {
+      FloatArray_destroy(self->strobeBuffers[i]);
+    }
+    self->strobeBuffers[i] = FloatArray_create(self->config->strobes[i].periodsPerFrame * self->config->strobes[i].samplesPerPeriod);
+
   }
 
 }
 
 
+void Engine_setStrobes(Engine* self, Note note) {
+
+  for (int i = 0; i < self->strobeCount; ++i) {
+
+    if (self->config->strobes[i].mode == OCTAVE) {
+      Note movedNote = Tuning12TET_moveToOctave(note, self->config->strobes[i].value);
+      Strobe_setFreq(self->strobes[i], movedNote.frequency);
+    }
+    else if (self->config->strobes[i].mode == PARTIAL) {
+      Strobe_setFreq(self->strobes[i], note.frequency * self->config->strobes[i].value);
+    }
+    else {
+      // do nothing, strobe is already set to a particular note or frequency
+    }
+
+  }
+
+}
+
+
+void Engine_setStrobeNote(Engine* self, int index, Note note) {
+
+  Strobe_setFreq(self->strobes[index], note.frequency);
+
+}
+
+
+void Engine_setStrobeFreq(Engine* self, int index, float frequency) {
+
+  Strobe_setFreq(self->strobes[index], frequency);
+
+}
+
+
+void Engine_readStrobes(Engine* self) {
+
+  for (int i = 0; i < self->strobeCount; ++i) {
+    Strobe_read(self->strobes[i], self->strobeBuffers[i].elements, self->strobeBuffers[i].length);
+  }
+
+}
+
+
+
+
+
+
+
+
+
 // fetch audio data from the sound card and process
 
-int Engine_streamCallback(
+static inline int Engine_streamCallback(
   const void* input,
   void* output,
   unsigned long frameCount,
@@ -109,11 +158,44 @@ int Engine_streamCallback(
 }
 
 
-void printPaError(PaError error) {
+static inline void printPaError(PaError error) {
 
   printf("PortAudio error: %s\n", Pa_GetErrorText(error));
 
 }
+
+
+float Engine_estimatePitch(Engine* self) {
+
+  // float peak = findPeak(self->audioBuffer, self->config->fftLength);
+
+  // if (peak > self->threshold) {
+  const int W_LENGTH = 5;
+  static float window[W_LENGTH];
+  static int index = 0;
+
+
+  // read in new data from the ring buffer
+  AudioFeed_read(self->audioFeed, self->audioBuffer.elements, self->audioBuffer.length);
+
+  float pitch = Pitch_estimate(self->pitch, self->audioBuffer.elements);
+
+  // rolling median filter
+  window[index] = pitch;
+  index += 1;
+  if (index >= W_LENGTH) {
+    index = 0;
+  }
+
+  return median5(window);
+
+}
+
+
+
+
+
+
 
 
 int Engine_startAudio(Engine* self) {
@@ -130,12 +212,10 @@ int Engine_startAudio(Engine* self) {
     return 0;
   }
 
-  int device = self->config->deviceIndex;
-
-  const PaDeviceInfo* info = Pa_GetDeviceInfo(device);
+  const PaDeviceInfo* info = Pa_GetDeviceInfo(self->config->inputDevice);
   PaStreamParameters* inputParameters = malloc(sizeof(PaStreamParameters));
 
-  inputParameters->device = device;
+  inputParameters->device = self->config->inputDevice;
   inputParameters->channelCount = 1;
   inputParameters->sampleFormat = paFloat32;
   inputParameters->suggestedLatency = info->defaultLowInputLatency;
@@ -183,52 +263,6 @@ void Engine_stopAudio(Engine* self) {
 
   // this will automatically close any PortAudio streams that are still open.
   Pa_Terminate();
-
-}
-
-
-
-void Engine_setStrobeFreq(Engine* self, float frequency) {
-
-  for (int i = 0; i < self->strobeCount; ++i) {
-    Strobe_setFreq(self->strobes[i], frequency * self->config->partials[i]);
-  }
-
-}
-
-
-void Engine_readStrobes(Engine* self) {
-
-  for (int i = 0; i < self->strobeCount; ++i) {
-    Strobe_read(self->strobes[i], self->strobeBuffers[i].elements, self->strobeBuffers[i].length);
-  }
-
-}
-
-
-float Engine_estimatePitch(Engine* self) {
-
-  // float peak = findPeak(self->audioBuffer, self->config->fftLength);
-
-  // if (peak > self->threshold) {
-  const int W_LENGTH = 5;
-  static float window[W_LENGTH];
-  static int index = 0;
-
-
-  // read in new data from the ring buffer
-  AudioFeed_read(self->audioFeed, self->audioBuffer.elements, self->audioBuffer.length);
-
-  float pitch = Pitch_estimate(self->pitch, self->audioBuffer.elements);
-
-  // rolling median filter
-  window[index] = pitch;
-  index += 1;
-  if (index >= W_LENGTH) {
-    index = 0;
-  }
-
-  return median5(window);
 
 }
 

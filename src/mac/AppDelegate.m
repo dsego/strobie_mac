@@ -49,13 +49,13 @@
     Note note = Tuning12TET_find(
       pitch,
       engine->config->pitchStandard,
-      engine->config->centsOffset,
+      0, //engine->config->centsOffset,
       engine->config->transpose
     );
 
-    float cents = Tuning12TET_freqToCents(pitch, engine->config->pitchStandard);
+    // float cents = Tuning12TET_freqToCents(pitch, engine->config->pitchStandard);
 
-    Engine_setStrobeFreq(engine, note.frequency);
+    // Engine_setStrobes(engine, note);
     [NSThread sleepForTimeInterval:0.05];
 
   }

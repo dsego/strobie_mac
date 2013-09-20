@@ -4,34 +4,48 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include "Tuning.h"
 
 
-#define CONFIG_MAX_PARTIALS 10
-#define CONFIG_MAX_NOTES    50
 
+#define CONFIG_MAX_STROBES   10
+
+
+
+typedef enum { OCTAVE, PARTIAL, FREQUENCY } StrobeMode;
+
+
+// configuration options for each strobe band
+typedef struct {
+
+  unsigned char color1[3];    // RGB color
+  unsigned char color2[3];    // RGB color
+  int bufferLength;           // audio buffer length
+  int resampledLength;        // re-sampled buffer length
+  float periodsPerFrame;      // wave cycles displayed in one frame
+  int samplesPerPeriod;       // number of samples in a period
+  float centsOffset;          // offset the note in cents
+  float gain;                 // strobe intensity (sensitivity)
+  StrobeMode mode;            //
+  float value;                // frequency, multiplier or octave
+
+} StrobeConfig;
 
 
 typedef struct {
 
-  int deviceIndex;
-  float gain;
-  int samplerate;
-  int bufferLength;
-  int resampledLength;
-  int averageCount;
-  int fftLength;
-  float audioThreshold;
-  float pitchStandard;
-  char displayFlats;
-  int transpose;
-  float centsOffset;
-  unsigned char strobeColor1[3];
-  unsigned char strobeColor2[3];
-  int periodsPerFrame;
-  int partialsCount;
-  int partials[CONFIG_MAX_PARTIALS];
-  int samplesPerPeriod[CONFIG_MAX_PARTIALS];
-  float instrumentNotes[CONFIG_MAX_NOTES];
+  int inputDevice;            // audio device index
+  int outputDevice;           // audio device index
+  int samplerate;             // input signal sampling rate
+  int fftLength;              // length of FFT
+  float pitchStandard;        // aka concert pitch ( A440 )
+  int displayFlats;           // display Db instead of C#
+  int transpose;              // shift notes to another key
+  float centsOffset;          // offset in cents
+  Note reference;
+  float audioThreshold;       // TODO
+  StrobeConfig strobes[CONFIG_MAX_STROBES];
+  int strobeCount;
 
 } Config;
 
