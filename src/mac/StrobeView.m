@@ -2,7 +2,7 @@
     Copyright (c) 2013 Davorin Šego. All rights reserved.
 */
 
-#import <OpenGL/OpenGL.h>
+#import <OpenGL/gl3.h>
 #import "StrobeView.h"
 #import "shared.h"
 
