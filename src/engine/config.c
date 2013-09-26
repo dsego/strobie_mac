@@ -14,6 +14,7 @@ Config* Config_create() {
   assert(self != NULL);
 
   self->inputDevice  = 0;
+  // self->inputDevice  = 2;
   self->outputDevice = 0;
   self->samplerate   = 44100;
 
@@ -24,7 +25,7 @@ Config* Config_create() {
   self->transpose      = 0;
   self->audioThreshold = -60;
 
-  self->reference = Tuning12TET_find(440.0, self->pitchStandard, self->centsOffset, self->transpose);
+  self->reference = Tuning12TET_find(110, self->pitchStandard, self->centsOffset, self->transpose);
 
   int samplesPerPeriod = 1024;
   float periodsPerFrame = 0.5;
@@ -44,11 +45,12 @@ Config* Config_create() {
     self->strobes[i].samplesPerPeriod = samplesPerPeriod;
     self->strobes[i].periodsPerFrame = periodsPerFrame;
     self->strobes[i].bufferLength = 512;
-    self->strobes[i].resampledLength = 512;
+    self->strobes[i].resampledLength = 1024;
     self->strobes[i].centsOffset = 0;
-    self->strobes[i].gain = 100;
+    self->strobes[i].gain = 1000;
     self->strobes[i].mode = OCTAVE;
     self->strobes[i].value = i;
+    self->strobes[i].subdivCount = 0;
 
     samplesPerPeriod /= 2;
     periodsPerFrame *= 2;

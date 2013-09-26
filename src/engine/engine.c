@@ -31,7 +31,8 @@ Engine* Engine_create() {
       self->config->strobes[i].bufferLength,
       self->config->strobes[i].resampledLength,
       self->config->samplerate,
-      self->config->strobes[i].samplesPerPeriod
+      self->config->strobes[i].samplesPerPeriod,
+      self->config->strobes[i].subdivCount
     );
 
     self->strobeBuffers[i] = FloatArray_create(self->config->strobes[i].periodsPerFrame * self->config->strobes[i].samplesPerPeriod);
@@ -39,6 +40,8 @@ Engine* Engine_create() {
   }
 
   Engine_setStrobes(self, config->reference);
+  // Strobe_setFreq(self->strobes[0], self->config->strobes[0].value);
+  // Strobe_setFreq(self->strobes[1], self->config->strobes[1].value);
 
   self->pitch = Pitch_create(config->samplerate, config->fftLength);
   self->threshold = fromDecibel(self->config->audioThreshold);
@@ -74,6 +77,7 @@ void Engine_resetStrobeBuffers(Engine* self) {
     if (self->strobeBuffers[i].elements != NULL) {
       FloatArray_destroy(self->strobeBuffers[i]);
     }
+
     self->strobeBuffers[i] = FloatArray_create(self->config->strobes[i].periodsPerFrame * self->config->strobes[i].samplesPerPeriod);
 
   }
@@ -97,20 +101,6 @@ void Engine_setStrobes(Engine* self, Note note) {
     }
 
   }
-
-}
-
-
-void Engine_setStrobeNote(Engine* self, int index, Note note) {
-
-  Strobe_setFreq(self->strobes[index], note.frequency);
-
-}
-
-
-void Engine_setStrobeFreq(Engine* self, int index, float frequency) {
-
-  Strobe_setFreq(self->strobes[index], frequency);
 
 }
 

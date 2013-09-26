@@ -28,6 +28,7 @@ typedef struct {
   float gain;                 // strobe intensity (sensitivity)
   StrobeMode mode;            //
   float value;                // frequency, multiplier or octave
+  int subdivCount;              // sub-divide the strobe into multiple bands
 
 } StrobeConfig;
 

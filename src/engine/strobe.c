@@ -6,22 +6,26 @@
 #include <assert.h>
 #include <stdio.h>
 #include "Strobe.h"
+#include "utils.h"
+
 
 #define STROBE_RB_LENGTH 16384
+
 
 
 Strobe* Strobe_create(
   int bufferLength,
   int resampledLength,
   int samplerate,
-  int samplesPerPeriod
-) {
+  int samplesPerPeriod,
+  int subdivCount) {
 
   Strobe* self = malloc(sizeof(Strobe));
   assert(self != NULL);
 
   self->samplerate = samplerate;
   self->samplesPerPeriod = samplesPerPeriod;
+  self->subdivCount = subdivCount;
 
   self->bandpass = Biquad_create(3);
   self->src = Interpolator_create(1, 1);
@@ -68,9 +72,34 @@ void Strobe_read(Strobe* self, float* output, int length) {
     PaUtil_AdvanceRingBufferReadIndex(self->ringbuffer, length);
   }
 
-  // read if there is data available
-  while (PaUtil_GetRingBufferReadAvailable(self->ringbuffer) >= length) {
+  // read latest data
+  if (PaUtil_GetRingBufferReadAvailable(self->ringbuffer) >= length) {
+
     PaUtil_ReadRingBuffer(self->ringbuffer, output, length);
+
+    // double the number of periods
+    if (self->subdivCount == 1) {
+
+      float peak = findWavePeak(output, length);
+      float factor = 2.0 / peak;
+
+      for (int i = 1; i < length; ++i) {
+        output[i] = factor * output[i] * output[i] - peak;
+      }
+
+    }
+    else if (self->subdivCount == 2) {
+
+      float peak = findWavePeak(output, length);
+      float factor = 2.0 / peak;
+
+      for (int i = 1; i < length; ++i) {
+        output[i] = factor * output[i] * output[i] - peak;
+        output[i] = factor * output[i] * output[i] - peak;
+      }
+
+    }
+
   }
 
 }
@@ -90,10 +119,11 @@ void Strobe_setFreq(Strobe* self, float freq) {
   }
 
   self->freq = freq;
+
   Interpolator_setRatio(self->src, newRate, self->samplerate);
   Interpolator_reset(self->src);
   Biquad_reset(self->bandpass);
-  Biquad_bandpass(self->bandpass, freq, self->samplerate, 10);
+  Biquad_bandpass(self->bandpass, freq, self->samplerate, 15);
 
 }
 
@@ -111,9 +141,7 @@ static inline void _process(Strobe* self, float* input, int length) {
     self->resampledBuffer.length
   );
 
-  if (count > 0) {
-    PaUtil_WriteRingBuffer(self->ringbuffer, self->resampledBuffer.elements, count);
-  }
+  PaUtil_WriteRingBuffer(self->ringbuffer, self->resampledBuffer.elements, count);
 
 }
 

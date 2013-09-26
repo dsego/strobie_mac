@@ -16,6 +16,7 @@ typedef struct {
   int samplerate;
   int samplesPerPeriod;         // number of samples used to describe one sound wave period
   float freq;                   // strobing frequency
+  int subdivCount;
 
   FloatArray filteredBuffer;    // store filtered data to be re-sampled
   FloatArray resampledBuffer;   // stores re-sampled data before writing to the circular buffer
@@ -31,8 +32,7 @@ typedef struct {
 
 
 
-
-Strobe* Strobe_create(int bufferLength, int resampledLength, int samplerate, int samplesPerPeriod );
+Strobe* Strobe_create(int bufferLength, int resampledLength, int samplerate, int samplesPerPeriod, int subdivCount);
 
 void Strobe_destroy(Strobe* self);
 
