@@ -93,11 +93,11 @@ typedef struct {
     int count = strobes[s].count = engine->strobeBuffers[s].length * 2;
 
     // Static position data
-    // glDeleteBuffers(1, &(strobes[s].vertexBuffer));
+    glDeleteBuffers(1, &(strobes[s].vertexBuffer));
     glGenBuffers(1, &(strobes[s].vertexBuffer));
     glBindBuffer(GL_ARRAY_BUFFER, strobes[s].vertexBuffer);
 
-    // allocate GL buffer
+    // allocate GL buffer (x, y for each vertex)
     glBufferData(GL_ARRAY_BUFFER, 2 * count * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 
     // get pointer to buffer
@@ -121,7 +121,7 @@ typedef struct {
     }
 
     // Dynamic color data
-    // glDeleteBuffers(1, &(strobes[s].colorBuffer));
+    glDeleteBuffers(1, &(strobes[s].colorBuffer));
     glGenBuffers(1, &(strobes[s].colorBuffer));
     glBindBuffer(GL_ARRAY_BUFFER, strobes[s].colorBuffer);
     glBufferData(GL_ARRAY_BUFFER, count * 3 * sizeof(GLubyte), NULL, GL_DYNAMIC_DRAW);
