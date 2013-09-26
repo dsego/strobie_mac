@@ -32,7 +32,7 @@ typedef struct {
 - (void) awakeFromNib {
 
   // a timer works on the main thread
-  timer = [NSTimer scheduledTimerWithTimeInterval:0.02 target:self selector:@selector(redraw) userInfo:nil repeats:YES];
+  timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(redraw) userInfo:nil repeats:YES];
   // [timer setTolerance: 0.01];
 
 }
