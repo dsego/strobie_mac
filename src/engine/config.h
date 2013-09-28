@@ -18,8 +18,10 @@ typedef enum { OCTAVE, PARTIAL, FREQUENCY } StrobeMode;
 // configuration options for each strobe band
 typedef struct {
 
-  unsigned char color1[3];    // RGB color
-  unsigned char color2[3];    // RGB color
+  int color1[3];    // color stop
+  int color2[3];    // color stop
+  int color3[3];    // color stop
+
   int bufferLength;           // audio buffer length
   int resampledLength;        // re-sampled buffer length
   float periodsPerFrame;      // wave cycles displayed in one frame

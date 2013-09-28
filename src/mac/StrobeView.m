@@ -2,8 +2,10 @@
     Copyright (c) 2013 Davorin Šego. All rights reserved.
 */
 
+#import <math.h>
 #import <OpenGL/gl3.h>
 #import "StrobeView.h"
+#import "../engine/utils.h"
 #import "shared.h"
 
 
@@ -154,15 +156,17 @@ typedef struct {
 
   for (int s = 0; s < engine->strobeCount; ++s) {
 
-    // RGB base colors
-    GLubyte redStart   = engine->config->strobes[s].color1[0];
-    GLubyte greenStart = engine->config->strobes[s].color1[1];
-    GLubyte blueStart  = engine->config->strobes[s].color1[2];
+    int start0  = engine->config->strobes[s].color1[0];
+    int start1  = engine->config->strobes[s].color1[1];
+    int start2  = engine->config->strobes[s].color1[2];
 
-    // RGB factors
-    float redScale   = engine->config->strobes[s].color2[0] - engine->config->strobes[s].color1[0];
-    float greenScale = engine->config->strobes[s].color2[1] - engine->config->strobes[s].color1[1];
-    float blueScale  = engine->config->strobes[s].color2[2] - engine->config->strobes[s].color1[2];
+    int end0 = engine->config->strobes[s].color2[0];
+    int end1 = engine->config->strobes[s].color2[1];
+    int end2 = engine->config->strobes[s].color2[2];
+
+    float scale0  = end0 - start0;
+    float scale1  = end1 - start1;
+    float scale2  = end2 - start2;
 
     glBindBuffer(GL_ARRAY_BUFFER, strobes[s].vertexBuffer);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -176,7 +180,11 @@ typedef struct {
 
       i -= 1;
 
-      float value = (engine->strobeBuffers[s].elements[i] * gain + 1) * 0.2;
+      float value = engine->strobeBuffers[s].elements[i];
+
+      // value = 1.0 / (1.0 + exp(-gain * value));
+      value = (value * gain + 1) * 0.5;
+
       if (value < 0.0) {
         value = 0.0;
       }
@@ -184,19 +192,22 @@ typedef struct {
         value = 1.0;
       }
 
-      GLubyte r = redStart + redScale * value;
-      GLubyte g = greenStart + greenScale * value;
-      GLubyte b = blueStart + blueScale * value;
+      int color[3];
+      // hsv2rgb(hsv, rgb);
 
-      // RGB
-      strobes[s].colors[c++] = r;
-      strobes[s].colors[c++] = g;
-      strobes[s].colors[c++] = b;
+      color[0] = start0 + scale0 * value;
+      color[1] = start1 + scale1 * value;
+      color[2] = start2 + scale2 * value;
 
-      // RGB
-      strobes[s].colors[c++] = r;
-      strobes[s].colors[c++] = g;
-      strobes[s].colors[c++] = b;
+      // color (RGB)
+      strobes[s].colors[c++] = color[0];
+      strobes[s].colors[c++] = color[1];
+      strobes[s].colors[c++] = color[2];
+
+      // color (RGB)
+      strobes[s].colors[c++] = color[0];
+      strobes[s].colors[c++] = color[1];
+      strobes[s].colors[c++] = color[2];
 
     }
 
