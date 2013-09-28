@@ -154,12 +154,15 @@ typedef struct {
 
   for (int s = 0; s < engine->strobeCount; ++s) {
 
-    GLubyte redBase     = engine->config->strobes[s].color2[0];
-    GLubyte greenBase   = engine->config->strobes[s].color2[1];
-    GLubyte blueBase    = engine->config->strobes[s].color2[2];
-    GLubyte redFactor   = engine->config->strobes[s].color1[0] - engine->config->strobes[s].color2[0];
-    GLubyte greenFactor = engine->config->strobes[s].color1[1] - engine->config->strobes[s].color2[1];
-    GLubyte blueFactor  = engine->config->strobes[s].color1[2] - engine->config->strobes[s].color2[2];
+    // RGB base colors
+    GLubyte redStart   = engine->config->strobes[s].color1[0];
+    GLubyte greenStart = engine->config->strobes[s].color1[1];
+    GLubyte blueStart  = engine->config->strobes[s].color1[2];
+
+    // RGB factors
+    float redScale   = engine->config->strobes[s].color2[0] - engine->config->strobes[s].color1[0];
+    float greenScale = engine->config->strobes[s].color2[1] - engine->config->strobes[s].color1[1];
+    float blueScale  = engine->config->strobes[s].color2[2] - engine->config->strobes[s].color1[2];
 
     glBindBuffer(GL_ARRAY_BUFFER, strobes[s].vertexBuffer);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -172,8 +175,8 @@ typedef struct {
     while (c < 3 * strobes[s].count) {
 
       i -= 1;
-      float value = engine->strobeBuffers[s].elements[i] * gain;
 
+      float value = (engine->strobeBuffers[s].elements[i] * gain + 1) * 0.2;
       if (value < 0.0) {
         value = 0.0;
       }
@@ -181,9 +184,9 @@ typedef struct {
         value = 1.0;
       }
 
-      GLubyte r = redBase + value * redFactor;
-      GLubyte g = greenBase + value * greenFactor;
-      GLubyte b = blueBase + value * blueFactor;
+      GLubyte r = redStart + redScale * value;
+      GLubyte g = greenStart + greenScale * value;
+      GLubyte b = blueStart + blueScale * value;
 
       // RGB
       strobes[s].colors[c++] = r;
