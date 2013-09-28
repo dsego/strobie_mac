@@ -8,8 +8,6 @@
 
 
 #define RB_LENGTH 16384
-#define FD_LENGTH 4096
-
 
 
 AudioFeed* AudioFeed_create() {
@@ -18,67 +16,19 @@ AudioFeed* AudioFeed_create() {
   assert(self != NULL);
 
   self->rbdata = FloatArray_create(RB_LENGTH);
-
   self->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
   assert(self->ringbuffer != NULL);
 
   PaUtil_InitializeRingBuffer(self->ringbuffer, sizeof(float), RB_LENGTH, self->rbdata.elements);
-
-  self->filteredData = FloatArray_create(FD_LENGTH);
-  self->decimatedData = FloatArray_create(FD_LENGTH);
-
-  self->decimationCounter = 0;
-  self->decimationRate = DECIMATE_NONE;
-
-  self->halfbandIIR  = IIR_CreateHalfbandCheby();
-  self->quartbandIIR = IIR_CreateQuartbandCheby();
-  self->threePercIIR = IIR_CreateThreePercCheby();
 
   return self;
 
 }
 
 
-void AudioFeed_setDecimationRate(AudioFeed* self, DecimationRate decimationRate) {
-
-  switch (decimationRate) {
-
-    case DECIMATE_BY_TWO:
-      self->activeIIR = self->halfbandIIR;
-      self->decimationRate = DECIMATE_BY_TWO;
-      IIR_reset(self->activeIIR);
-      break;
-
-    case DECIMATE_BY_FOUR:
-      self->activeIIR = self->quartbandIIR;
-      self->decimationRate = DECIMATE_BY_FOUR;
-      IIR_reset(self->activeIIR);
-      break;
-
-    case DECIMATE_BY_THIRTY:
-      self->activeIIR = self->threePercIIR;
-      self->decimationRate = DECIMATE_BY_THIRTY;
-      IIR_reset(self->activeIIR);
-      break;
-
-    case DECIMATE_NONE:
-    default:
-      self->activeIIR = NULL;
-      self->decimationRate = DECIMATE_NONE;
-      break;
-  }
-
-}
-
-
 void AudioFeed_destroy(AudioFeed* self) {
 
-  free(self->halfbandIIR);
-  free(self->quartbandIIR);
-  free(self->threePercIIR);
   FloatArray_destroy(self->rbdata);
-  FloatArray_destroy(self->filteredData);
-  FloatArray_destroy(self->decimatedData);
   free(self->ringbuffer);
   free(self);
   self = NULL;
@@ -94,7 +44,7 @@ void AudioFeed_read(AudioFeed* self, float* output, int length) {
   }
 
   // read if there is data available
-  while (PaUtil_GetRingBufferReadAvailable(self->ringbuffer) >= length) {
+  if (PaUtil_GetRingBufferReadAvailable(self->ringbuffer) >= length) {
     PaUtil_ReadRingBuffer(self->ringbuffer, output, length);
   }
 
@@ -127,33 +77,11 @@ inline static void highpass(float *input, float* output, int length) {
 
 void AudioFeed_process(AudioFeed* self, float* input, int length) {
 
-  // if (self->decimationRate != DECIMATE_NONE) {
-
-  //   // anti-alias
-  //   IIR_filter(self->activeIIR, input, self->filteredData, length);
-
-  //   int n = self->decimationCounter;
-  //   int k = 0;
-
-  //   // sub sample
-  //   while (n < length) {
-  //     self->decimatedData[k] = self->filteredData[n];
-  //     n += self->decimationRate;
-  //     k += 1;
-  //   }
-
-  //   self->decimationCounter = n - length;
-
-  //   PaUtil_WriteRingBuffer(self->ringbuffer, self->decimatedData, k);
-
-  // }
-  // else {
-
-    // attenuate below 150Hz
-    // highpass(input, self->filteredData, length);
-    PaUtil_WriteRingBuffer(self->ringbuffer, input, length);
-    // PaUtil_WriteRingBuffer(self->ringbuffer, self->filteredData, length);
-
-  // }
+  // attenuate below 150Hz
+  // highpass(input, self->filteredData, length);
+  PaUtil_WriteRingBuffer(self->ringbuffer, input, length);
 
 }
+
+
+#undef RB_LENGTH
