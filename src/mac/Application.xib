@@ -110,15 +110,15 @@
         <window title="Sonic Strobe" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="367">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="464" y="168" width="362" height="362"/>
+            <rect key="contentRect" x="464" y="168" width="500" height="350"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
-            <value key="minSize" type="size" width="362" height="362"/>
+            <value key="minSize" type="size" width="400" height="300"/>
             <view key="contentView" wantsLayer="YES" id="368">
-                <rect key="frame" x="0.0" y="0.0" width="362" height="362"/>
+                <rect key="frame" x="0.0" y="0.0" width="500" height="350"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <openGLView canDrawConcurrently="YES" colorSize="8bit_RGB" rendererType="accelerated" useAuxiliaryDepthBufferStencil="NO" useDoubleBufferingEnabled="YES" allowOffline="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3428" customClass="StrobeView">
-                        <rect key="frame" x="0.0" y="0.0" width="362" height="362"/>
+                        <rect key="frame" x="0.0" y="0.0" width="500" height="350"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </openGLView>
                 </subviews>
@@ -147,7 +147,7 @@
                         </constraints>
                         <popUpButtonCell key="cell" type="push" title="asd" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="848" id="846">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="menu"/>
                             <menu key="menu" title="OtherViews" id="847">
                                 <items>
                                     <menuItem title="asd" state="on" id="848"/>
@@ -160,12 +160,12 @@
                     <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="864">
                         <rect key="frame" x="124" y="211" width="205" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <popUpButtonCell key="cell" type="push" title="asdf" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="866">
+                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="866">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="menu"/>
                             <menu key="menu" title="OtherViews" id="867">
                                 <items>
-                                    <menuItem title="asdf" state="on" id="870"/>
+                                    <menuItem title="asdf" id="870"/>
                                     <menuItem title="Item 2" id="869"/>
                                     <menuItem title="Item 3" id="868"/>
                                 </items>
