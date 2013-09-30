@@ -108,7 +108,7 @@ typedef struct {
     // generate vertices
     float x = -1.0;
     float dx = 2.0 / (engine->strobeBuffers[s].length - 1);
-    float y = -1.0 + 2.0 * s / (float)(strobeCount - 0.01);
+    float y = -1.0 + 2.0 * s / (float)(strobeCount - 0.02);
     float height = 2.0 / (float)strobeCount - 0.01;
 
     int v = 0;
