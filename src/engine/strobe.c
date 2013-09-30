@@ -7,10 +7,12 @@
 #include <stdio.h>
 #include "Strobe.h"
 #include "utils.h"
+#include "resonator.h"
 
 
 #define STROBE_RB_LENGTH 16384
 
+#define STROBE_FILTER_BW 12 // filter bandwidth in Hz
 
 
 Strobe* Strobe_create(
@@ -24,6 +26,7 @@ Strobe* Strobe_create(
   assert(self != NULL);
 
   self->samplerate = samplerate;
+  self->maxFreq = 0.45 * samplerate;
   self->samplesPerPeriod = samplesPerPeriod;
   self->subdivCount = subdivCount;
 
@@ -34,7 +37,7 @@ Strobe* Strobe_create(
   self->resampledBuffer = FloatArray_create(resampledLength);
   self->rbdata = FloatArray_create(STROBE_RB_LENGTH);
 
-  self->bufferRatio = resampledLength / bufferLength;
+  self->bufferRatio = resampledLength / (float)bufferLength;
 
   self->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
   assert(self->ringbuffer != NULL);
@@ -114,7 +117,8 @@ void Strobe_setFreq(Strobe* self, float freq) {
 
   // ensure that the re-sampled data can fit into the buffer
   if (ratio > self->bufferRatio) {
-    printf("Re-sampling buffer is too small");
+    printf("Re-sampling buffer is too small \n");
+    fflush(stdout);
     return;
   }
 
@@ -123,12 +127,18 @@ void Strobe_setFreq(Strobe* self, float freq) {
   Interpolator_setRatio(self->src, newRate, self->samplerate);
   Interpolator_reset(self->src);
   Biquad_reset(self->bandpass);
-  Biquad_bandpass(self->bandpass, freq, self->samplerate, 15);
+
+  double a[3], b[3];
+  resonator(freq, STROBE_FILTER_BW, self->samplerate, a, b);
+  Biquad_setCoefficients(self->bandpass, a[0], a[1], a[2], b[1], b[2]);
+  // Biquad_bandpass(self->bandpass, freq, self->samplerate, STROBE_FILTER_Q);
 
 }
 
 
 static inline void _process(Strobe* self, float* input, int length) {
+
+  if (self->freq >= self->maxFreq) { return; }
 
   Biquad_filter(self->bandpass, input, self->filteredBuffer.elements, length);
 
