@@ -53,14 +53,14 @@ typedef struct {
   [context makeCurrentContext];
 
   // Disable unnecessary state variables
-  glDisable(GL_DITHER);
+  // glDisable(GL_DITHER);
   glDisable(GL_ALPHA_TEST);
   glDisable(GL_BLEND);
   glDisable(GL_STENCIL_TEST);
   glDisable(GL_FOG);
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_DEPTH_TEST);
-  glPixelZoom(1.0,1.0);
+  glPixelZoom(1.0, 1.0);
 
   // Synchronize buffer swaps with vertical refresh rate
   GLint swapInt = 1;
@@ -69,9 +69,17 @@ typedef struct {
 }
 
 
--(void) drawRect: (NSRect) bounds {
+-(void) drawRect: (NSRect)bounds {
 
   [self drawFrame];
+
+}
+
+
+-(void) reshape {
+
+  // recalculate vertices
+  [self setupBuffers];
 
 }
 
@@ -82,6 +90,9 @@ typedef struct {
   [context makeCurrentContext];
 
   int strobeCount = engine->strobeCount;
+  float padding = 2.0 * 2.0 / (float)_bounds.size.height; // circa 2px
+  float height = ((2.0 + padding) / strobeCount) - padding;
+  float y = -1.0;
 
   // allocate buffers
   for (int s = 0; s < strobeCount; ++s) {
@@ -108,10 +119,8 @@ typedef struct {
     // generate vertices
     float x = -1.0;
     float dx = 2.0 / (engine->strobeBuffers[s].length - 1);
-    float y = -1.0 + 2.0 * s / (float)(strobeCount - 0.02);
-    float height = 2.0 / (float)strobeCount - 0.01;
-
     int v = 0;
+
     while (v < 2 * count) {
 
       strobes[s].vertices[v++] = x;
@@ -121,6 +130,8 @@ typedef struct {
       x += dx;
 
     }
+
+    y += height + padding;
 
     // Dynamic color data
     glDeleteBuffers(1, &(strobes[s].colorBuffer));
