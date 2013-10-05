@@ -9,8 +9,11 @@
 
 @implementation MainController
 
-- (void)awakeFromNib {
+- (void)windowWillClose:(NSNotification *)notification {
+
+  [NSApp terminate: self];
 
 }
+
 
 @end

@@ -83,7 +83,7 @@
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
 
-  return YES;
+  return NO;
 
 }
 

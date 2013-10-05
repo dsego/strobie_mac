@@ -6,7 +6,7 @@
 #import "StrobeView.h"
 
 
-@interface MainController : NSWindowController
+@interface MainController : NSWindowController <NSWindowDelegate>
 
   @property IBOutlet StrobeView *strobeView;
 
