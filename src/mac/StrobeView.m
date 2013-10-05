@@ -31,18 +31,24 @@ typedef struct {
 }
 
 
-- (void) awakeFromNib {
+- (void)dealloc {
 
-  // a timer works on the main thread
-  timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(redraw) userInfo:nil repeats:YES];
-  // [timer setTolerance: 0.01];
+  [timer invalidate];
 
 }
 
 
-- (void)dealloc {
+- (void)startDrawing {
 
-  [timer invalidate];
+  // a timer works on the main thread
+  timer = [NSTimer timerWithTimeInterval:0.01 target:self selector:@selector(redraw) userInfo:nil repeats:YES];
+
+  // [timer setTolerance: 0.01];
+
+  [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+
+  //Ensure timer fires during resize
+  // [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSEventTrackingRunLoopMode];
 
 }
 
