@@ -310,7 +310,7 @@ static float nsdf(Pitch* self) {
     }
   }
 
-  threshold *= 0.8;
+  threshold *= 0.9;
   int lag = 1;
 
 
