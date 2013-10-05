@@ -299,3 +299,14 @@ int Engine_deviceName(int index, char *outName, int *outIsInput, int *outIsOutpu
   return 1;
 
 }
+
+
+void Engine_setGain(Engine* self, float gain) {
+
+  gain = fromDecibel(gain);
+
+  for (int i = 0; i < self->config->strobeCount; ++i) {
+    self->config->strobes[i].gain = gain;
+  }
+
+}
