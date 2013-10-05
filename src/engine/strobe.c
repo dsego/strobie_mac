@@ -26,7 +26,6 @@ Strobe* Strobe_create(
   assert(self != NULL);
 
   self->samplerate = samplerate;
-  self->maxFreq = 0.45 * samplerate;
   self->samplesPerPeriod = samplesPerPeriod;
   self->subdivCount = subdivCount;
 
@@ -110,12 +109,12 @@ void Strobe_read(Strobe* self, float* output, int length) {
 
 void Strobe_setFreq(Strobe* self, float freq) {
 
-  if (freq == self->freq) { return; }
+  if (freq == self->freq ) { return; }
 
   float newRate = freq * self->samplesPerPeriod;
   float ratio = newRate / self->samplerate;
 
-  // ensure that the re-sampled data can fit into the buffer
+  // re-sampled data should fit into the buffer
   if (ratio > self->bufferRatio) {
     printf("Re-sampling buffer is too small \n");
     fflush(stdout);
@@ -123,6 +122,10 @@ void Strobe_setFreq(Strobe* self, float freq) {
   }
 
   self->freq = freq;
+
+  // skip stale data
+  int available = PaUtil_GetRingBufferReadAvailable(self->ringbuffer);
+  PaUtil_AdvanceRingBufferReadIndex(self->ringbuffer, available);
 
   Interpolator_setRatio(self->src, newRate, self->samplerate);
   Interpolator_reset(self->src);
@@ -137,8 +140,6 @@ void Strobe_setFreq(Strobe* self, float freq) {
 
 
 static inline void _process(Strobe* self, float* input, int length) {
-
-  if (self->freq >= self->maxFreq) { return; }
 
   Biquad_filter(self->bandpass, input, self->filteredBuffer.elements, length);
 

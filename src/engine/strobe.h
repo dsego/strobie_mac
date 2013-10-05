@@ -16,7 +16,6 @@ typedef struct {
   int samplerate;
   int samplesPerPeriod;         // number of samples used to describe one sound wave period
   float freq;                   // strobing frequency
-  float maxFreq;                // max allowed frequency
   int subdivCount;
 
   FloatArray filteredBuffer;    // store filtered data to be re-sampled
