@@ -19,6 +19,7 @@ typedef struct {
 
   Config* config;             // configuration parameters
   PaStream* stream;           // PortAudio stream, provides access to audio hardware
+  int paInitFailed;           // if Pa_Initialize() returns an error Pa_Terminate() should NOT be called
   AudioFeed* audioFeed;
   Pitch* pitch;               // pitch recognition
 

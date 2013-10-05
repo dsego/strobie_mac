@@ -47,12 +47,35 @@ Engine* Engine_create() {
   self->threshold = fromDecibel(self->config->audioThreshold);
   self->audioBuffer = FloatArray_create(self->config->fftLength);
 
+  self->stream = NULL;
+  self->paInitFailed = 0;
+
+  //  ... if Pa_Initialize() returns an error code,
+  //      Pa_Terminate() should NOT be called
+
+  PaError err = Pa_Initialize();
+  if (err != paNoError) {
+    self->paInitFailed = 1;
+  }
+
   return self;
 
 }
 
 
 void Engine_destroy(Engine* self) {
+
+  Pa_CloseStream(self->stream);
+
+  /*
+    PortAudio docs say:
+      Pa_Terminate() MUST be called before exiting a program which uses PortAudio.
+      Failure to do so may result in serious resource leaks,
+      such as audio devices not being available until the next reboot.
+   */
+  if (self->paInitFailed == 0) {
+    Pa_Terminate();
+  }
 
   Config_destroy(self->config);
   AudioFeed_destroy(self->audioFeed);
