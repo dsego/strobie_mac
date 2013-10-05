@@ -9,53 +9,84 @@
 @implementation AppDelegate {
 
   NSThread* estimatePitchThread;
+  Note note;
 
 }
 
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
-  engine = Engine_create();
-  Engine_startAudio(engine);
+  [_prefController loadPreferences];
 
-  [_mainController.strobeView setupBuffers];
-
-  estimatePitchThread = [
-    [NSThread alloc] initWithTarget:self
-    selector:@selector(estimatePitch)
-    object:nil
-  ];
-
+  estimatePitchThread = [[NSThread alloc] initWithTarget:self selector:@selector(estimatePitch) object:nil ];
   [estimatePitchThread start];
 
+  Engine_setInputDevice(engine, engine->config->inputDevice, engine->config->samplerate);
+  [_mainController.strobeView startDrawing];
+
+
 }
+
+
+// - (void)applicationDidChangeOcclusionState:(NSNotification *)notification {
+
+//   if ([self occlusionState] != NSApplicationOcclusionStateVisible) {
+
+//     // app is occluded,
+//   }
+
+// }
 
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
 
   [estimatePitchThread cancel];
-  Engine_stopAudio(engine);
   Engine_destroy(engine);
+
+}
+
+
+- (void)setStrobes {
+
+  Engine_setStrobes(engine, note);
 
 }
 
 
 - (void)estimatePitch {
 
+  // quasi-Nyquist
+  float maxFreq = 0.45 * engine->config->samplerate;
+
   while ([estimatePitchThread isCancelled] == NO) {
 
     float pitch = Engine_estimatePitch(engine);
 
-    Note note = Tuning12TET_find(
-      pitch,
-      engine->config->pitchStandard,
-      0, //engine->config->centsOffset,
-      engine->config->transpose
-    );
 
-    // float cents = Tuning12TET_freqToCents(pitch, engine->config->pitchStandard);
+      // engine->config->transpose
 
-    // Engine_setStrobes(engine, note);
+    // sanity check
+    if (pitch > 0.0 && pitch < maxFreq) {
+
+
+      note = Tuning12TET_find(pitch, engine->config->pitchStandard, engine->config->centsOffset);
+
+      float cents = Tuning12TET_freqToCents(pitch, engine->config->pitchStandard);
+
+      Note transposed = Tuning12TET_transpose(note, engine->config->transpose);
+
+      Engine_setStrobes(engine, note);
+
+      // printf("%.2f          \r", pitch); fflush(stdout);
+      printf(
+        "%4.2f %c%i%1s  %c%i%1s     %2.2f          \r",
+        pitch, note.letter, note.octave, note.accidental,
+        transposed.letter, transposed.octave, transposed.accidental,
+        cents - note.cents
+      );
+      fflush(stdout);
+    }
+
     [NSThread sleepForTimeInterval:0.05];
 
   }
