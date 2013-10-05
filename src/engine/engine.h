@@ -29,6 +29,7 @@ typedef struct {
   int strobeCount;
   Strobe* strobes[MAX_STROBES];
   FloatArray strobeBuffers[MAX_STROBES];
+  int strobeLengths[MAX_STROBES];
 
 } Engine;
 

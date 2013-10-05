@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
   <key>CFBundleName</key>
-  <string>Sonice Strobe</string>
+  <string>Strobie</string>
   <key>NSMainNibFile</key>
   <string>Application.nib</string>
   <key>CFBundlePackageType</key>
