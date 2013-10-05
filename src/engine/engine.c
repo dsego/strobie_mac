@@ -205,48 +205,54 @@ float Engine_estimatePitch(Engine* self) {
 }
 
 
+int Engine_setInputDevice(Engine *self, int device, int samplerate) {
 
+  // illegal value
+  static int currentDevice = -1;
 
+  // already set
+  if (currentDevice == device) { return 1; }
 
-
-
-
-int Engine_startAudio(Engine* self) {
+  self->config->inputDevice = currentDevice = device;
 
   PaError err;
 
-  // start PortAudio and open the input stream
-  //  ... if Pa_Initialize() returns an error code,
-  //      Pa_Terminate() should NOT be called
-
-  err = Pa_Initialize();
-  if (err != paNoError) {
-    printPaError(err);
-    return 0;
+  if (self->stream != NULL) {
+    err = Pa_StopStream(self->stream);
+    err = Pa_CloseStream(self->stream);
   }
 
-  const PaDeviceInfo* info = Pa_GetDeviceInfo(self->config->inputDevice);
-  PaStreamParameters* inputParameters = malloc(sizeof(PaStreamParameters));
+  const PaDeviceInfo* info = Pa_GetDeviceInfo(device);
+  PaStreamParameters* params = malloc(sizeof(PaStreamParameters));
 
-  inputParameters->device = self->config->inputDevice;
-  inputParameters->channelCount = 1;
-  inputParameters->sampleFormat = paFloat32;
-  inputParameters->suggestedLatency = info->defaultLowInputLatency;
-  inputParameters->hostApiSpecificStreamInfo = NULL;
+  params->device = device;
+  params->channelCount = 1;
+  params->sampleFormat = paFloat32;
+  params->suggestedLatency = info->defaultLowInputLatency;
+  params->hostApiSpecificStreamInfo = NULL;
 
   err = Pa_OpenStream(
     &self->stream,
-    inputParameters,
+    params,
     NULL,
-    self->config->samplerate,
+    samplerate,
     paFramesPerBufferUnspecified,
     paNoFlag,
     &Engine_streamCallback,
     self
   );
 
+  // TODO
+  //
+  // try different sample rates
+  // while (err == paInvalidSampleRate) { }
+  //
+  // other error -> try default device
+
+
+  free(params);
+
   if (err != paNoError) {
-    printPaError(err);
     Pa_Terminate();
     return 0;
   }
@@ -254,28 +260,11 @@ int Engine_startAudio(Engine* self) {
   err = Pa_StartStream(self->stream);
 
   if (err != paNoError) {
-    printPaError(err);
     Pa_Terminate();
     return 0;
   }
 
   return 1;
-
-}
-
-
-/*
-  PortAudio docs say:
-    Pa_Terminate() MUST be called before exiting a program which uses PortAudio.
-    Failure to do so may result in serious resource leaks,
-    such as audio devices not being available until the next reboot.
- */
-void Engine_stopAudio(Engine* self) {
-
-  Pa_StopStream(self->stream);
-
-  // this will automatically close any PortAudio streams that are still open.
-  Pa_Terminate();
 
 }
 
