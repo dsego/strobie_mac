@@ -109,7 +109,7 @@ typedef struct {
     //  | \| \| \| \| \| \|
     //   -----------------
     //
-    int count = strobes[s].count = engine->strobeBuffers[s].length * 2;
+    int count = strobes[s].count = engine->strobeLengths[s] * 2;
 
     // Static position data
     glDeleteBuffers(1, &(strobes[s].vertexBuffer));
@@ -124,7 +124,7 @@ typedef struct {
 
     // generate vertices
     float x = -1.0;
-    float dx = 2.0 / (engine->strobeBuffers[s].length - 1);
+    float dx = 2.0 / (engine->strobeLengths[s] - 1);
     int v = 0;
 
     while (v < 2 * count) {
@@ -190,7 +190,7 @@ typedef struct {
     glVertexPointer(2, GL_FLOAT, 0, 0);
 
     float gain = engine->config->strobes[s].gain;
-    int i =  engine->strobeBuffers[s].length;
+    int i =  engine->strobeLengths[s];
     int c = 0;
 
     while (c < 3 * strobes[s].count) {

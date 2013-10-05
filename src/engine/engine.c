@@ -8,8 +8,10 @@
 #include "utils.h"
 
 
+#define ENGINE_STR_BUFFER_LENGTH 4096
 
-void Engine_resetStrobeBuffers(Engine* self);
+
+
 
 
 
@@ -35,7 +37,8 @@ Engine* Engine_create() {
       self->config->strobes[i].subdivCount
     );
 
-    self->strobeBuffers[i] = FloatArray_create(self->config->strobes[i].periodsPerFrame * self->config->strobes[i].samplesPerPeriod);
+    // allocate enough space for any strobe size (see Engine_readStrobes)
+    self->strobeBuffers[i] = FloatArray_create(ENGINE_STR_BUFFER_LENGTH);
 
   }
 
@@ -93,21 +96,6 @@ void Engine_destroy(Engine* self) {
 }
 
 
-void Engine_resetStrobeBuffers(Engine* self) {
-
-  for (int i = 0; i < self->strobeCount; ++i) {
-
-    if (self->strobeBuffers[i].elements != NULL) {
-      FloatArray_destroy(self->strobeBuffers[i]);
-    }
-
-    self->strobeBuffers[i] = FloatArray_create(self->config->strobes[i].periodsPerFrame * self->config->strobes[i].samplesPerPeriod);
-
-  }
-
-}
-
-
 void Engine_setStrobes(Engine* self, Note note) {
 
   for (int i = 0; i < self->strobeCount; ++i) {
@@ -123,6 +111,9 @@ void Engine_setStrobes(Engine* self, Note note) {
       // do nothing, strobe is already set to a particular note or frequency
     }
 
+    // number of samples displayed
+    self->strobeLengths[i] = self->config->strobes[i].periodsPerFrame * self->config->strobes[i].samplesPerPeriod;
+
   }
 
 }
@@ -131,10 +122,11 @@ void Engine_setStrobes(Engine* self, Note note) {
 void Engine_readStrobes(Engine* self) {
 
   for (int i = 0; i < self->strobeCount; ++i) {
-    Strobe_read(self->strobes[i], self->strobeBuffers[i].elements, self->strobeBuffers[i].length);
+    Strobe_read(self->strobes[i], self->strobeBuffers[i].elements, self->strobeLengths[i]);
   }
 
 }
+
 
 
 
@@ -171,20 +163,13 @@ static inline int Engine_streamCallback(
 }
 
 
-static inline void printPaError(PaError error) {
-
-  printf("PortAudio error: %s\n", Pa_GetErrorText(error));
-
-}
-
-
 float Engine_estimatePitch(Engine* self) {
 
   // float peak = findPeak(self->audioBuffer, self->config->fftLength);
 
   // if (peak > self->threshold) {
-  const int W_LENGTH = 5;
-  static float window[W_LENGTH];
+  const int W_LENGTH = 9;
+  static float window[W_LENGTH] = { 0 };
   static int index = 0;
 
 
@@ -200,7 +185,7 @@ float Engine_estimatePitch(Engine* self) {
     index = 0;
   }
 
-  return median5(window);
+  return median9(window);
 
 }
 

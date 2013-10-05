@@ -38,10 +38,18 @@ typedef struct {
 
 Engine* Engine_create();
 void Engine_destroy(Engine* self);
-int Engine_startAudio(Engine* self);
+
+int Engine_initAudio(Engine* self);
 void Engine_stopAudio(Engine* self);
+
 void Engine_readStrobes(Engine* self);
 void Engine_setStrobes(Engine* self, Note note);
 float Engine_estimatePitch(Engine* self);
+int Engine_isActive(Engine *self);
+
 int Engine_deviceCount();
 int Engine_deviceName(int index, char *outName, int *outIsInput, int *outIsOutput);
+void Engine_getSamplerates(int device, int outSamplerates[11]);
+
+// gain in dB
+void Engine_setGain(Engine* self, float gain);
