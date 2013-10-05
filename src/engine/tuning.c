@@ -22,13 +22,21 @@ float Tuning12TET_centsToFreq(float cents, float pitchStandard) {
 }
 
 
+Note Tuning12TET_transpose(Note note, int semitones) {
+
+  float cents = note.cents + semitones * 100.0;
+  return Tuning12TET_centsToNote(cents, note.pitchStandard, 0);
+
+}
+
+
 Note Tuning12TET_moveToOctave(Note note, int octave) {
 
   int octaveDelta = note.octave - octave;
   Note newNote = note;
   newNote.octave = octave;
   newNote.frequency = note.frequency / exp2f(octaveDelta);
-  newNote.cents += octaveDelta * 1200.0;
+  newNote.cents -= octaveDelta * 1200.0;
   return newNote;
 
 }
@@ -38,20 +46,22 @@ Note Tuning12TET_moveToOctave(Note note, int octave) {
 Note Tuning12TET_centsToNote(
   float cents,
   float pitchStandard,
-  float centsOffset,
-  int transpose
+  float centsOffset
 ) {
 
-  int nearest    = (int) round(cents * 0.01);
-  int transposed = nearest + transpose;
-  int octave     = (int) ((transposed * 1/12) + 4.75);
+  int nearest = (int) round(cents * 0.01); // semitones
+  int octave  = (int) ((nearest / 12.0) + 4.75);
 
   Note note;
-  note.octave    = octave;
-  note.cents     = nearest * 100.0 + centsOffset;
-  note.frequency = Tuning12TET_centsToFreq(note.cents, pitchStandard);
+  note.pitchStandard = pitchStandard;
+  note.octave        = octave;
+  note.cents         = nearest * 100.0 + centsOffset;
+  note.frequency     = Tuning12TET_centsToFreq(note.cents, pitchStandard);
 
-  switch (transposed % 12) {
+  strcpy(note.accidental, "");
+  strcpy(note.altAccidental, "");
+
+  switch (nearest % 12) {
     case 0:
       note.letter     = 'A';
       note.altLetter  = 'A';
@@ -131,12 +141,11 @@ Note Tuning12TET_centsToNote(
 Note Tuning12TET_find(
   float freq,
   float pitchStandard,
-  float centsOffset,
-  int transpose
+  float centsOffset
 ) {
 
   float cents = Tuning12TET_freqToCents(freq, pitchStandard);
-  return Tuning12TET_centsToNote(cents, pitchStandard, centsOffset, transpose);
+  return Tuning12TET_centsToNote(cents, pitchStandard, centsOffset);
 
 }
 
@@ -170,10 +179,10 @@ Note Tuning12TET_findNearest(
 
   // return nearest note
   if (distanceToLow < distanceToHigh) {
-    return Tuning12TET_centsToNote(notesInCents[low], pitchStandard, 0, 0);
+    return Tuning12TET_centsToNote(notesInCents[low], pitchStandard, 0);
   }
   else {
-    return Tuning12TET_centsToNote(notesInCents[high], pitchStandard, 0, 0);
+    return Tuning12TET_centsToNote(notesInCents[high], pitchStandard, 0);
   }
 
 }

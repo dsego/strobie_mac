@@ -14,21 +14,23 @@ typedef struct {
   int octave;
   float cents;
   float frequency;
+  float pitchStandard;
 
 } Note;
 
 
 
 // given a frequency, find the closest note in equal temperament
-Note Tuning12TET_find(float freq, float pitchStandard, float centsOffset, int transpose);
+Note Tuning12TET_find(float freq, float pitchStandard, float centsOffset);
 
 // find the nearest note from a list of pitches (in cents)
 Note Tuning12TET_findNearest(float freq, float* notesInCents, int notesLength, float pitchStandard);
 
+Note Tuning12TET_transpose(Note note, int semitones);
+Note Tuning12TET_moveToOctave(Note note, int octave);
+Note Tuning12TET_centsToNote(float cents, float pitchStandard, float centsOffset);
+
 float Tuning12TET_freqToCents(float freq, float pitchStandard);
 float Tuning12TET_centsToFreq(float cents, float pitchStandard);
-Note Tuning12TET_moveToOctave(Note note, int octave);
-Note Tuning12TET_centsToNote(float cents, float pitchStandard, float centsOffset, int transpose);
-
 
 #endif
