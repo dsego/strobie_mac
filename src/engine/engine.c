@@ -168,7 +168,7 @@ float Engine_estimatePitch(Engine* self) {
   // float peak = findPeak(self->audioBuffer, self->config->fftLength);
 
   // if (peak > self->threshold) {
-  const int W_LENGTH = 9;
+  const int W_LENGTH = 5;
   static float window[W_LENGTH] = { 0 };
   static int index = 0;
 
@@ -185,7 +185,7 @@ float Engine_estimatePitch(Engine* self) {
     index = 0;
   }
 
-  return median9(window);
+  return median5(window);
 
 }
 
