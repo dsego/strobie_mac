@@ -27,7 +27,7 @@ Config* Config_create() {
 
   self->reference = Tuning12TET_find(110, self->pitchStandard, self->centsOffset);
 
-  int samplesPerPeriod = 1024;
+  int samplesPerPeriod = 512;
   float periodsPerFrame = 1;
 
   self->strobeCount = 5;
