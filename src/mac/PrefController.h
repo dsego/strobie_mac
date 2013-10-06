@@ -10,10 +10,12 @@
   @property IBOutlet NSPopUpButton *inputDevicePopup;
   @property IBOutlet NSTextField *concertPitchText;
   @property IBOutlet NSTextField *offsetText;
+  @property IBOutlet NSPopUpButton *transposePopup;
 
   - (IBAction)inputDeviceChanged: (id)sender;
   - (IBAction)concertPitchChanged: (id)sender;
   - (IBAction)offsetChanged: (id)sender;
+  - (IBAction)transposeChanged: (id)sender;
 
   - (void)loadPreferences;
 
