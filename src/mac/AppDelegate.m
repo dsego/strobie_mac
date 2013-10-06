@@ -9,6 +9,7 @@
 @implementation AppDelegate {
 
   NSThread* estimatePitchThread;
+  NSTimer *timer;
   Note note;
 
 }
@@ -20,6 +21,13 @@
 
   estimatePitchThread = [[NSThread alloc] initWithTarget:self selector:@selector(estimatePitch) object:nil ];
   [estimatePitchThread start];
+
+
+  // a timer works on the main thread
+  timer = [NSTimer timerWithTimeInterval:0.05 target:self selector:@selector(setStrobes) userInfo:nil repeats:YES];
+  // [timer setTolerance: 0.01];
+  [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+
 
   Engine_setInputDevice(engine, engine->config->inputDevice, engine->config->samplerate);
   [_mainController.strobeView startDrawing];
@@ -74,8 +82,6 @@
       float cents = Tuning12TET_freqToCents(pitch, engine->config->pitchStandard);
 
       Note transposed = Tuning12TET_transpose(note, engine->config->transpose);
-
-      Engine_setStrobes(engine, note);
 
       // printf("%.2f          \r", pitch); fflush(stdout);
       printf(
