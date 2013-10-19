@@ -232,6 +232,10 @@ static float nsdf(Pitch* self) {
       m - left hand summation
       r - autocorrelation
 
+    Normalized SDF or SNAC:
+
+      nsdf = 2r / m    ( = 1 - sdf/m )
+
     ---------------------------------------------------------------- */
 
   acf2(self);
@@ -324,96 +328,45 @@ static float nsdf(Pitch* self) {
   }
 
   float delta = parabolic(self->sdf.elements[lag-1], self->sdf.elements[lag], self->sdf.elements[lag+1]);
+
   return self->samplerate / (lag + delta);
 
 }
 
 
-static float yin(Pitch* self) {
+// static float cepstrum(Pitch* self) {
 
-  acf2(self);
+//   // // apply window
+//   // for (int i = 0; i < self->fftLength; ++i) {
+//   //   self->audio.elements[i] = self->audio.elements[i] * self->window.elements[i];
+//   // }
 
-  int length = self->acf.length / 2;
+//   // forward Fourier transform
+//   ffts_execute(self->fftPlan, self->audio.elements, self->fft.elements);
 
-  float norm = 1.0 / (float)length;
-  float runningSum = 0.0;
+//   // power spectrum
+//   for (int i = 0; i < self->fft.length; ++i) {
+//     self->powSpectrum.elements[i] = log10(magnitude(self->fft.elements[i]));
+//   }
 
-  // left-hand summation for zero lag
-  float lhsum = norm * self->acf.elements[0];
+//   // inverse Fourier transform --> modified cepstrum
+//   ffts_execute(self->cepPlan, self->powSpectrum.elements, self->cepstrum.elements);
 
+//   for (int i = 0; i < self->cepstrum.length; ++i) {
+//     self->powCepstrum.elements[i] = log10(magnitude(self->cepstrum.elements[i]));
+//   }
 
-  // SDF via autocorrelation
-  for (int t = 1; t < length; ++t) {
-
-    lhsum -= self->audio.elements[t] *
-      self->audio.elements[t] +
-      self->audio.elements[length-t-1] *
-      self->audio.elements[length-t-1];
-
-    self->sdf.elements[t] = lhsum - self->acf.elements[t] * norm;
-
-    // cumulative mean normalized difference function
-    runningSum += self->sdf.elements[t];
-    self->sdf.elements[t] *= t / runningSum;
-
-  }
-
-  self->sdf.elements[0] = 1.0;
-
-  int lag = 1;
-  for (int t = 1; t < length; ++t) {
-
-    if (self->sdf.elements[t] < 0.15) {
-      lag = t;
-      break;
-    }
-
-  }
-
-  // float delta = parabolic(self->sdf.elements[lag-1], self->sdf.elements[lag], self->sdf.elements[lag+1]);
-  // return self->samplerate / (lag + delta);
-  return self->samplerate / lag;
-
-}
+//   return 0;
 
 
-
-
-static float cepstrum(Pitch* self) {
-
-  // // apply window
-  // for (int i = 0; i < self->fftLength; ++i) {
-  //   self->audio.elements[i] = self->audio.elements[i] * self->window.elements[i];
-  // }
-
-  // forward Fourier transform
-  ffts_execute(self->fftPlan, self->audio.elements, self->fft.elements);
-
-  // power spectrum
-  for (int i = 0; i < self->fft.length; ++i) {
-    self->powSpectrum.elements[i] = log10(magnitude(self->fft.elements[i]));
-  }
-
-  // inverse Fourier transform --> modified cepstrum
-  ffts_execute(self->cepPlan, self->powSpectrum.elements, self->cepstrum.elements);
-
-  for (int i = 0; i < self->cepstrum.length; ++i) {
-    self->powCepstrum.elements[i] = log10(magnitude(self->cepstrum.elements[i]));
-  }
-
-  return 0;
-
-
-}
+// }
 
 
 
 float Pitch_estimate(Pitch* self, float* data) {
 
   memcpy(self->audio.elements, data, (self->audio.length / 2) * sizeof(float));
-  // return cepstrum(self);
   return nsdf(self);
-  // return yin(self);
 
 }
 
