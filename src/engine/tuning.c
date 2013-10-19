@@ -24,7 +24,7 @@ float Tuning12TET_centsToFreq(float cents, float pitchStandard) {
 
 Note Tuning12TET_transpose(Note note, int semitones) {
 
-  float cents = note.cents + semitones * 100.0;
+  float cents = note.cents - semitones * 100.0;
   return Tuning12TET_centsToNote(cents, note.pitchStandard, 0);
 
 }
