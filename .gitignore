@@ -1,4 +1,4 @@
-
+*.sketch
 *.xcodeproj
 *.app
 *.a
