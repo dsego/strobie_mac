@@ -5,12 +5,14 @@
 #import <Cocoa/Cocoa.h>
 #import "MainController.h"
 #import "PrefController.h"
+#import "DevPanelController.h"
 
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
   @property (strong) IBOutlet MainController *mainController;
   @property (strong) IBOutlet PrefController *prefController;
+  @property (strong) IBOutlet DevPanelController *devPanelController;
 
   -(IBAction) showHelp:(id)sender;
 

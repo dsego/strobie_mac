@@ -24,7 +24,7 @@ typedef struct {
   Pitch* pitch;               // pitch recognition
 
   FloatArray audioBuffer;
-  float threshold;
+  float level;
 
   int strobeCount;
   Strobe* strobes[MAX_STROBES];
@@ -51,5 +51,6 @@ int Engine_deviceCount();
 int Engine_deviceName(int index, char *outName, int *outIsInput, int *outIsOutput);
 void Engine_getSamplerates(int device, int outSamplerates[11]);
 
-// gain in dB
+int Engine_setInputDevice(Engine *self, int device, int samplerate);
 void Engine_setGain(Engine* self, float gain);
+void Engine_setColors(Engine* self, int color1[3], int color2[3]);
