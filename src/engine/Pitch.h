@@ -2,7 +2,6 @@
     Copyright (c) 2013 Davorin Šego. All rights reserved.
 */
 
-#include "kiss_fftr.h"
 #include <complex.h>
 #include "Array.h"
 #include "ffts.h"
