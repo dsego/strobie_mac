@@ -7,19 +7,6 @@
 #include <math.h>
 
 
-inline static float toDecibel(float value) {
-
-  return 20 * log10(value);
-
-}
-
-
-inline static float fromDecibel(float value) {
-
-  return pow(10, value / 20);
-
-}
-
 
 
 inline static float min(int a, int b) {
