@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4510" systemVersion="12F45" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13A603" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4510"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication"/>
@@ -131,7 +131,7 @@
                 </menuItem>
             </items>
         </menu>
-        <window title="Strobie" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="367">
+        <window title="Strobie" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="367" customClass="MainWindow">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <rect key="contentRect" x="410" y="248" width="500" height="400"/>
@@ -142,7 +142,7 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <openGLView autoresizesSubviews="NO" canDrawConcurrently="YES" colorSize="8bit_RGB" rendererType="accelerated" useAuxiliaryDepthBufferStencil="NO" useDoubleBufferingEnabled="YES" allowOffline="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3428" customClass="StrobeView">
-                        <rect key="frame" x="0.0" y="80" width="500" height="320"/>
+                        <rect key="frame" x="24" y="80" width="452" height="304"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </openGLView>
                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="ogN-jV-Pqt" customClass="NoteView">
@@ -154,11 +154,11 @@
                     </customView>
                 </subviews>
                 <constraints>
-                    <constraint firstAttribute="trailing" secondItem="3428" secondAttribute="trailing" id="GQD-vY-pHV"/>
-                    <constraint firstItem="3428" firstAttribute="top" secondItem="368" secondAttribute="top" id="LsM-Mz-XjU"/>
+                    <constraint firstAttribute="trailing" secondItem="3428" secondAttribute="trailing" constant="24" id="GQD-vY-pHV"/>
+                    <constraint firstItem="3428" firstAttribute="top" secondItem="368" secondAttribute="top" constant="16" id="LsM-Mz-XjU"/>
                     <constraint firstItem="ogN-jV-Pqt" firstAttribute="leading" secondItem="368" secondAttribute="leading" id="Sex-Jp-5Ra"/>
                     <constraint firstAttribute="trailing" secondItem="ogN-jV-Pqt" secondAttribute="trailing" id="U6d-gz-1R9"/>
-                    <constraint firstItem="3428" firstAttribute="leading" secondItem="368" secondAttribute="leading" id="bpU-0f-oaK"/>
+                    <constraint firstItem="3428" firstAttribute="leading" secondItem="368" secondAttribute="leading" constant="24" id="bpU-0f-oaK"/>
                     <constraint firstItem="ogN-jV-Pqt" firstAttribute="top" secondItem="3428" secondAttribute="bottom" id="eDy-NF-Nge"/>
                     <constraint firstAttribute="bottom" secondItem="ogN-jV-Pqt" secondAttribute="bottom" id="h0l-y8-Xjq"/>
                 </constraints>
@@ -170,7 +170,7 @@
         <window title="dev tools" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hidesOnDeactivate="YES" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="a3H-GV-tNq" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" utility="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="898" y="324" width="276" height="249"/>
+            <rect key="contentRect" x="0.0" y="529" width="276" height="249"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <view key="contentView" id="eiP-tC-jaA">
                 <rect key="frame" x="0.0" y="0.0" width="276" height="249"/>
@@ -213,7 +213,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="425" height="245"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="977">
+                    <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="977">
                         <rect key="frame" x="42" y="206" width="99" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Audio input:" id="978">
@@ -241,7 +241,7 @@
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <font key="titleFont" metaFont="system"/>
                     </box>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Vk6-4b-mdT">
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vk6-4b-mdT">
                         <rect key="frame" x="45" y="145" width="96" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <constraints>
@@ -265,7 +265,7 @@
                             <action selector="transposeChanged:" target="bhj-6S-PFX" id="r0b-UZ-3WN"/>
                         </connections>
                     </popUpButton>
-                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1379">
+                    <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1379">
                         <rect key="frame" x="44" y="110" width="97" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Concert pitch:" id="1381">
@@ -305,7 +305,7 @@
                             <action selector="concertPitchChanged:" target="bhj-6S-PFX" id="FUH-aQ-fmH"/>
                         </connections>
                     </stepper>
-                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3269">
+                    <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3269">
                         <rect key="frame" x="247" y="109" width="22" height="15"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <constraints>
@@ -317,7 +317,7 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1366">
+                    <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1366">
                         <rect key="frame" x="44" y="74" width="97" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Offset:" id="1367">
@@ -355,7 +355,7 @@
                             <action selector="centsOffsetChanged:" target="bhj-6S-PFX" id="WBA-2l-U1o"/>
                         </connections>
                     </stepper>
-                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="l5d-fT-f7J">
+                    <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="l5d-fT-f7J">
                         <rect key="frame" x="247" y="74" width="33" height="15"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="cents" id="k8Y-y0-Pnv">

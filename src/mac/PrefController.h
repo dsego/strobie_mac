@@ -8,15 +8,18 @@
 @interface PrefController : NSWindowController
 
   @property IBOutlet NSPopUpButton *inputDevicePopup;
-  @property IBOutlet NSTextField *concertPitchText;
-  @property IBOutlet NSTextField *offsetText;
   @property IBOutlet NSPopUpButton *transposePopup;
-
-  - (IBAction)inputDeviceChanged: (id)sender;
-  - (IBAction)concertPitchChanged: (id)sender;
-  - (IBAction)offsetChanged: (id)sender;
-  - (IBAction)transposeChanged: (id)sender;
+  @property IBOutlet NSTextField *concertPitchText;
+  @property IBOutlet NSStepper *concertPitchStepper;
+  @property IBOutlet NSTextField *centsOffsetText;
+  @property IBOutlet NSStepper *centsOffsetStepper;
 
   - (void)loadPreferences;
+
+  - (IBAction)inputDeviceChanged: (id)sender;
+  - (IBAction)transposeChanged: (id)sender;
+  - (IBAction)concertPitchChanged: (id)sender;
+  - (IBAction)centsOffsetChanged: (id)sender;
+
 
 @end

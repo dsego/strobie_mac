@@ -9,7 +9,8 @@
 @implementation AppDelegate {
 
   NSThread* estimatePitchThread;
-  NSTimer *timer;
+  NSTimer *setStrobesTimer;
+  NSTimer *strobeDisplayTimer;
   Note note;
 
 }
@@ -18,32 +19,39 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
   [_prefController loadPreferences];
+  Engine_setInputDevice(engine, engine->config->inputDevice, engine->config->samplerate);
 
   estimatePitchThread = [[NSThread alloc] initWithTarget:self selector:@selector(estimatePitch) object:nil ];
   [estimatePitchThread start];
 
 
   // a timer works on the main thread
-  timer = [NSTimer timerWithTimeInterval:0.05 target:self selector:@selector(setStrobes) userInfo:nil repeats:YES];
-  // [timer setTolerance: 0.01];
-  [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
 
+  setStrobesTimer = [NSTimer timerWithTimeInterval:0.05 target:self selector:@selector(setStrobes) userInfo:nil repeats:YES];
+  [setStrobesTimer setTolerance: 0.01];
+  [[NSRunLoop currentRunLoop] addTimer:setStrobesTimer forMode:NSDefaultRunLoopMode];
 
-  Engine_setInputDevice(engine, engine->config->inputDevice, engine->config->samplerate);
-  [_mainController.strobeView startDrawing];
-
+  strobeDisplayTimer = [NSTimer timerWithTimeInterval:0.01 target:_mainController.strobeView selector:@selector(redraw) userInfo:nil repeats:YES];
+  [strobeDisplayTimer setTolerance: 0.01];
+  [[NSRunLoop currentRunLoop] addTimer:strobeDisplayTimer forMode:NSDefaultRunLoopMode];
+  [[NSRunLoop currentRunLoop] addTimer:strobeDisplayTimer forMode:NSEventTrackingRunLoopMode]; //Ensure timer fires during resize
 
 }
 
 
-// - (void)applicationDidChangeOcclusionState:(NSNotification *)notification {
+- (void)applicationDidChangeOcclusionState:(NSNotification *)notification {
 
-//   if ([self occlusionState] != NSApplicationOcclusionStateVisible) {
+  if ([NSApp occlusionState] & NSApplicationOcclusionStateVisible) {
+    // Visible
 
-//     // app is occluded,
-//   }
+  } else {
+    // Occluded
 
-// }
+
+  }
+
+
+}
 
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -56,41 +64,29 @@
 
 - (void)setStrobes {
 
-  Engine_setStrobes(engine, note);
+  if (engine->mode == AUTO) {
+    Engine_setStrobes(engine, note);
+  }
 
 }
 
 
 - (void)estimatePitch {
 
-  // quasi-Nyquist
+  // near-Nyquist
   float maxFreq = 0.45 * engine->config->samplerate;
 
   while ([estimatePitchThread isCancelled] == NO) {
 
-    float pitch = Engine_estimatePitch(engine);
+    if (engine->mode == AUTO) {
+      float pitch = Engine_estimatePitch(engine);
 
-
-      // engine->config->transpose
-
-    // sanity check
-    if (pitch > 0.0 && pitch < maxFreq) {
-
-
-      note = Tuning12TET_find(pitch, engine->config->pitchStandard, engine->config->centsOffset);
-
-      float cents = Tuning12TET_freqToCents(pitch, engine->config->pitchStandard);
-
-      Note transposed = Tuning12TET_transpose(note, engine->config->transpose);
-
-      // printf("%.2f          \r", pitch); fflush(stdout);
-      printf(
-        "%4.2f %c%i%1s  %c%i%1s     %2.2f          \r",
-        pitch, note.letter, note.octave, note.accidental,
-        transposed.letter, transposed.octave, transposed.accidental,
-        cents - note.cents
-      );
-      fflush(stdout);
+      // sanity check
+      if (pitch > 0.0 && pitch < maxFreq) {
+        note = Tuning12TET_find(pitch, engine->config->pitchStandard, engine->config->centsOffset);
+        // float cents = Tuning12TET_freqToCents(pitch, engine->config->pitchStandard);
+        // Note transposed = Tuning12TET_transpose(note, engine->config->transpose);
+      }
     }
 
     [NSThread sleepForTimeInterval:0.05];
