@@ -17,7 +17,7 @@ float Tuning12TET_freqToCents(float freq, float pitchStandard) {
 
 float Tuning12TET_centsToFreq(float cents, float pitchStandard) {
 
-  return pitchStandard * exp2f(cents / 1200.0);
+  return pitchStandard * exp2(cents / 1200.0);
 
 }
 
