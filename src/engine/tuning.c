@@ -50,7 +50,7 @@ Note Tuning12TET_centsToNote(
 ) {
 
   int nearest = (int) round(cents * 0.01); // semitones
-  int octave  = (int) ((nearest / 12.0) + 4.75);
+  int octave  = (int) floor((nearest / 12.0) + 4.75);
 
   Note note;
   note.pitchStandard = pitchStandard;
