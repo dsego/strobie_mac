@@ -32,11 +32,11 @@ Note Tuning12TET_transpose(Note note, int semitones) {
 
 Note Tuning12TET_moveToOctave(Note note, int octave) {
 
-  int octaveDelta = note.octave - octave;
+  float octaveDelta = octave - note.octave;
   Note newNote = note;
   newNote.octave = octave;
-  newNote.frequency = note.frequency / exp2f(octaveDelta);
-  newNote.cents -= octaveDelta * 1200.0;
+  newNote.frequency = note.frequency * exp2(octaveDelta);
+  newNote.cents += octaveDelta * 1200.0;
   return newNote;
 
 }
