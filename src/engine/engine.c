@@ -294,7 +294,7 @@ int Engine_deviceName(int index, char *outName, int *outIsInput, int *outIsOutpu
 
 void Engine_setGain(Engine* self, float gain) {
 
-  for (int i = 0; i < self->config->strobeCount; ++i) {
+  for (int i = 0; i < self->strobeCount; ++i) {
     self->config->strobes[i].gain = gain;
   }
 
@@ -303,7 +303,7 @@ void Engine_setGain(Engine* self, float gain) {
 
 void Engine_setColors(Engine* self, int color1[3], int color2[3]) {
 
-  for (int i = 0; i < self->config->strobeCount; ++i) {
+  for (int i = 0; i < self->strobeCount; ++i) {
 
     self->config->strobes[i].color1[0] = color1[0];
     self->config->strobes[i].color1[1] = color1[1];
