@@ -220,22 +220,20 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate) {
   PaError err;
 
   if (self->stream != NULL) {
-    err = Pa_StopStream(self->stream);
+    err = Pa_AbortStream(self->stream);
     err = Pa_CloseStream(self->stream);
   }
 
-  const PaDeviceInfo* info = Pa_GetDeviceInfo(device);
-  PaStreamParameters* params = malloc(sizeof(PaStreamParameters));
-
-  params->device = device;
-  params->channelCount = 1;
-  params->sampleFormat = paFloat32;
-  params->suggestedLatency = info->defaultLowInputLatency;
-  params->hostApiSpecificStreamInfo = NULL;
+  PaStreamParameters params;
+  params.device = device;
+  params.channelCount = 1;
+  params.sampleFormat = paFloat32;
+  params.suggestedLatency = Pa_GetDeviceInfo(device)->defaultLowInputLatency;
+  params.hostApiSpecificStreamInfo = NULL;
 
   err = Pa_OpenStream(
     &self->stream,
-    params,
+    &params,
     NULL,
     samplerate,
     paFramesPerBufferUnspecified,
@@ -251,8 +249,6 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate) {
   //
   // other error -> try default device
 
-
-  free(params);
 
   if (err != paNoError) {
     Pa_Terminate();
