@@ -26,29 +26,13 @@ typedef struct {
 @implementation StrobeView {
 
   StrobeDisplay strobes[MAX_STROBE_COUNT];
-  NSTimer *timer;
 
 }
 
 
-- (void)dealloc {
+- (BOOL)mouseDownCanMoveWindow {
 
-  [timer invalidate];
-
-}
-
-
-- (void)startDrawing {
-
-  // a timer works on the main thread
-  timer = [NSTimer timerWithTimeInterval:0.01 target:self selector:@selector(redraw) userInfo:nil repeats:YES];
-
-  // [timer setTolerance: 0.01];
-
-  [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
-
-  //Ensure timer fires during resize
-  [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSEventTrackingRunLoopMode];
+  return YES;
 
 }
 
@@ -166,8 +150,6 @@ typedef struct {
   glClearColor(0.0, 0.0, 0.0, 1);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  if (engine == NULL) { return; }
-
 
   Engine_readStrobes(engine);
 
@@ -189,8 +171,11 @@ typedef struct {
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);
 
-    float gain = engine->config->strobes[s].gain;
-    int i =  engine->strobeLengths[s];
+
+    // TODO : add hysteresis !
+    float gain = 1000.0;
+
+    int i = engine->strobeLengths[s];
     int c = 0;
 
     while (c < 3 * strobes[s].count) {
