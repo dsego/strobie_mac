@@ -3,7 +3,7 @@
 */
 
 #import <math.h>
-#import <OpenGL/gl3.h>
+#import <OpenGL/gl.h>
 #import "StrobeView.h"
 #import "../engine/utils.h"
 #import "shared.h"
