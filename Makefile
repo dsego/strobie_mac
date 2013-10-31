@@ -29,23 +29,29 @@ GL = -framework OpenGL
 all:
 	make mac
 
-
 engine:
-	cc -c -Wall -O2 -arch x86_64 $(KISS) $(FFTS) $(PORTAUDIO) $(DSP) src/engine/*.c
+	cc -c -Wall -O2 -arch x86_64 $(FFTS) $(PORTAUDIO) $(DSP) src/engine/*.c
 	ar rcs engine.a *.o
 	rm *.o
 
-
-test:
-	make engine
-	cc -Wall -O2 -Isrc/engine $(GL) $(GLFW) $(KISS) $(FFTS) $(PORTAUDIO) $(DSP) src/test.c engine.a -o test
-
-
 mac:
 	make engine
-	cc -Wall -arch x86_64 -fobjc-arc -O2 $(KISS) $(FFTS) $(PORTAUDIO) $(DSP) \
+	cc -Wall -arch x86_64 -fobjc-arc -O2 $(FFTS) $(PORTAUDIO) $(DSP) \
 		-framework Cocoa -framework AppKit -framework QuartzCore -framework OpenGL \
 		engine.a src/mac/*.m src/mac/*.c \
 		-o Strobie.app/Contents/MacOS/strobie
 		ibtool --compile Strobie.app/Contents/Resources/Application.nib src/mac/Application.xib
 		# cp src/mac/Resources/*.png Strobie.app/Contents/Resources/
+
+
+
+
+###########
+
+test:
+	make engine
+	cc -Wall -O2 -Isrc/engine $(GL) $(GLFW) $(FFTS) $(PORTAUDIO) $(DSP) src/test.c engine.a -o test
+
+experiment:
+	cc -Wall $(FFTS) $(PORTAUDIO) src/experiment.c -o experiment
+
