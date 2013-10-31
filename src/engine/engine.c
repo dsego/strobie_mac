@@ -3,6 +3,7 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include "Engine.h"
 #include "utils.h"
@@ -22,6 +23,7 @@ Engine* Engine_create() {
 
   Config* config = self->config = Config_create();
 
+  self->mode = AUTO;
   self->audioFeed = AudioFeed_create();
   self->strobeCount = min(config->strobeCount, MAX_STROBES);
 
@@ -42,13 +44,15 @@ Engine* Engine_create() {
 
   }
 
-  Engine_setStrobes(self, config->reference);
+  self->currentNote = config->reference;
+  Engine_setStrobes(self, self->currentNote);
+
   // Strobe_setFreq(self->strobes[0], self->config->strobes[0].value);
   // Strobe_setFreq(self->strobes[1], self->config->strobes[1].value);
 
   self->pitch = Pitch_create(config->samplerate, config->fftLength);
-  self->threshold = fromDecibel(self->config->audioThreshold);
   self->audioBuffer = FloatArray_create(self->config->fftLength);
+  self->level = 0;
 
   self->stream = NULL;
   self->paInitFailed = 0;
@@ -98,14 +102,27 @@ void Engine_destroy(Engine* self) {
 
 void Engine_setStrobes(Engine* self, Note note) {
 
+  // reset octave
+  if (note.octave > 8) {
+    self->currentNote = Tuning12TET_moveToOctave(note, 0);
+  }
+  else if (note.octave < 0) {
+    self->currentNote = Tuning12TET_moveToOctave(note, 8);
+  }
+  else {
+    self->currentNote = note;
+  }
+
+  printf("%c%i%1s   %f \r", self->currentNote.letter, self->currentNote.octave, self->currentNote.accidental, self->currentNote.frequency);fflush(stdout);
+
   for (int i = 0; i < self->strobeCount; ++i) {
 
     if (self->config->strobes[i].mode == OCTAVE) {
-      Note movedNote = Tuning12TET_moveToOctave(note, self->config->strobes[i].value);
+      Note movedNote = Tuning12TET_moveToOctave(self->currentNote, self->config->strobes[i].value);
       Strobe_setFreq(self->strobes[i], movedNote.frequency);
     }
     else if (self->config->strobes[i].mode == PARTIAL) {
-      Strobe_setFreq(self->strobes[i], note.frequency * self->config->strobes[i].value);
+      Strobe_setFreq(self->strobes[i], self->currentNote.frequency * self->config->strobes[i].value);
     }
     else {
       // do nothing, strobe is already set to a particular note or frequency

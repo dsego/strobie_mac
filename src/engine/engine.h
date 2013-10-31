@@ -14,6 +14,8 @@
 #define MAX_STROBES CONFIG_MAX_STROBES
 
 
+typedef enum { AUTO, MANUAL } DetectionMode;
+
 
 typedef struct {
 
@@ -25,6 +27,9 @@ typedef struct {
 
   FloatArray audioBuffer;
   float level;
+
+  DetectionMode mode;
+  Note currentNote;
 
   int strobeCount;
   Strobe* strobes[MAX_STROBES];
