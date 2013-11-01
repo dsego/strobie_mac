@@ -113,8 +113,6 @@ void Engine_setStrobes(Engine* self, Note note) {
     self->currentNote = note;
   }
 
-  printf("%c%i%1s   %f \r", self->currentNote.letter, self->currentNote.octave, self->currentNote.accidental, self->currentNote.frequency);fflush(stdout);
-
   for (int i = 0; i < self->strobeCount; ++i) {
 
     if (self->config->strobes[i].mode == OCTAVE) {
