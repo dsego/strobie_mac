@@ -68,6 +68,8 @@
     Engine_setStrobes(engine, note);
   }
 
+  [_mainController.noteView setNeedsDisplay: YES];
+
 }
 
 
