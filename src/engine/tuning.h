@@ -5,12 +5,14 @@
 #ifndef TUNING_H
 #define TUNING_H
 
+
+
 typedef struct {
 
   char letter;
-  char accidental[4];
+  unsigned short accidental;
   char altLetter;
-  char altAccidental[4];
+  unsigned short altAccidental;
   int octave;
   float cents;
   float frequency;

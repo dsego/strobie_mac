@@ -8,6 +8,11 @@
 #include "Tuning.h"
 
 
+
+#define SHARP_SYMBOL L'♯'
+#define FLAT_SYMBOL L'♭'
+
+
 float Tuning12TET_freqToCents(float freq, float pitchStandard) {
 
   return 1200.0 * log2(freq / pitchStandard);
@@ -58,8 +63,8 @@ Note Tuning12TET_centsToNote(
   note.cents         = nearest * 100.0 + centsOffset;
   note.frequency     = Tuning12TET_centsToFreq(note.cents, pitchStandard);
 
-  strcpy(note.accidental, "");
-  strcpy(note.altAccidental, "");
+  note.accidental = ' ';
+  note.altAccidental = ' ';
 
   switch (nearest % 12) {
     case 0:
@@ -70,8 +75,8 @@ Note Tuning12TET_centsToNote(
     case -11:
       note.letter     = 'A';
       note.altLetter  = 'B';
-      strcpy(note.accidental, "♯");
-      strcpy(note.altAccidental, "♭");
+      note.accidental = SHARP_SYMBOL;
+      note.altAccidental = FLAT_SYMBOL;
       break;
     case   2:
     case -10:
@@ -87,8 +92,8 @@ Note Tuning12TET_centsToNote(
     case -8:
       note.letter     = 'C';
       note.altLetter  = 'D';
-      strcpy(note.accidental, "♯");
-      strcpy(note.altAccidental, "♭");
+      note.accidental = SHARP_SYMBOL;
+      note.altAccidental = FLAT_SYMBOL;
       break;
     case  5:
     case -7:
@@ -99,8 +104,8 @@ Note Tuning12TET_centsToNote(
     case -6:
       note.letter     = 'D';
       note.altLetter  = 'E';
-      strcpy(note.accidental, "♯");
-      strcpy(note.altAccidental, "♭");
+      note.accidental = SHARP_SYMBOL;
+      note.altAccidental = FLAT_SYMBOL;
       break;
     case  7:
     case -5:
@@ -116,8 +121,8 @@ Note Tuning12TET_centsToNote(
     case -3:
       note.letter     = 'F';
       note.altLetter  = 'G';
-      strcpy(note.accidental, "♯");
-      strcpy(note.altAccidental, "♭");
+      note.accidental = SHARP_SYMBOL;
+      note.altAccidental = FLAT_SYMBOL;
       break;
     case 10:
     case -2:
@@ -128,8 +133,8 @@ Note Tuning12TET_centsToNote(
     case -1:
       note.letter     = 'G';
       note.altLetter  = 'A';
-      strcpy(note.accidental, "♯");
-      strcpy(note.altAccidental, "♭");
+      note.accidental = SHARP_SYMBOL;
+      note.altAccidental = FLAT_SYMBOL;
       break;
   }
 
@@ -186,3 +191,9 @@ Note Tuning12TET_findNearest(
   }
 
 }
+
+
+
+
+#undef SHARP_SYMBOL
+#undef FLAT_SYMBOL
