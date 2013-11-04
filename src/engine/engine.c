@@ -113,6 +113,7 @@ void Engine_setStrobes(Engine* self, Note note) {
     self->currentNote = note;
   }
 
+
   for (int i = 0; i < self->strobeCount; ++i) {
 
     if (self->config->strobes[i].mode == OCTAVE) {
