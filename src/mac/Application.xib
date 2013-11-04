@@ -134,33 +134,33 @@
         <window title="Strobie" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="367" customClass="MainWindow">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
-            <rect key="contentRect" x="410" y="248" width="500" height="400"/>
+            <rect key="contentRect" x="410" y="248" width="560" height="420"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
-            <value key="minSize" type="size" width="300" height="200"/>
+            <value key="minSize" type="size" width="280" height="210"/>
             <view key="contentView" wantsLayer="YES" id="368">
-                <rect key="frame" x="0.0" y="0.0" width="500" height="400"/>
+                <rect key="frame" x="0.0" y="0.0" width="560" height="420"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <openGLView autoresizesSubviews="NO" canDrawConcurrently="YES" colorSize="8bit_RGB" rendererType="accelerated" useAuxiliaryDepthBufferStencil="NO" useDoubleBufferingEnabled="YES" allowOffline="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3428" customClass="StrobeView">
-                        <rect key="frame" x="24" y="80" width="452" height="304"/>
+                        <rect key="frame" x="20" y="100" width="520" height="310"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </openGLView>
                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="ogN-jV-Pqt" customClass="NoteView">
-                        <rect key="frame" x="0.0" y="0.0" width="500" height="80"/>
+                        <rect key="frame" x="230" y="10" width="100" height="80"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="80" id="1BU-ha-2V3"/>
+                            <constraint firstAttribute="width" constant="100" id="v2T-Jd-oEw"/>
                         </constraints>
                     </customView>
                 </subviews>
                 <constraints>
-                    <constraint firstAttribute="trailing" secondItem="3428" secondAttribute="trailing" constant="24" id="GQD-vY-pHV"/>
-                    <constraint firstItem="3428" firstAttribute="top" secondItem="368" secondAttribute="top" constant="16" id="LsM-Mz-XjU"/>
-                    <constraint firstItem="ogN-jV-Pqt" firstAttribute="leading" secondItem="368" secondAttribute="leading" id="Sex-Jp-5Ra"/>
-                    <constraint firstAttribute="trailing" secondItem="ogN-jV-Pqt" secondAttribute="trailing" id="U6d-gz-1R9"/>
-                    <constraint firstItem="3428" firstAttribute="leading" secondItem="368" secondAttribute="leading" constant="24" id="bpU-0f-oaK"/>
-                    <constraint firstItem="ogN-jV-Pqt" firstAttribute="top" secondItem="3428" secondAttribute="bottom" id="eDy-NF-Nge"/>
-                    <constraint firstAttribute="bottom" secondItem="ogN-jV-Pqt" secondAttribute="bottom" id="h0l-y8-Xjq"/>
+                    <constraint firstAttribute="centerX" secondItem="ogN-jV-Pqt" secondAttribute="centerX" id="2VZ-NR-xbA"/>
+                    <constraint firstAttribute="trailing" secondItem="3428" secondAttribute="trailing" constant="20" id="GQD-vY-pHV"/>
+                    <constraint firstItem="3428" firstAttribute="top" secondItem="368" secondAttribute="top" constant="10" id="LsM-Mz-XjU"/>
+                    <constraint firstItem="3428" firstAttribute="leading" secondItem="368" secondAttribute="leading" constant="20" id="bpU-0f-oaK"/>
+                    <constraint firstItem="ogN-jV-Pqt" firstAttribute="top" secondItem="3428" secondAttribute="bottom" constant="10" id="eDy-NF-Nge"/>
+                    <constraint firstAttribute="bottom" secondItem="ogN-jV-Pqt" secondAttribute="bottom" constant="10" id="h0l-y8-Xjq"/>
                 </constraints>
             </view>
             <connections>
