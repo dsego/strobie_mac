@@ -19,6 +19,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
   [_prefController loadPreferences];
+
   Engine_setInputDevice(engine, engine->config->inputDevice, engine->config->samplerate);
 
   estimatePitchThread = [[NSThread alloc] initWithTarget:self selector:@selector(estimatePitch) object:nil ];
@@ -31,7 +32,14 @@
   [setStrobesTimer setTolerance: 0.01];
   [[NSRunLoop currentRunLoop] addTimer:setStrobesTimer forMode:NSDefaultRunLoopMode];
 
-  strobeDisplayTimer = [NSTimer timerWithTimeInterval:0.01 target:_mainController.strobeView selector:@selector(redraw) userInfo:nil repeats:YES];
+  strobeDisplayTimer = [NSTimer
+    timerWithTimeInterval:0.01
+    target:_mainController.strobeView
+    selector:@selector(redraw)
+    userInfo:nil
+    repeats:YES
+  ];
+
   [strobeDisplayTimer setTolerance: 0.01];
   [[NSRunLoop currentRunLoop] addTimer:strobeDisplayTimer forMode:NSDefaultRunLoopMode];
   [[NSRunLoop currentRunLoop] addTimer:strobeDisplayTimer forMode:NSEventTrackingRunLoopMode]; //Ensure timer fires during resize
