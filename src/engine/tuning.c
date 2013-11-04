@@ -6,11 +6,7 @@
 #include <math.h>
 #include <string.h>
 #include "Tuning.h"
-
-
-
-#define SHARP_SYMBOL L'♯'
-#define FLAT_SYMBOL L'♭'
+#include <stdio.h>
 
 
 float Tuning12TET_freqToCents(float freq, float pitchStandard) {
@@ -47,6 +43,19 @@ Note Tuning12TET_moveToOctave(Note note, int octave) {
 }
 
 
+// semitone index ->  C = 0, C# = 1, ... B = 11
+Note Tuning12TET_noteFromIndex(int index, int octave, float pitchStandard, float centsOffset) {
+
+  // octave 5  (300-1400 cents)
+  int cents = 100 * ((index % 12) + 3);
+
+  // move to desired octave
+  cents += (octave - 5) * 1200;
+
+  return Tuning12TET_centsToNote(cents, pitchStandard, centsOffset);
+
+}
+
 
 Note Tuning12TET_centsToNote(
   float cents,
@@ -54,7 +63,7 @@ Note Tuning12TET_centsToNote(
   float centsOffset
 ) {
 
-  int nearest = (int) round(cents * 0.01); // semitones
+  int nearest = (int) round(cents / 100); // semitones
   int octave  = (int) floor((nearest / 12.0) + 4.75);
 
   Note note;
@@ -63,80 +72,25 @@ Note Tuning12TET_centsToNote(
   note.cents         = nearest * 100.0 + centsOffset;
   note.frequency     = Tuning12TET_centsToFreq(note.cents, pitchStandard);
 
-  note.accidental = ' ';
-  note.altAccidental = ' ';
+  int index = (nearest % 12) + 9;  // C = 0
 
-  switch (nearest % 12) {
-    case 0:
-      note.letter     = 'A';
-      note.altLetter  = 'A';
-      break;
-    case   1:
-    case -11:
-      note.letter     = 'A';
-      note.altLetter  = 'B';
-      note.accidental = SHARP_SYMBOL;
-      note.altAccidental = FLAT_SYMBOL;
-      break;
-    case   2:
-    case -10:
-      note.letter     = 'B';
-      note.altLetter  = 'B';
-      break;
-    case  3:
-    case -9:
-      note.letter     = 'C';
-      note.altLetter  = 'C';
-      break;
-    case  4:
-    case -8:
-      note.letter     = 'C';
-      note.altLetter  = 'D';
-      note.accidental = SHARP_SYMBOL;
-      note.altAccidental = FLAT_SYMBOL;
-      break;
-    case  5:
-    case -7:
-      note.letter     = 'D';
-      note.altLetter  = 'D';
-      break;
-    case  6:
-    case -6:
-      note.letter     = 'D';
-      note.altLetter  = 'E';
-      note.accidental = SHARP_SYMBOL;
-      note.altAccidental = FLAT_SYMBOL;
-      break;
-    case  7:
-    case -5:
-      note.letter     = 'E';
-      note.altLetter  = 'E';
-      break;
-    case  8:
-    case -4:
-      note.letter     = 'F';
-      note.altLetter  = 'F';
-      break;
-    case  9:
-    case -3:
-      note.letter     = 'F';
-      note.altLetter  = 'G';
-      note.accidental = SHARP_SYMBOL;
-      note.altAccidental = FLAT_SYMBOL;
-      break;
-    case 10:
-    case -2:
-      note.letter     = 'G';
-      note.altLetter  = 'G';
-      break;
-    case 11:
-    case -1:
-      note.letter     = 'G';
-      note.altLetter  = 'A';
-      note.accidental = SHARP_SYMBOL;
-      note.altAccidental = FLAT_SYMBOL;
-      break;
+  // semitone index from 0 to 11
+  if (index < 0) {
+    index += 12;
   }
+  else if (index > 11) {
+    index -= 12;
+  }
+
+  // C#, D#, F#, G#, A#
+  if (index == 1 || index == 3 || index == 6 || index == 8 || index == 10) {
+    note.isSharp = 1;
+  }
+  else {
+    note.isSharp = 0;
+  }
+
+  note.index = index;
 
   return note;
 

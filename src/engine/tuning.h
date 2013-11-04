@@ -9,10 +9,8 @@
 
 typedef struct {
 
-  char letter;
-  unsigned short accidental;
-  char altLetter;
-  unsigned short altAccidental;
+  int index;    // C = 0, C# = 1, ... B = 11
+  int isSharp;
   int octave;
   float cents;
   float frequency;
@@ -30,6 +28,7 @@ Note Tuning12TET_findNearest(float freq, float* notesInCents, int notesLength, f
 
 Note Tuning12TET_transpose(Note note, int semitones);
 Note Tuning12TET_moveToOctave(Note note, int octave);
+Note Tuning12TET_noteFromIndex(int index, int octave, float pitchStandard, float centsOffset);
 Note Tuning12TET_centsToNote(float cents, float pitchStandard, float centsOffset);
 
 float Tuning12TET_freqToCents(float freq, float pitchStandard);
