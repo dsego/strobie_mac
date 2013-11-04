@@ -26,6 +26,10 @@
 
 
 - (void)keyDown:(NSEvent *)theEvent {
+}
+
+
+- (void)keyUp:(NSEvent *)theEvent {
   // NSLog(@"%u", [theEvent keyCode]);
 
   switch ([theEvent keyCode]) {
