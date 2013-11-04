@@ -23,7 +23,7 @@ Engine* Engine_create() {
 
   Config* config = self->config = Config_create();
 
-  self->mode = AUTO;
+  self->mode = MANUAL;
   self->audioFeed = AudioFeed_create();
   self->strobeCount = min(config->strobeCount, MAX_STROBES);
 
