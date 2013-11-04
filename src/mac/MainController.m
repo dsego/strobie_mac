@@ -69,4 +69,11 @@
 }
 
 
+- (void)refreshNoteDisplay {
+
+  [_noteView setNeedsDisplay: YES];
+
+}
+
+
 @end
