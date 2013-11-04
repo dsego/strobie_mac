@@ -66,9 +66,8 @@
 
   if (engine->mode == AUTO) {
     Engine_setStrobes(engine, note);
+    [_mainController.noteView setNeedsDisplay: YES];
   }
-
-  [_mainController.noteView setNeedsDisplay: YES];
 
 }
 
