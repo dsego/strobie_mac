@@ -206,6 +206,10 @@ float Engine_estimatePitch(Engine* self) {
 }
 
 
+
+//
+// TODO - handle errors
+//
 int Engine_setInputDevice(Engine *self, int device, int samplerate) {
 
   // illegal value
