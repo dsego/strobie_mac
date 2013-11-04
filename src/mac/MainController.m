@@ -30,31 +30,35 @@
 
   switch ([theEvent keyCode]) {
 
-    case 123: // LEFT  (semitone lower)
+    case 123: // LEFT  semitone lower
       if (engine->mode == MANUAL) {
         Note newNote = Tuning12TET_centsToNote(engine->currentNote.cents - 100, engine->config->pitchStandard, engine->config->centsOffset);
         Engine_setStrobes(engine, newNote);
+        [_noteView setNeedsDisplay: YES];
       }
       break;
 
-    case 124: // RIGHT   (semitone higher)
+    case 124: // RIGHT  semitone higher
       if (engine->mode == MANUAL) {
         Note newNote = Tuning12TET_centsToNote(engine->currentNote.cents + 100, engine->config->pitchStandard, engine->config->centsOffset);
         Engine_setStrobes(engine, newNote);
+        [_noteView setNeedsDisplay: YES];
       }
       break;
 
-    case 125: // DOWN   (octave lower)
+    case 125: // DOWN   fifth lower (fourth higher)
       if (engine->mode == MANUAL) {
-        Note newNote = Tuning12TET_centsToNote(engine->currentNote.cents - 1200, engine->config->pitchStandard, engine->config->centsOffset);
+        Note newNote = Tuning12TET_centsToNote(engine->currentNote.cents - 700, engine->config->pitchStandard, engine->config->centsOffset);
         Engine_setStrobes(engine, newNote);
+        [_noteView setNeedsDisplay: YES];
       }
       break;
 
-    case 126: // UP   (octave higher)
+    case 126: // UP   fifth higher (fourth lower)
       if (engine->mode == MANUAL) {
-        Note newNote = Tuning12TET_centsToNote(engine->currentNote.cents + 1200, engine->config->pitchStandard, engine->config->centsOffset);
+        Note newNote = Tuning12TET_centsToNote(engine->currentNote.cents + 700, engine->config->pitchStandard, engine->config->centsOffset);
         Engine_setStrobes(engine, newNote);
+        [_noteView setNeedsDisplay: YES];
       }
       break;
 
