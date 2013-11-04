@@ -69,7 +69,9 @@
 
   // not an empty text field
   if (val > 0) {
-     engine->config->pitchStandard = val;
+    engine->config->pitchStandard = val;
+    Note newNote = Tuning12TET_centsToNote(engine->currentNote.cents, engine->config->pitchStandard, engine->config->centsOffset);
+    Engine_setStrobes(engine, newNote);
   }
   [_concertPitchStepper setFloatValue: engine->config->pitchStandard];
   [_concertPitchText setFloatValue: engine->config->pitchStandard];
@@ -80,6 +82,9 @@
 - (IBAction)centsOffsetChanged: (id)sender {
 
   engine->config->centsOffset = [sender floatValue];
+  Note newNote = Tuning12TET_centsToNote(engine->currentNote.cents, engine->config->pitchStandard, engine->config->centsOffset);
+  Engine_setStrobes(engine, newNote);
+
   [_centsOffsetText setFloatValue: engine->config->centsOffset];
   [_centsOffsetStepper setFloatValue: engine->config->centsOffset];
 
