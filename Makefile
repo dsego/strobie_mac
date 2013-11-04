@@ -41,6 +41,7 @@ mac:
 		engine.a src/mac/*.m src/mac/*.c \
 		-o Strobie.app/Contents/MacOS/strobie
 		ibtool --compile Strobie.app/Contents/Resources/Application.nib src/mac/Application.xib
+		cp src/mac/Info.plist Strobie.app/Contents/Info.plist
 		# cp src/mac/Resources/*.png Strobie.app/Contents/Resources/
 
 
