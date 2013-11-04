@@ -12,8 +12,8 @@
 
 - (void)awakeFromNib {
 
-  // NSColor *bg = [NSColor colorWithDeviceRed:37.0/255.0 green:47.0/255.0 blue:57.0/255.0 alpha:1.0];
-  // [self.window setBackgroundColor: bg];
+  NSColor *bg = [NSColor colorWithDeviceRed:35.0/255.0 green:35.0/255.0 blue:35.0/255.0 alpha:1.0];
+  [self.window setBackgroundColor: bg];
 
 }
 
