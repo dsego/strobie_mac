@@ -23,6 +23,7 @@ Engine* Engine_create() {
 
   Config* config = self->config = Config_create();
 
+  self->currentNote = Tuning12TET_find(self->config->freq, self->config->pitchStandard, self->config->centsOffset);
   self->mode = MANUAL;
   self->audioFeed = AudioFeed_create();
   self->strobeCount = min(config->strobeCount, MAX_STROBES);
@@ -41,19 +42,13 @@ Engine* Engine_create() {
 
     // allocate enough space for any strobe size (see Engine_readStrobes)
     self->strobeBuffers[i] = FloatArray_create(ENGINE_STR_BUFFER_LENGTH);
+    self->strobeLengths[i] = 0;
 
   }
-
-  self->currentNote = config->reference;
-  Engine_setStrobes(self, self->currentNote);
-
-  // Strobe_setFreq(self->strobes[0], self->config->strobes[0].value);
-  // Strobe_setFreq(self->strobes[1], self->config->strobes[1].value);
 
   self->pitch = Pitch_create(config->samplerate, config->fftLength);
   self->audioBuffer = FloatArray_create(self->config->fftLength);
   self->level = 0;
-
   self->stream = NULL;
   self->paInitFailed = 0;
 
@@ -100,6 +95,28 @@ void Engine_destroy(Engine* self) {
 }
 
 
+void Engine_setCentsOffset(Engine* self, float cents) {
+
+  if (cents >= -50 && cents <= 50) {
+    self->config->centsOffset = cents;
+    self->currentNote = Tuning12TET_centsToNote(self->currentNote.cents, self->config->pitchStandard, self->config->centsOffset);
+    Engine_setStrobes(self, self->currentNote);
+  }
+
+}
+
+
+void Engine_setPitchStandard(Engine* self, float freq) {
+
+  if (freq >= 100 && freq <= 1000) {
+    self->config->pitchStandard = freq;
+    self->currentNote = Tuning12TET_centsToNote(self->currentNote.cents, self->config->pitchStandard, self->config->centsOffset);
+    Engine_setStrobes(self, self->currentNote);
+  }
+
+}
+
+
 void Engine_setStrobes(Engine* self, Note note) {
 
   // reset octave
@@ -113,6 +130,7 @@ void Engine_setStrobes(Engine* self, Note note) {
     self->currentNote = note;
   }
 
+  self->config->freq = self->currentNote.frequency;
 
   for (int i = 0; i < self->strobeCount; ++i) {
 
@@ -146,7 +164,24 @@ void Engine_readStrobes(Engine* self) {
 
 
 
+static inline void calcLevel(float* input, int length, float* level) {
 
+  static int count = 0;
+  static float sum = 0.0;
+
+  for (int i = 0; i < length; ++i) {
+    sum += input[i] * input[i];
+    count++;
+  }
+
+  // should be around 100 ms
+  if (count >= 4096) {
+    *level = sqrt(sum / (float)count);
+    sum = 0.0;
+    count = 0;
+  }
+
+}
 
 
 
@@ -164,15 +199,18 @@ static inline int Engine_streamCallback(
 ) {
 
   // nothing to process
-  if (status == paInputUnderflow) { return 0; }
+  if (status == paInputUnderflow) { return paContinue; }
 
   Engine* self = (Engine*) userData;
+  float *samples = (float*)input;
 
-  AudioFeed_process(self->audioFeed, (float*)input, frameCount);
+  AudioFeed_process(self->audioFeed, samples, frameCount);
 
   for (int i = 0; i < self->strobeCount; ++i) {
-    Strobe_process(self->strobes[i], (float*)input, frameCount);
+    Strobe_process(self->strobes[i], samples, frameCount);
   }
+
+  // calcLevel(samples, frameCount, &self->level);
 
   return paContinue;
 
@@ -181,9 +219,6 @@ static inline int Engine_streamCallback(
 
 float Engine_estimatePitch(Engine* self) {
 
-  // float peak = findPeak(self->audioBuffer, self->config->fftLength);
-
-  // if (peak > self->threshold) {
   const int W_LENGTH = 5;
   static float window[W_LENGTH] = { 0 };
   static int index = 0;

@@ -112,7 +112,7 @@ void Strobe_read(Strobe* self, float* output, int length) {
 
 void Strobe_setFreq(Strobe* self, float freq) {
 
-  if (freq == self->freq ) { return; }
+  if (freq == self->freq) { return; }
 
   float newRate = freq * self->samplesPerPeriod;
   float ratio = newRate / self->samplerate;

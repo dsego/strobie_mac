@@ -30,7 +30,7 @@ typedef struct {
   float gain;                 // strobe intensity (sensitivity)
   StrobeMode mode;            //
   float value;                // frequency, multiplier or octave
-  int subdivCount;              // sub-divide the strobe into multiple bands
+  int subdivCount;            // sub-divide the strobe into multiple bands
 
 } StrobeConfig;
 
@@ -45,8 +45,9 @@ typedef struct {
   int displayFlats;           // display Db instead of C#
   int transpose;              // shift notes to another key
   float centsOffset;          // offset in cents
-  Note reference;
-  float audioThreshold;       // TODO
+  float freq;
+  float pitchDetectionUpperThreshold;
+  float pitchDetectionLowerThreshold;
   StrobeConfig strobes[CONFIG_MAX_STROBES];
   int strobeCount;
 

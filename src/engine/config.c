@@ -14,18 +14,20 @@ Config* Config_create() {
   assert(self != NULL);
 
   self->inputDevice  = 0;
-  // self->inputDevice  = 2;
   self->outputDevice = 0;
   self->samplerate   = 44100;
 
-  self->fftLength      = 4096;
-  self->pitchStandard  = 440;
-  self->displayFlats   = 0;
-  self->centsOffset    = 0;
-  self->transpose      = 0;
-  self->audioThreshold = -60;
+  // minimum detectable frequency = sample rate / FFT size
+  self->fftLength     = 2048;
 
-  self->reference = Tuning12TET_find(110, self->pitchStandard, self->centsOffset);
+  self->pitchStandard = 440;
+  self->displayFlats  = 0;
+  self->centsOffset   = 0;
+  self->transpose     = 0;
+  self->freq          = 82.4;
+
+  self->pitchDetectionUpperThreshold = 0.01;
+  self->pitchDetectionLowerThreshold = 0.005;
 
   int samplesPerPeriod = 512;
   float periodsPerFrame = 1;
@@ -35,11 +37,11 @@ Config* Config_create() {
   for (int i = 0; i < self->strobeCount; ++i) {
 
     self->strobes[i].color1[0] = 217;
-    self->strobes[i].color1[1] = 255;
+    self->strobes[i].color1[1] = 254;
     self->strobes[i].color1[2] = 163;
 
-    self->strobes[i].color2[0] = 28;
-    self->strobes[i].color2[1] = 80;
+    self->strobes[i].color2[0] = 27;
+    self->strobes[i].color2[1] = 79;
     self->strobes[i].color2[2] = 161;
 
     self->strobes[i].samplesPerPeriod = samplesPerPeriod;

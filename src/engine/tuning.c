@@ -25,8 +25,21 @@ float Tuning12TET_centsToFreq(float cents, float pitchStandard) {
 
 Note Tuning12TET_transpose(Note note, int semitones) {
 
-  float cents = note.cents - semitones * 100.0;
-  return Tuning12TET_centsToNote(cents, note.pitchStandard, 0);
+  return Tuning12TET_moveBySemitones(note, -semitones);
+
+}
+
+
+Note Tuning12TET_moveBySemitones(Note note, int semitones) {
+
+  return Tuning12TET_moveByCents(note, semitones * 100);
+
+}
+
+
+Note Tuning12TET_moveByCents(Note note, float cents) {
+
+  return Tuning12TET_centsToNote(note.cents + cents, note.pitchStandard, note.centsOffset);
 
 }
 
@@ -69,8 +82,9 @@ Note Tuning12TET_centsToNote(
   Note note;
   note.pitchStandard = pitchStandard;
   note.octave        = octave;
-  note.cents         = nearest * 100.0 + centsOffset;
-  note.frequency     = Tuning12TET_centsToFreq(note.cents, pitchStandard);
+  note.centsOffset   = centsOffset;
+  note.cents         = nearest * 100.0 + note.centsOffset;
+  note.frequency     = Tuning12TET_centsToFreq(note.cents, note.pitchStandard);
 
   int index = (nearest % 12) + 9;  // C = 0
 
@@ -110,41 +124,41 @@ Note Tuning12TET_find(
 
 
 // A simple binary search, slightly modified to find the nearest value.
-Note Tuning12TET_findNearest(
-  float freq,
-  float* notesInCents,
-  int notesLength,
-  float pitchStandard
-) {
+// Note Tuning12TET_findNearest(
+//   float freq,
+//   float* notesInCents,
+//   int notesLength,
+//   float pitchStandard
+// ) {
 
-  int cents = Tuning12TET_freqToCents(freq, pitchStandard);
-  int mid = 0;
-  int low = 0;
-  int high = notesLength - 1;
+//   int cents = Tuning12TET_freqToCents(freq, pitchStandard);
+//   int mid = 0;
+//   int low = 0;
+//   int high = notesLength - 1;
 
-  while (high - low > 1) {
-    mid = low + ((high - low) / 2);
-    if (notesInCents[mid] >= cents) {
-      high = mid;
-    }
-    else {
-      low = mid;
-    }
-  }
+//   while (high - low > 1) {
+//     mid = low + ((high - low) / 2);
+//     if (notesInCents[mid] >= cents) {
+//       high = mid;
+//     }
+//     else {
+//       low = mid;
+//     }
+//   }
 
-  cents = fabs(cents);
-  float distanceToLow = fabs(fabs(notesInCents[low]) - cents);
-  float distanceToHigh = fabs(fabs(notesInCents[high]) - cents);
+//   cents = fabs(cents);
+//   float distanceToLow = fabs(fabs(notesInCents[low]) - cents);
+//   float distanceToHigh = fabs(fabs(notesInCents[high]) - cents);
 
-  // return nearest note
-  if (distanceToLow < distanceToHigh) {
-    return Tuning12TET_centsToNote(notesInCents[low], pitchStandard, 0);
-  }
-  else {
-    return Tuning12TET_centsToNote(notesInCents[high], pitchStandard, 0);
-  }
+//   // return nearest note
+//   if (distanceToLow < distanceToHigh) {
+//     return Tuning12TET_centsToNote(notesInCents[low], pitchStandard, 0);
+//   }
+//   else {
+//     return Tuning12TET_centsToNote(notesInCents[high], pitchStandard, 0);
+//   }
 
-}
+// }
 
 
 

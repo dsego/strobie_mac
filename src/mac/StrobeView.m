@@ -61,89 +61,6 @@ typedef struct {
 
 -(void) drawRect: (NSRect)bounds {
 
-  [self drawFrame];
-
-}
-
-
--(void) reshape {
-
-  // recalculate vertices
-  [self setupBuffers];
-
-}
-
-
-- (void)setupBuffers {
-
-  NSOpenGLContext* context = [self openGLContext];
-  [context makeCurrentContext];
-
-  int strobeCount = engine->strobeCount;
-  float padding = 2.0 * 2.0 / (float)_bounds.size.height; // circa 2px
-  float height = ((2.0 + padding) / strobeCount) - padding;
-  float y = -1.0;
-
-  // allocate buffers
-  for (int s = 0; s < strobeCount; ++s) {
-
-    // 2 vertices per sample
-    //   _________________
-    //  |\ |\ |\ |\ |\ |\ |
-    //  | \| \| \| \| \| \|
-    //   -----------------
-    //
-    int count = strobes[s].count = engine->strobeLengths[s] * 2;
-
-    // Static position data
-    glDeleteBuffers(1, &(strobes[s].vertexBuffer));
-    glGenBuffers(1, &(strobes[s].vertexBuffer));
-    glBindBuffer(GL_ARRAY_BUFFER, strobes[s].vertexBuffer);
-
-    // allocate GL buffer (x, y for each vertex)
-    glBufferData(GL_ARRAY_BUFFER, 2 * count * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
-
-    // get pointer to buffer
-    strobes[s].vertices = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-
-    // generate vertices
-    float x = -1.0;
-    float dx = 2.0 / (engine->strobeLengths[s] - 1);
-    int v = 0;
-
-    while (v < 2 * count) {
-
-      strobes[s].vertices[v++] = x;
-      strobes[s].vertices[v++] = y;
-      strobes[s].vertices[v++] = x;
-      strobes[s].vertices[v++] = y + height;
-      x += dx;
-
-    }
-
-    y += height + padding;
-
-    // Dynamic color data
-    glDeleteBuffers(1, &(strobes[s].colorBuffer));
-    glGenBuffers(1, &(strobes[s].colorBuffer));
-    glBindBuffer(GL_ARRAY_BUFFER, strobes[s].colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, count * 3 * sizeof(GLubyte), NULL, GL_DYNAMIC_DRAW);
-    strobes[s].colors = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-
-  }
-
-}
-
-
-- (void)redraw {
-
-  [self setNeedsDisplay:YES];
-
-}
-
-
-- (void)drawFrame {
-
   NSOpenGLContext* context = [self openGLContext];
   [context makeCurrentContext];
 
@@ -224,6 +141,74 @@ typedef struct {
 
 }
 
+
+-(void) reshape {
+
+  // recalculate vertices
+  [self setupBuffers];
+
+}
+
+
+- (void)setupBuffers {
+
+  NSOpenGLContext* context = [self openGLContext];
+  [context makeCurrentContext];
+
+  int strobeCount = engine->strobeCount;
+  float padding = 2.0 * 2.0 / (float)_bounds.size.height; // circa 2px
+  float height = ((2.0 + padding) / strobeCount) - padding;
+  float y = -1.0;
+
+  // allocate buffers
+  for (int s = 0; s < strobeCount; ++s) {
+
+    // 2 vertices per sample
+    //   _________________
+    //  |\ |\ |\ |\ |\ |\ |
+    //  | \| \| \| \| \| \|
+    //   -----------------
+    //
+    int count = strobes[s].count = engine->strobeLengths[s] * 2;
+
+    // Static position data
+    glDeleteBuffers(1, &(strobes[s].vertexBuffer));
+    glGenBuffers(1, &(strobes[s].vertexBuffer));
+    glBindBuffer(GL_ARRAY_BUFFER, strobes[s].vertexBuffer);
+
+    // allocate GL buffer (x, y for each vertex)
+    glBufferData(GL_ARRAY_BUFFER, 2 * count * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+
+    // get pointer to buffer
+    strobes[s].vertices = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+
+    // generate vertices
+    float x = -1.0;
+    float dx = 2.0 / (engine->strobeLengths[s] - 1);
+    int v = 0;
+
+    while (v < 2 * count) {
+
+      strobes[s].vertices[v++] = x;
+      strobes[s].vertices[v++] = y;
+      strobes[s].vertices[v++] = x;
+      strobes[s].vertices[v++] = y + height;
+      x += dx;
+
+    }
+
+    y += height + padding;
+
+    // Dynamic color data
+    glDeleteBuffers(1, &(strobes[s].colorBuffer));
+    glGenBuffers(1, &(strobes[s].colorBuffer));
+    glBindBuffer(GL_ARRAY_BUFFER, strobes[s].colorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, count * 3 * sizeof(GLubyte), NULL, GL_DYNAMIC_DRAW);
+    strobes[s].colors = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+
+  }
+
+}
 
 
 @end

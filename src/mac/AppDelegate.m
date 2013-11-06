@@ -11,38 +11,83 @@
   NSThread* estimatePitchThread;
   NSTimer *setStrobesTimer;
   NSTimer *strobeDisplayTimer;
-  Note note;
 
 }
 
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+- (void)savePreferences {
 
-  [_prefController loadPreferences];
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
+  [defaults setInteger: engine->config->inputDevice forKey: @"inputDevice"];
+  [defaults setInteger: engine->config->transpose forKey: @"transpose"];
+  [defaults setFloat: engine->config->pitchStandard forKey: @"pitchStandard"];
+  [defaults setFloat: engine->config->centsOffset forKey: @"centsOffset"];
+  [defaults setFloat: engine->config->freq forKey: @"freq"];
+  [defaults synchronize];
+
+}
+
+
+- (void)loadPreferences {
+
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
+  // register factory defaults
+  NSDictionary *factoryValues = [NSDictionary dictionaryWithObjectsAndKeys:
+    [NSNumber numberWithInt: engine->config->inputDevice], @"inputDevice",
+    [NSNumber numberWithInt: engine->config->transpose], @"transpose",
+    [NSNumber numberWithFloat: engine->config->pitchStandard], @"pitchStandard",
+    [NSNumber numberWithFloat: engine->config->centsOffset], @"centsOffset",
+    [NSNumber numberWithFloat: engine->config->freq], @"freq",
+    nil];
+  [defaults registerDefaults:factoryValues];
+
+  // read saved values
+  engine->config->inputDevice   = [defaults integerForKey: @"inputDevice"];
+  engine->config->transpose     = [defaults integerForKey: @"transpose"];
+  engine->config->pitchStandard = [defaults floatForKey: @"pitchStandard"];
+  engine->config->centsOffset   = [defaults floatForKey: @"centsOffset"];
+  engine->config->freq          = [defaults floatForKey: @"freq"];
+
+  [_prefController loadFromConfig];
+
+}
+
+
+- (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
+
+  [self loadPreferences];
+
+  Note note = Tuning12TET_find(engine->config->freq, engine->config->pitchStandard, engine->config->centsOffset);
+  Engine_setStrobes(engine, note);
   Engine_setInputDevice(engine, engine->config->inputDevice, engine->config->samplerate);
 
-  estimatePitchThread = [[NSThread alloc] initWithTarget:self selector:@selector(estimatePitch) object:nil ];
-  [estimatePitchThread start];
+  // this is ugly as hell
+  [_mainController refreshNoteDisplay];
+  [_mainController.strobeView setupBuffers];
+
+  // estimatePitchThread = [[NSThread alloc] initWithTarget:self selector:@selector(estimatePitch) object:nil ];
+  // [estimatePitchThread start];
 
 
-  // a timer works on the main thread
-
-  setStrobesTimer = [NSTimer timerWithTimeInterval:0.05 target:self selector:@selector(setStrobes) userInfo:nil repeats:YES];
-  [setStrobesTimer setTolerance: 0.01];
-  [[NSRunLoop currentRunLoop] addTimer:setStrobesTimer forMode:NSDefaultRunLoopMode];
+  // setStrobesTimer = [NSTimer timerWithTimeInterval:0.05 target:self selector:@selector(setStrobes) userInfo:nil repeats:YES];
+  // [setStrobesTimer setTolerance: 0.01];
+  // [[NSRunLoop currentRunLoop] addTimer:setStrobesTimer forMode:NSDefaultRunLoopMode];
 
   strobeDisplayTimer = [NSTimer
     timerWithTimeInterval:0.01
-    target:_mainController.strobeView
-    selector:@selector(redraw)
+    target:self
+    selector:@selector(redrawStrobes:)
     userInfo:nil
     repeats:YES
   ];
 
   [strobeDisplayTimer setTolerance: 0.01];
   [[NSRunLoop currentRunLoop] addTimer:strobeDisplayTimer forMode:NSDefaultRunLoopMode];
-  [[NSRunLoop currentRunLoop] addTimer:strobeDisplayTimer forMode:NSEventTrackingRunLoopMode]; //Ensure timer fires during resize
+
+  //Ensure timer fires during resize
+  [[NSRunLoop currentRunLoop] addTimer:strobeDisplayTimer forMode:NSEventTrackingRunLoopMode];
 
 }
 
@@ -65,7 +110,15 @@
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
 
   [estimatePitchThread cancel];
+  [self savePreferences];
   Engine_destroy(engine);
+
+}
+
+
+- (void)redrawStrobes: (NSTimer *)timer {
+
+  [_mainController.strobeView setNeedsDisplay:YES];
 
 }
 
@@ -73,7 +126,7 @@
 - (void)setStrobes {
 
   if (engine->mode == AUTO) {
-    Engine_setStrobes(engine, note);
+    Engine_setStrobes(engine, engine->currentNote);
     [_mainController.noteView setNeedsDisplay: YES];
   }
 
@@ -92,7 +145,7 @@
 
       // sanity check
       if (pitch > 0.0 && pitch < maxFreq) {
-        note = Tuning12TET_find(pitch, engine->config->pitchStandard, engine->config->centsOffset);
+        engine->currentNote = Tuning12TET_find(pitch, engine->config->pitchStandard, engine->config->centsOffset);
         // float cents = Tuning12TET_freqToCents(pitch, engine->config->pitchStandard);
         // Note transposed = Tuning12TET_transpose(note, engine->config->transpose);
       }

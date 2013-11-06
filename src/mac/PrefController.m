@@ -11,7 +11,7 @@
 @implementation PrefController
 
 
-- (void)loadPreferences {
+- (void)loadFromConfig {
 
   int deviceCount = Engine_deviceCount();
 
@@ -65,14 +65,7 @@
 
 - (IBAction)concertPitchChanged: (id)sender {
 
-  float val = [sender floatValue];
-
-  // not an empty text field
-  if (val > 0) {
-    engine->config->pitchStandard = val;
-    Note newNote = Tuning12TET_centsToNote(engine->currentNote.cents, engine->config->pitchStandard, engine->config->centsOffset);
-    Engine_setStrobes(engine, newNote);
-  }
+  Engine_setPitchStandard(engine, [sender floatValue]);
   [_concertPitchStepper setFloatValue: engine->config->pitchStandard];
   [_concertPitchText setFloatValue: engine->config->pitchStandard];
 
@@ -81,10 +74,7 @@
 
 - (IBAction)centsOffsetChanged: (id)sender {
 
-  engine->config->centsOffset = [sender floatValue];
-  Note newNote = Tuning12TET_centsToNote(engine->currentNote.cents, engine->config->pitchStandard, engine->config->centsOffset);
-  Engine_setStrobes(engine, newNote);
-
+  Engine_setCentsOffset(engine, [sender floatValue]);
   [_centsOffsetText setFloatValue: engine->config->centsOffset];
   [_centsOffsetStepper setFloatValue: engine->config->centsOffset];
 

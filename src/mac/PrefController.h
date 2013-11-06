@@ -14,7 +14,7 @@
   @property IBOutlet NSTextField *centsOffsetText;
   @property IBOutlet NSStepper *centsOffsetStepper;
 
-  - (void)loadPreferences;
+  - (void)loadFromConfig;
 
   - (IBAction)inputDeviceChanged: (id)sender;
   - (IBAction)transposeChanged: (id)sender;
