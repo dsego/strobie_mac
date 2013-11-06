@@ -219,10 +219,9 @@ static inline int Engine_streamCallback(
 
 float Engine_estimatePitch(Engine* self) {
 
-  const int W_LENGTH = 5;
+  #define W_LENGTH 5
   static float window[W_LENGTH] = { 0 };
   static int index = 0;
-
 
   // read in new data from the ring buffer
   AudioFeed_read(self->audioFeed, self->audioBuffer.elements, self->audioBuffer.length);
@@ -237,6 +236,8 @@ float Engine_estimatePitch(Engine* self) {
   }
 
   return median5(window);
+
+  #undef W_LENGTH
 
 }
 

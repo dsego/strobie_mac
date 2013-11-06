@@ -11,8 +11,7 @@
 
 
 #define STROBE_RB_LENGTH 16384
-
-#define STROBE_FILTER_BW 12 // filter bandwidth in Hz
+#define STROBE_FILTER_BW 12     // filter bandwidth in Hz
 
 
 Strobe* Strobe_create(
@@ -112,7 +111,8 @@ void Strobe_read(Strobe* self, float* output, int length) {
 
 void Strobe_setFreq(Strobe* self, float freq) {
 
-  if (freq == self->freq) { return; }
+  // assume freq is positive
+  if (fabs(freq - self->freq) < 0.000001) { return; }
 
   float newRate = freq * self->samplesPerPeriod;
   float ratio = newRate / self->samplerate;

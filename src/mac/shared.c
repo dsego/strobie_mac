@@ -6,6 +6,6 @@
 // Shared global variables
 
 
-#include "../engine/Engine.h"
+#include "shared.h"
 
 Engine *engine = NULL;

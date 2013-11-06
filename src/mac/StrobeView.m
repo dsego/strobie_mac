@@ -111,12 +111,12 @@ typedef struct {
         value = 1.0;
       }
 
-      int color[3];
+      GLubyte color[3];
       // hsv2rgb(hsv, rgb);
 
-      color[0] = start0 + scale0 * value;
-      color[1] = start1 + scale1 * value;
-      color[2] = start2 + scale2 * value;
+      color[0] = (GLubyte) (start0 + scale0 * value);
+      color[1] = (GLubyte) (start1 + scale1 * value);
+      color[2] = (GLubyte) (start2 + scale2 * value);
 
       // color (RGB)
       strobes[s].colors[c++] = color[0];
@@ -156,9 +156,9 @@ typedef struct {
   [context makeCurrentContext];
 
   int strobeCount = engine->strobeCount;
-  float padding = 2.0 * 2.0 / (float)_bounds.size.height; // circa 2px
-  float height = ((2.0 + padding) / strobeCount) - padding;
-  float y = -1.0;
+  float padding = 2.0f * 2.0f / (float)_bounds.size.height; // circa 2px
+  float height = ((2.0f + padding) / strobeCount) - padding;
+  float y = -1.0f;
 
   // allocate buffers
   for (int s = 0; s < strobeCount; ++s) {
@@ -183,8 +183,8 @@ typedef struct {
     strobes[s].vertices = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 
     // generate vertices
-    float x = -1.0;
-    float dx = 2.0 / (engine->strobeLengths[s] - 1);
+    float x = -1.0f;
+    float dx = 2.0f / (engine->strobeLengths[s] - 1);
     int v = 0;
 
     while (v < 2 * count) {

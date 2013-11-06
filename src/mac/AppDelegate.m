@@ -95,7 +95,7 @@
 
 - (void)applicationDidChangeOcclusionState:(NSNotification *)notification {
 
-  if ([NSApp occlusionState] & NSApplicationOcclusionStateVisible) {
+  if ([(NSApplication *) NSApp occlusionState] & NSApplicationOcclusionStateVisible) {
     // Visible
 
   } else {

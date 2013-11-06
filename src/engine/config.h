@@ -55,5 +55,5 @@ typedef struct {
 
 
 
-Config* Config_create();
+Config* Config_create(void);
 void Config_destroy(Config* self);

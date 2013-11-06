@@ -57,7 +57,7 @@
   engine->config->transpose = [sender selectedItem].tag;
 
   // there should be a nicer way to do this
-  AppDelegate *delegate = [NSApp delegate];
+  AppDelegate *delegate = [(NSApplication*) NSApp delegate];
   [delegate.mainController refreshNoteDisplay];
 
 }

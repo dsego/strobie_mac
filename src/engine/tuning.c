@@ -18,7 +18,7 @@ float Tuning12TET_freqToCents(float freq, float pitchStandard) {
 
 float Tuning12TET_centsToFreq(float cents, float pitchStandard) {
 
-  return pitchStandard * exp2(cents / 1200.0);
+  return pitchStandard * exp2f(cents / 1200.0);
 
 }
 
@@ -49,7 +49,7 @@ Note Tuning12TET_moveToOctave(Note note, int octave) {
   float octaveDelta = octave - note.octave;
   Note newNote = note;
   newNote.octave = octave;
-  newNote.frequency = note.frequency * exp2(octaveDelta);
+  newNote.frequency = note.frequency * exp2f(octaveDelta);
   newNote.cents += octaveDelta * 1200.0;
   return newNote;
 
@@ -76,14 +76,14 @@ Note Tuning12TET_centsToNote(
   float centsOffset
 ) {
 
-  int nearest = (int) round(cents / 100); // semitones
-  int octave  = (int) floor((nearest / 12.0) + 4.75);
+  int nearest = (int)(float) roundf(cents / 100); // semitones
+  int octave  = (int)(float) floorf((nearest / 12.0) + 4.75);
 
   Note note;
   note.pitchStandard = pitchStandard;
   note.octave        = octave;
   note.centsOffset   = centsOffset;
-  note.cents         = nearest * 100.0 + note.centsOffset;
+  note.cents         = nearest * 100 + note.centsOffset;
   note.frequency     = Tuning12TET_centsToFreq(note.cents, note.pitchStandard);
 
   int index = (nearest % 12) + 9;  // C = 0

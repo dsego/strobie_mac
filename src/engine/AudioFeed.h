@@ -18,8 +18,8 @@ typedef struct {
 
 
 
-AudioFeed* AudioFeed_create();
-void AudioFeed_destroy();
+AudioFeed* AudioFeed_create(void);
+void AudioFeed_destroy(AudioFeed* self);
 
 // Read the newest data from the ring buffer
 void AudioFeed_read(AudioFeed* self, float* output, int outputLength);
