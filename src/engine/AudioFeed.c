@@ -38,6 +38,9 @@ void AudioFeed_destroy(AudioFeed* self) {
 
 void AudioFeed_read(AudioFeed* self, float* output, int length) {
 
+  // avoid an infinite loop
+  if (length <= 0) return;
+
   // advance pointer to latest data
   while (PaUtil_GetRingBufferReadAvailable(self->ringbuffer) >= 2 * length) {
     PaUtil_AdvanceRingBufferReadIndex(self->ringbuffer, length);
