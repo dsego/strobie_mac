@@ -175,7 +175,6 @@
 
     NSPoint location = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 
-    // TODO change highlighted to currently selected
     [noteMenu popUpMenuPositioningItem: [noteMenu itemWithTag: engine->currentNote.index]
       atLocation:NSMakePoint(0, location.y + 10) // dirty hack
       inView:self
