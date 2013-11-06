@@ -1,40 +1,20 @@
 
-
-PaError Pa_StartStream ( PaStream *  stream  ) 
-
-
-# 2D canvas
-- note display (letter, octave, sign)   -> a dot left or right signals an error of 5-50 cents (more intensity for larger error)
-- strobe display
-
-
-# controls
-- Mode toggle button (automatic, manual)
-- Instrument selection (chromatic, std. guitar ...), combo box
-- Transpose (e.g. for trumpet Bb -> C), numerical box
-- Mute button
-
-
-# preferences
-- Sound input, drop-down box
-- Sound output, drop-down box
-- Partials, text box (drop down with combinations?)
-- Strobe gain, slider
-- Pitch standard (440.0 Hz), numerical box
-- Cents offset, numerical box
-
-# bottom toolbar
-tech info (input, samplerate, bits) ?
-
-
-
-
-
 # future (no particular order)
--------
-- Samples per period, text box   (?)
+
+- samples per period (latency vs resolution)
+- play tone
+- Noise gate
+- tech info (input, samplerate, bits) ?
+- Sample rate, drop-down
+- add/remove strobe bands
+- change options for each strobe band
+- choose preset ( 7 octaves, 4 harmonic bands, chords? )
 - Strobe color scheme
 - Stretch tables
+- Partials, text box (drop down with combinations?)
+- Mute button
+- Resolution (samples per period)
+- Sound output, drop-down box
 - Pitch standard -> combo box that lists historical pitch standards
 - Enable sound output, check box
 - Display sharps or flats, drop-down
@@ -44,3 +24,16 @@ tech info (input, samplerate, bits) ?
 - Tuner accuracy (strobe speed) adjustment (how?)
 - suspend button
 - Min audio level (threshold) for pitch recognition (e.g. -40dBFS), slider
+- MIDI input to switch modes/notes ?
+- Instrument selection (chromatic, std. guitar ...), combo box
+- set buffer size (latency)
+- Strobe gain/sensitivity slider
+- preferences reset button
+- proper hash implementation for config
+
+
+strobie
+firefly
+strobomatic
+sonic strobe
+tonic
