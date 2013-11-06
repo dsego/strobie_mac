@@ -55,7 +55,7 @@
 }
 
 
-- (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
+- (void)awakeFromNib {
 
   [self loadPreferences];
 
@@ -63,9 +63,10 @@
   Engine_setStrobes(engine, note);
   Engine_setInputDevice(engine, engine->config->inputDevice, engine->config->samplerate);
 
-  // this is ugly as hell
-  [_mainController refreshNoteDisplay];
-  [_mainController.strobeView setupBuffers];
+}
+
+
+- (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
 
   // estimatePitchThread = [[NSThread alloc] initWithTarget:self selector:@selector(estimatePitch) object:nil ];
   // [estimatePitchThread start];
