@@ -60,7 +60,7 @@
   noteNames[10] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("A"), attrs1);
   noteNames[11] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("B"), attrs1);
 
-
+  CFRelease(attrs1);
 
   CFStringRef keys2[] = {
     kCTFontAttributeName,
@@ -82,6 +82,8 @@
   );
 
   sharpSign = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("♯"), attrs2);
+
+  CFRelease(attrs2);
 
 }
 
