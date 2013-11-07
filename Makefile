@@ -27,7 +27,7 @@ GL				= -framework OpenGL
 
 
 FLAGS			= -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion
-MAC_FLAGS	= -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis -Wno-implicit-atomic-properties
+MAC_FLAGS	= -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis -Wno-implicit-atomic-properties -Wno-auto-import
 
 all:
 	make mac
@@ -39,7 +39,7 @@ engine:
 
 mac:
 	make engine
-	cc $(FLAGS) $(MAC_FLAGS) -arch x86_64 -fobjc-arc -O3 $(FFTS) $(PORTAUDIO) $(DSP) \
+	cc $(FLAGS) $(MAC_FLAGS) -fmodules -arch x86_64 -fobjc-arc -O3 $(FFTS) $(PORTAUDIO) $(DSP) \
 		-framework Cocoa -framework AppKit -framework QuartzCore -framework OpenGL \
 		engine.a src/mac/*.m src/mac/*.c \
 		-o Strobie.app/Contents/MacOS/strobie
