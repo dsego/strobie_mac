@@ -34,13 +34,14 @@
   NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
   // register factory defaults
-  NSDictionary *factoryValues = [NSDictionary dictionaryWithObjectsAndKeys:
-    [NSNumber numberWithInt: engine->config->inputDevice], @"inputDevice",
-    [NSNumber numberWithInt: engine->config->transpose], @"transpose",
-    [NSNumber numberWithFloat: engine->config->pitchStandard], @"pitchStandard",
-    [NSNumber numberWithFloat: engine->config->centsOffset], @"centsOffset",
-    [NSNumber numberWithFloat: engine->config->freq], @"freq",
-    nil];
+  NSDictionary *factoryValues = @{
+    @"inputDevice": @(engine->config->inputDevice),
+    @"transpose": @(engine->config->transpose),
+    @"pitchStandard": @(engine->config->pitchStandard),
+    @"centsOffset": @(engine->config->centsOffset),
+    @"freq": @(engine->config->freq)
+  };
+
   [defaults registerDefaults:factoryValues];
 
   // read saved values
