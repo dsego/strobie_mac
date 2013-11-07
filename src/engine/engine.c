@@ -242,17 +242,18 @@ float Engine_estimatePitch(Engine* self) {
 }
 
 
-
-//
-// TODO - handle errors
-//
 int Engine_setInputDevice(Engine *self, int device, int samplerate) {
 
   // illegal value
   static int currentDevice = -1;
 
-  // already set
+  // already current device, don't bother changing
   if (currentDevice == device) { return 1; }
+
+  // if device index doesn't exist, use default device
+  if (device < 0 || device >= Pa_GetDeviceCount()) {
+    device = Pa_GetDefaultInputDevice();
+  }
 
   self->config->inputDevice = currentDevice = device;
 
@@ -285,8 +286,6 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate) {
   //
   // try different sample rates
   // while (err == paInvalidSampleRate) { }
-  //
-  // other error -> try default device
 
 
   if (err != paNoError) {
@@ -302,6 +301,13 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate) {
   }
 
   return 1;
+
+}
+
+
+int Engine_getDefaultInputDevice() {
+
+  return Pa_GetDefaultInputDevice();
 
 }
 

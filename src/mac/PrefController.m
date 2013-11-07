@@ -29,7 +29,12 @@
 
   }
 
-  [_inputDevicePopup selectItemWithTag: engine->config->inputDevice];
+  bool success = [_inputDevicePopup selectItemWithTag: engine->config->inputDevice];
+
+  // select default device, engine should also fall back to this value
+  if (success == NO) {
+    [_inputDevicePopup selectItemWithTag: Engine_getDefaultInputDevice()];
+  }
 
   [self generateItemsForTransposePopup];
   [_transposePopup selectItemWithTag: engine->config->transpose];
