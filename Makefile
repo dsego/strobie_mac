@@ -29,7 +29,8 @@ GL				= -framework OpenGL
 FLAGS			= -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion
 MAC_FLAGS	= $(FLAGS) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis -Wno-implicit-atomic-properties -Wno-auto-import
 
-OPTIONS			= -O3 -arch x86_64
+# LTO is a link-time optimizer
+OPTIONS			= -O3 -arch x86_64 -flto
 MAC_OPTIONS = $(OPTIONS) -fmodules -fobjc-arc
 
 
