@@ -2,6 +2,11 @@
     Copyright (c) 2013 Davorin Šego. All rights reserved.
 */
 
+
+#ifndef ENGINE_H
+#define ENGINE_H
+
+
 #include "portaudio.h"
 #include "Tuning.h"
 #include "Config.h"
@@ -9,6 +14,7 @@
 #include "AudioFeed.h"
 #include "Array.h"
 #include "Strobe.h"
+
 
 
 #define MAX_STROBES CONFIG_MAX_STROBES
@@ -58,3 +64,6 @@ void Engine_getSamplerates(int device, int outSamplerates[11]);
 int Engine_getDefaultInputDevice(void);
 int Engine_deviceCount(void);
 int Engine_deviceName(int index, char *outName, int *outIsInput, int *outIsOutput);
+
+
+#endif
