@@ -176,7 +176,6 @@
   if (engine->mode == MANUAL) {
 
     NSPoint location = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
     [noteMenu popUpMenuPositioningItem: [noteMenu itemWithTag: engine->currentNote.index]
       atLocation:NSMakePoint(0, location.y + 10) // dirty hack
       inView:self
