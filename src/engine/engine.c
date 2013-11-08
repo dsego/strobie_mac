@@ -153,11 +153,16 @@ void Engine_setStrobes(Engine* self, Note note) {
 }
 
 
-void Engine_readStrobes(Engine* self) {
+// return 0 if there is no new data
+int Engine_readStrobes(Engine* self) {
+
+  int hasNewData = 0;
 
   for (int i = 0; i < self->strobeCount; ++i) {
-    Strobe_read(self->strobes[i], self->strobeBuffers[i].elements, self->strobeLengths[i]);
+    hasNewData += Strobe_read(self->strobes[i], self->strobeBuffers[i].elements, self->strobeLengths[i]);
   }
+
+  return hasNewData;
 
 }
 

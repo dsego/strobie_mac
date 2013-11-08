@@ -66,10 +66,11 @@ void Strobe_destroy(Strobe* self) {
 }
 
 
-void Strobe_read(Strobe* self, float* output, int length) {
+// returns 0 if no data was read
+int Strobe_read(Strobe* self, float* output, int length) {
 
   // avoid an infinite loop
-  if (length <= 0) return;
+  if (length <= 0) return 0;
 
   // advance pointer to latest data
   while (PaUtil_GetRingBufferReadAvailable(self->ringbuffer) >= 2 * length) {
@@ -83,17 +84,14 @@ void Strobe_read(Strobe* self, float* output, int length) {
 
     // double the number of periods
     if (self->subdivCount == 1) {
-
       float peak = findWavePeak(output, length);
       float factor = 2.0 / peak;
 
       for (int i = 1; i < length; ++i) {
         output[i] = factor * output[i] * output[i] - peak;
       }
-
     }
     else if (self->subdivCount == 2) {
-
       float peak = findWavePeak(output, length);
       float factor = 2.0 / peak;
 
@@ -101,8 +99,14 @@ void Strobe_read(Strobe* self, float* output, int length) {
         output[i] = factor * output[i] * output[i] - peak;
         output[i] = factor * output[i] * output[i] - peak;
       }
-
     }
+
+    return 1;
+
+  }
+  else {
+
+    return 0;
 
   }
 

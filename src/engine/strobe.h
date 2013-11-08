@@ -36,8 +36,8 @@ Strobe* Strobe_create(int bufferLength, int resampledLength, int samplerate, int
 
 void Strobe_destroy(Strobe* self);
 
-// Read the newest data from the ring buffer
-void Strobe_read(Strobe* self, float* output, int length);
+// Read the newest data from the ring buffer (return 0 if no data was read)
+int Strobe_read(Strobe* self, float* output, int length);
 
 // Set the filter band and the sample rate to a multiple of the target frequency
 void Strobe_setFreq(Strobe* self, float freq);
