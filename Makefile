@@ -26,10 +26,14 @@ GLFW			= -I/usr/local/includes/GL/glfw -lglfw
 GL				= -framework OpenGL
 
 
-FLAGS			= -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion
-MAC_FLAGS	= $(FLAGS) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis -Wno-implicit-atomic-properties -Wno-auto-import
+WARN			= -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion
+MAC_WARN	= $(WARN) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis -Wno-implicit-atomic-properties -Wno-auto-import
 
-# LTO is a link-time optimizer
+
+# -Ofast enables -O3, vectorization, strict aliasing,fast math
+# -flto  is a link-time optimizer
+# -ffast-math (?)
+#  -fvectorize should be enabled by default for -O3
 OPTIONS			= -O3 -arch x86_64 -flto
 MAC_OPTIONS = $(OPTIONS) -fmodules -fobjc-arc
 
@@ -38,13 +42,13 @@ all:
 	make mac
 
 engine:
-	cc -c $(FLAGS) $(OPTIONS) $(FFTS) $(PORTAUDIO) $(DSP) src/engine/*.c
+	cc -c $(WARN) $(OPTIONS) $(FFTS) $(PORTAUDIO) $(DSP) src/engine/*.c
 	ar rcs engine.a *.o
 	rm *.o
 
 mac:
 	make engine
-	cc $(MAC_FLAGS) $(MAC_OPTIONS) $(FFTS) $(PORTAUDIO) $(DSP) \
+	cc $(MAC_WARN) $(MAC_OPTIONS) $(FFTS) $(PORTAUDIO) $(DSP) \
 		-framework Cocoa -framework AppKit -framework QuartzCore -framework OpenGL \
 		engine.a src/mac/*.m src/mac/*.c \
 		-o Strobie.app/Contents/MacOS/strobie
