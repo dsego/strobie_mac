@@ -63,8 +63,8 @@ mac:
 
 test:
 	make engine
-	cc -Wall -O2 -Isrc/engine $(GL) $(GLFW) $(FFTS) $(PORTAUDIO) $(DSP) src/test.c engine.a -o test
+	cc $(OPTIONS) $(WARN) -Isrc/engine $(GL) $(GLFW) $(FFTS) $(PORTAUDIO) $(DSP) src/test.c engine.a -o test
 
 experiment:
-	cc -Wall $(FFTS) $(PORTAUDIO) src/experiment.c -o experiment
+	cc $(OPTIONS) $(WARN) $(FFTS) $(PORTAUDIO) src/experiment.c -o experiment
 
