@@ -6,6 +6,4 @@
 
 @interface StrobeView : NSOpenGLView
 
-- (void)setupBuffers;
-
 @end

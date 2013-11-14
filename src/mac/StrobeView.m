@@ -11,9 +11,21 @@
 @implementation StrobeView
 
 
-- (BOOL)mouseDownCanMoveWindow {
 
-  return YES;
+
+- (void)awakeFromNib {
+
+  NSOpenGLPixelFormatAttribute attributes[] = {
+    NSOpenGLPFADoubleBuffer,
+    NSOpenGLPFAAccelerated,
+    NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,   // Core Profile !
+    NULL
+  };
+
+  NSOpenGLPixelFormat *format = [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
+  NSOpenGLContext *context = [[NSOpenGLContext alloc] initWithFormat:format shareContext: NULL];
+  [self setPixelFormat: format];
+  [self setOpenGLContext: context];
 
 }
 
@@ -26,7 +38,7 @@
   // Enable the multithreading
   // CGLEnable([context CGLContextObj], kCGLCEMPEngine);
 
-  StrobeDisplay_setup();
+  StrobeDisplay_setup(engine);
 
   // Synchronize buffer swaps with vertical refresh rate
   GLint swapInt = 1;
@@ -35,13 +47,15 @@
 }
 
 
--(void)drawRect: (NSRect)bounds {
+-(void)drawRect:(NSRect)bounds {
 
-  NSOpenGLContext* context = [self openGLContext];
+  // NSOpenGLContext* context = [self openGLContext];
+  // [context makeCurrentContext];
+
   StrobeDisplay_drawScene(engine);
 
   // An implicit glFlush is done by flushBuffer before it returns.
-  [context flushBuffer];
+  // [context flushBuffer];
 
 }
 
@@ -54,13 +68,10 @@
 }
 
 
-- (void)setupBuffers {
+- (BOOL)mouseDownCanMoveWindow {
 
-  // NSOpenGLContext* context = [self openGLContext];
-  // [context makeCurrentContext];
-  StrobeDisplay_initScene(engine, _bounds.size.width, _bounds.size.height);
+  return YES;
 
 }
-
 
 @end
