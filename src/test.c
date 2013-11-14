@@ -25,7 +25,7 @@ int main() {
 
 
   Engine* engine = Engine_create();
-  Engine_startAudio(engine);
+  Engine_setInputDevice(engine, 0, 44100);
 
   double hz = 0.0;
   double cents = 0.0;
@@ -47,7 +47,7 @@ int main() {
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    hz = Engine_estimatePitch(engine);
+    // hz = Engine_estimatePitch(engine);
 
     // int length = engine->pitch->sdf.length;
     int length = engine->pitch->powCepstrum.length;
@@ -68,12 +68,12 @@ int main() {
     glEnd();
 
 
-    cents = Tuning12TET_freqToCents(hz, 440.0);
-    note = Tuning12TET_centsToNote(cents, 440.0, 0.0, 0);
-    err = cents - note.cents;
+    // cents = Tuning12TET_freqToCents(hz, 440.0);
+    // note = Tuning12TET_centsToNote(cents, 440.0, 0.0, 0);
+    // err = cents - note.cents;
 
-    printf("%4.4f Hz   %2.2f c           \r", hz, err);
-    fflush(stdout);
+    // printf("%4.4f Hz   %2.2f c           \r", hz, err);
+    // fflush(stdout);
 
     glfwSwapBuffers();
     usleep(100000);
