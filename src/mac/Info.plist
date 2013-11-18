@@ -10,6 +10,8 @@
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
   <string>1.0</string>
+  <key>CFBundleIconFile</key>
+  <string>app.icns</string>
   <key>NSHumanReadableCopyright</key>
   <string>Copyright © 2013 Davorin Šego. All rights reserved.</string>
   <key>NSPrincipalClass</key>
