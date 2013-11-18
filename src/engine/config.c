@@ -32,7 +32,7 @@ Config* Config_create() {
   int samplesPerPeriod = 512;
   float periodsPerFrame = 1;
 
-  self->strobeCount = 5;
+  self->strobeCount = 6;
 
   for (int i = 0; i < self->strobeCount; ++i) {
 
