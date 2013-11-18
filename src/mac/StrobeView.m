@@ -33,16 +33,12 @@
 - (void)prepareOpenGL {
 
   NSOpenGLContext* context = [self openGLContext];
-  // [context makeCurrentContext];
-
-  // Enable the multithreading
-  // CGLEnable([context CGLContextObj], kCGLCEMPEngine);
-
-  StrobeDisplay_setup(engine);
 
   // Synchronize buffer swaps with vertical refresh rate
   GLint swapInt = 1;
   [context setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
+
+  StrobeDisplay_setup(engine);
 
 }
 
@@ -73,5 +69,14 @@
   return YES;
 
 }
+
+
+-(void)dealloc {
+
+  StrobeDisplay_cleanup();
+
+}
+
+
 
 @end
