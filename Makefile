@@ -51,11 +51,11 @@ mac:
 	cc $(MAC_WARN) $(MAC_OPTIONS) $(FFTS) $(PORTAUDIO) $(DSP) \
 		-framework Cocoa -framework AppKit -framework QuartzCore -framework OpenGL \
 		engine.a src/mac/*.m src/mac/*.c \
-		-o Strobie.app/Contents/MacOS/strobie
+		-o Strobie.app/Contents/MacOS/Strobie
 		ibtool --compile Strobie.app/Contents/Resources/Application.nib src/mac/Application.xib
 		cp src/mac/Info.plist Strobie.app/Contents/Info.plist
-		# cp src/mac/Resources/*.png Strobie.app/Contents/Resources/
-
+		# iconutil -c icns src/app.iconset
+		# cp src/app.icns Strobie.app/Contents/Resources/app.icns
 
 
 
