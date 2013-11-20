@@ -77,20 +77,6 @@
   // [setStrobesTimer setTolerance: 0.01];
   // [[NSRunLoop currentRunLoop] addTimer:setStrobesTimer forMode:NSDefaultRunLoopMode];
 
-  strobeDisplayTimer = [NSTimer
-    timerWithTimeInterval:0.01
-    target:self
-    selector:@selector(redrawStrobes:)
-    userInfo:nil
-    repeats:YES
-  ];
-
-  [strobeDisplayTimer setTolerance: 0.01];
-  [[NSRunLoop currentRunLoop] addTimer:strobeDisplayTimer forMode:NSDefaultRunLoopMode];
-
-  //Ensure timer fires during resize
-  [[NSRunLoop currentRunLoop] addTimer:strobeDisplayTimer forMode:NSEventTrackingRunLoopMode];
-
 }
 
 
@@ -114,13 +100,6 @@
   [estimatePitchThread cancel];
   [self savePreferences];
   Engine_destroy(engine);
-
-}
-
-
-- (void)redrawStrobes: (NSTimer *)timer {
-
-  [_mainController.strobeView setNeedsDisplay:YES];
 
 }
 
@@ -183,7 +162,6 @@
   return NO;
 
 }
-
 
 
 -(IBAction)showHelp:(id)sender {
