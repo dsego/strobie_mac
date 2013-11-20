@@ -11,8 +11,8 @@
 
 
 #define STROBE_RB_LENGTH 16384
-// #define STROBE_FILTER_BW 10     // filter bandwidth in Hz
-#define STROBE_FILTER_Q 40
+#define STROBE_FILTER_BW 5     // filter bandwidth in Hz
+// #define STROBE_FILTER_Q 100
 
 
 Strobe* Strobe_create(
@@ -139,13 +139,13 @@ void Strobe_setFreq(Strobe* self, float freq) {
   Interpolator_reset(self->src);
   Biquad_reset(self->bandpass);
 
-  // double a[3], b[3];
+  double a[3], b[3];
   // double bw = freq * exp2(25.0/1200.0) - freq;
   // printf("%f %f \n", freq, bw); fflush(stdout);
   // resonator(freq, bw, self->samplerate, a, b);
-  // resonator(freq, STROBE_FILTER_BW, self->samplerate, a, b);
-  // Biquad_setCoefficients(self->bandpass, a[0], a[1], a[2], b[1], b[2]);
-  Biquad_bandpass(self->bandpass, freq, self->samplerate, STROBE_FILTER_Q);
+  resonator(freq, STROBE_FILTER_BW, self->samplerate, a, b);
+  Biquad_setCoefficients(self->bandpass, a[0], a[1], a[2], b[1], b[2]);
+  // Biquad_bandpass(self->bandpass, freq, self->samplerate, STROBE_FILTER_Q);
 
 }
 
