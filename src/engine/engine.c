@@ -154,19 +154,22 @@ void Engine_setStrobes(Engine* self, Note note) {
 
 
 // return 0 if there is no new data
-int Engine_readStrobes(Engine* self) {
+int Engine_readStrobe(Engine* self, int index) {
 
-  int hasNewData = 0;
-
-  for (int i = 0; i < self->strobeCount; ++i) {
-    hasNewData += Strobe_read(self->strobes[i], self->strobeBuffers[i].elements, self->strobeLengths[i]);
-  }
-
-  return hasNewData;
+  return Strobe_read(self->strobes[index], self->strobeBuffers[index].elements, self->strobeLengths[index]);
 
 }
 
 
+int Engine_readStrobes(Engine* self) {
+
+  int fresh = 0;
+  for (int i = 0; i < self->strobeCount; ++i) {
+    fresh += Strobe_read(self->strobes[i], self->strobeBuffers[i].elements, self->strobeLengths[i]);
+  }
+  return fresh; // there is new data
+
+}
 
 
 static inline void calcLevel(float* input, int length, float* level) {

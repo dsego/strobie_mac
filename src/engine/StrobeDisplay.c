@@ -7,6 +7,7 @@
 #include <OpenGL/gl3.h>
 #include "utils.h"
 #include "StrobeDisplay.h"
+#include "glDebug.h"
 
 #define MAX_STROBE_COUNT 10
 
@@ -117,6 +118,7 @@ static inline GLuint createShaderProgram(char* vertexSource, char* fragmentSourc
   GLuint program = glCreateProgram();
   glAttachShader(program, vertexShader);
   glAttachShader(program, fragmentShader);
+  glBindFragDataLocation(program, 0, "outColor");
   glLinkProgram(program);
   glGetProgramiv(program, GL_LINK_STATUS, &status);
   if (status != GL_TRUE) {
@@ -131,38 +133,6 @@ static inline GLuint createShaderProgram(char* vertexSource, char* fragmentSourc
   return program;
 
 }
-
-
-// OpenGL debugging
-
-// static void printError() {
-
-//   switch(glGetError()) {
-//     case GL_INVALID_ENUM: printf("GL_INVALID_ENUM\n"); break;
-//     case GL_INVALID_VALUE: printf("GL_INVALID_VALUE\n"); break;
-//     case GL_INVALID_OPERATION: printf("GL_INVALID_OPERATION\n"); break;
-//     case GL_INVALID_FRAMEBUFFER_OPERATION: printf("GL_INVALID_FRAMEBUFFER_OPERATION\n"); break;
-//     case GL_OUT_OF_MEMORY: printf("GL_OUT_OF_MEMORY\n"); break;
-//     case GL_NO_ERROR: printf("GL_NO_ERROR\n"); break;
-//     default: printf("default\n"); break;
-//   }
-
-// }
-
-
-// static void printShaderInfo(GLint shaderProgram) {
-
-//   GLint status;
-//   glValidateProgram(shaderProgram);
-//   glGetProgramiv(shaderProgram, GL_VALIDATE_STATUS, &status);
-//   if (status != GL_TRUE) {
-//     char infoLog[512];
-//     glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-//     printf("%s\n", infoLog);
-//   }
-
-// }
-
 
 
 static inline void genObjects() {
@@ -297,11 +267,12 @@ static inline void refreshShadowPositions(int screenWidth, int screenHeight) {
 }
 
 
-void StrobeDisplay_setup(Engine *engine){
+void StrobeDisplay_setup(Engine *engine) {
 
   glDisable(GL_DITHER);
   glDisable(GL_STENCIL_TEST);
   glDisable(GL_DEPTH_TEST);
+  glDisable(GL_TEXTURE_2D);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -359,72 +330,63 @@ static inline void refreshStrobePositions(Engine *engine, int w, int h) {
 }
 
 
-static inline void refreshStrobeColors(Engine *engine) {
+static inline void refreshStrobeColors(Engine *engine, int sid) {
 
-  int fresh = Engine_readStrobes(engine);
+  if (Engine_readStrobe(engine, sid)) {
 
-  if (fresh) {
+    int start0 = engine->config->strobes[sid].color1[0];
+    int start1 = engine->config->strobes[sid].color1[1];
+    int start2 = engine->config->strobes[sid].color1[2];
 
-    for (int sid = 0; sid < strobeCount; ++sid) {
+    int end0 = engine->config->strobes[sid].color2[0];
+    int end1 = engine->config->strobes[sid].color2[1];
+    int end2 = engine->config->strobes[sid].color2[2];
 
-      int start0 = engine->config->strobes[sid].color1[0];
-      int start1 = engine->config->strobes[sid].color1[1];
-      int start2 = engine->config->strobes[sid].color1[2];
-
-      int end0 = engine->config->strobes[sid].color2[0];
-      int end1 = engine->config->strobes[sid].color2[1];
-      int end2 = engine->config->strobes[sid].color2[2];
-
-      int scale0 = end0 - start0;
-      int scale1 = end1 - start1;
-      int scale2 = end2 - start2;
+    int scale0 = end0 - start0;
+    int scale1 = end1 - start1;
+    int scale2 = end2 - start2;
 
 
-      // TODO : add hysteresis !
-      float gain = 1000.0;
+    // TODO : add hysteresis !
+    float gain = 1000.0;
 
-      int i = engine->strobeLengths[sid];
+    int i = engine->strobeLengths[sid];
 
-      for (int cid = 0; cid < 3 * strobes[sid].count; ) {
+    for (int cid = 0; cid < 3 * strobes[sid].count; ) {
 
-        --i;
+      --i;
 
-        float value = engine->strobeBuffers[sid].elements[i];
+      float value = engine->strobeBuffers[sid].elements[i];
 
-        // value = 1.0 / (1.0 + exp(-gain * value));
-        value = (value * gain + 1) * 0.5;
+      // value = 1.0 / (1.0 + exp(-gain * value));
+      value = (value * gain + 1) * 0.5;
 
-        if (value < 0) {
-          value = 0.0;
-        }
-        else if (value > 1) {
-          value = 1.0;
-        }
-
-        GLubyte color[3];
-        // GLfloat color[3];
-        // hsv2rgb(hsv, rgb);
-
-        color[0] = (GLubyte) (start0 + scale0 * value);
-        color[1] = (GLubyte) (start1 + scale1 * value);
-        color[2] = (GLubyte) (start2 + scale2 * value);
-
-        // color (RGB)
-        strobes[sid].colors[cid++] = color[0];
-        strobes[sid].colors[cid++] = color[1];
-        strobes[sid].colors[cid++] = color[2];
-        // strobes[sid].colors[cid++] = 255;
-
-        // color (RGB)
-        strobes[sid].colors[cid++] = color[0];
-        strobes[sid].colors[cid++] = color[1];
-        strobes[sid].colors[cid++] = color[2];
-        // strobes[sid].colors[cid++] = 255;
-
+      if (value < 0) {
+        value = 0.0;
+      }
+      else if (value > 1) {
+        value = 1.0;
       }
 
-    }
+      GLubyte color[3];
+      // GLfloat color[3];
+      // hsv2rgb(hsv, rgb);
 
+      color[0] = (GLubyte) (start0 + scale0 * value);
+      color[1] = (GLubyte) (start1 + scale1 * value);
+      color[2] = (GLubyte) (start2 + scale2 * value);
+
+      // color (RGB)
+      strobes[sid].colors[cid++] = color[0];
+      strobes[sid].colors[cid++] = color[1];
+      strobes[sid].colors[cid++] = color[2];
+
+      // color (RGB)
+      strobes[sid].colors[cid++] = color[0];
+      strobes[sid].colors[cid++] = color[1];
+      strobes[sid].colors[cid++] = color[2];
+
+    }
   }
 
 }
@@ -446,15 +408,16 @@ void StrobeDisplay_drawScene(Engine *engine) {
 
   // draw strobes
   glUseProgram(sceneShader);
-  refreshStrobeColors(engine);
 
   for (int i = 0; i < strobeCount; ++i) {
+    refreshStrobeColors(engine, i);
     glBindVertexArray(strobes[i].vao);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, strobes[i].count);
   }
 
   // draw inner shadow
   glBindVertexArray(shadowVao);
+  // glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, shadowTexture);
   glUseProgram(textureShader);
   glDrawElements(GL_TRIANGLES, sizeof(shadowElements) / sizeof(GLuint), GL_UNSIGNED_INT, 0);

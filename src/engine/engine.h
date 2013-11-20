@@ -51,6 +51,7 @@ Engine* Engine_create(void);
 void Engine_destroy(Engine* self);
 
 int Engine_setInputDevice(Engine *self, int device, int samplerate);
+int Engine_readStrobe(Engine* self, int index);
 int Engine_readStrobes(Engine* self);
 float Engine_estimatePitch(Engine* self);
 
