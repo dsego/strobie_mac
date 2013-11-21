@@ -11,7 +11,7 @@
 
 
 #define STROBE_RB_LENGTH 16384
-#define STROBE_FILTER_BW 5     // filter bandwidth in Hz
+#define STROBE_FILTER_BW 8     // filter bandwidth in Hz
 // #define STROBE_FILTER_Q 100
 
 
