@@ -70,21 +70,17 @@ Note Tuning12TET_noteFromIndex(int index, int octave, float pitchStandard, float
 }
 
 
-Note Tuning12TET_centsToNote(
-  float cents,
-  float pitchStandard,
-  float centsOffset
-) {
+Note Tuning12TET_centsToNote(float cents, float pitchStandard, float centsOffset) {
 
-  int nearest = (int)(float) roundf(cents / 100); // semitones
+  int nearest = (int)(float) roundf(cents / 100.0); // semitones
   int octave  = (int)(float) floorf((nearest / 12.0) + 4.75);
 
   Note note;
   note.pitchStandard = pitchStandard;
   note.octave        = octave;
   note.centsOffset   = centsOffset;
-  note.cents         = nearest * 100 + note.centsOffset;
-  note.frequency     = Tuning12TET_centsToFreq(note.cents, note.pitchStandard);
+  note.cents         = nearest * 100;
+  note.frequency     = Tuning12TET_centsToFreq(note.cents + note.centsOffset, note.pitchStandard);
 
   int index = (nearest % 12) + 9;  // C = 0
 
