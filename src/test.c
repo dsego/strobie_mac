@@ -6,22 +6,29 @@
 
 #include <unistd.h>
 #include <stdbool.h>
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 #include <OpenGL/gl.h>
 #include "Engine.h"
 #include "utils.h"
 
+#include <GLFW/glfw3.h>
 
 int main() {
 
-  if ( ! glfwInit() ) {
+  GLFWwindow* window;
+
+  if (!glfwInit()) {
     return -1;
   }
 
-  if ( ! glfwOpenWindow(800, 500, 8, 8, 8, 0, 24, 0, GLFW_WINDOW) ) {
+  /* Create a windowed mode window and its OpenGL context */
+  window = glfwCreateWindow(640, 480, "test", NULL, NULL);
+  if (!window) {
+    glfwTerminate();
     return -1;
   }
 
+  glfwMakeContextCurrent(window);
 
 
   Engine* engine = Engine_create();
@@ -33,8 +40,6 @@ int main() {
 
   Note note;
 
-
-
   // smooth lines
   glEnable(GL_LINE_SMOOTH);
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -42,7 +47,9 @@ int main() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-  while (glfwGetWindowParam(GLFW_OPENED)) {
+  /* Loop until the user closes the window */
+  while (!glfwWindowShouldClose(window)) {
+
 
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -64,22 +71,18 @@ int main() {
       // glVertex2d(x, 0.5 * engine->pitch->sdf.elements[i]);
       x += dx;
     }
-
     glEnd();
 
+    glfwSwapBuffers(window);
 
-    // cents = Tuning12TET_freqToCents(hz, 440.0);
-    // note = Tuning12TET_centsToNote(cents, 440.0, 0.0, 0);
-    // err = cents - note.cents;
+    glfwPollEvents();
 
-    // printf("%4.4f Hz   %2.2f c           \r", hz, err);
-    // fflush(stdout);
-
-    glfwSwapBuffers();
     usleep(100000);
 
   }
 
+  glfwTerminate();
   return 0;
 
 }
+
