@@ -394,6 +394,7 @@ static inline void refreshStrobeColors(Engine *engine, int sid) {
 
 void StrobeDisplay_initScene(Engine *engine, int w, int h) {
 
+  glViewport(0, 0, w, h);
   refreshShadowPositions(w, h);
   refreshStrobePositions(engine, w, h);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
