@@ -308,9 +308,9 @@ static float nsdf(Pitch* self) {
 
   // find the largest primary peak value
   for (int i = 0; i < index; ++i) {
-    int t = self->primaryPeaks.elements[i];
-    if (self->sdf.elements[t] > threshold) {
-      threshold = self->sdf.elements[t];
+    int peakPos = self->primaryPeaks.elements[i];
+    if (self->sdf.elements[peakPos] > threshold) {
+      threshold = self->sdf.elements[peakPos];
     }
   }
 
