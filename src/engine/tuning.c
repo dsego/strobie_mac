@@ -107,11 +107,7 @@ Note Tuning12TET_centsToNote(float cents, float pitchStandard, float centsOffset
 }
 
 
-Note Tuning12TET_find(
-  float freq,
-  float pitchStandard,
-  float centsOffset
-) {
+Note Tuning12TET_find(float freq, float pitchStandard, float centsOffset) {
 
   float cents = Tuning12TET_freqToCents(freq, pitchStandard);
   return Tuning12TET_centsToNote(cents, pitchStandard, centsOffset);

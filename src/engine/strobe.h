@@ -32,7 +32,13 @@ typedef struct {
 
 
 
-Strobe* Strobe_create(int bufferLength, int resampledLength, int samplerate, int samplesPerPeriod, int subdivCount);
+Strobe* Strobe_create(
+  int bufferLength,
+  int resampledLength,
+  int samplerate,
+  int samplesPerPeriod,
+  int subdivCount
+);
 
 void Strobe_destroy(Strobe* self);
 
