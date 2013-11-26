@@ -61,6 +61,7 @@ mac:
 
 ###########
 
+.PHONY: test
 test:
 	make engine
 	cc $(OPTIONS) $(WARN) -Isrc/engine $(GL) $(GLFW) $(FFTS) $(PORTAUDIO) $(DSP) src/test.c engine.a -o test
