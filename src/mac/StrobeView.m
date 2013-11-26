@@ -62,17 +62,17 @@
     addObserver:self
     selector:@selector(windowWillClose:)
     name:NSWindowWillCloseNotification
-    object:[self window]
+    object:self.window
   ];
 
 }
 
 
 - (void) windowWillClose:(NSNotification*)notification {
+
   // Stop the display link when the window is closing because default
   // OpenGL render buffers will be destroyed.  If display link continues to
   // fire without renderbuffers, OpenGL draw calls will set errors.
-
   CVDisplayLinkStop(displayLink);
 
 }
@@ -99,7 +99,6 @@ CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext) {
   CGLLockContext(cglContext);
 
   StrobeDisplay_drawScene(engine);
-  // [context flushBuffer];
 
   CGLFlushDrawable(cglContext);
   CGLUnlockContext(cglContext);
@@ -130,7 +129,6 @@ CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext) {
   NSOpenGLContext* context = [self openGLContext];
   [context makeCurrentContext];
   CGLLockContext([context CGLContextObj]);
-  // recalculate vertices
   StrobeDisplay_initScene(engine, _bounds.size.width, _bounds.size.height);
   CGLUnlockContext([context CGLContextObj]);
 
@@ -149,6 +147,7 @@ CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext) {
   CVDisplayLinkStop(displayLink);
   CVDisplayLinkRelease(displayLink);
   StrobeDisplay_cleanup();
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
 
 }
 
