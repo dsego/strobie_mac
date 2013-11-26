@@ -104,10 +104,9 @@ void Strobe_setFreq(Strobe* self, float freq) {
   }
 
   self->freq = freq;
-
   // skip stale data
   int available = PaUtil_GetRingBufferReadAvailable(self->ringbuffer);
-  PaUtil_AdvanceRingBufferReadIndex(self->ringbuffer, available);
+  // PaUtil_AdvanceRingBufferReadIndex(self->ringbuffer, available);
 
   Interpolator_setRatio(self->src, newRate, self->samplerate);
   Interpolator_reset(self->src);
