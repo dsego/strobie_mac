@@ -21,7 +21,7 @@ DSP					= ../AudioPlayground/biquad/biquad.c -I../AudioPlayground/biquad \
 						../AudioPlayground/src/Interpolator.c -I../AudioPlayground/src \
 						-I../AudioPlayground/fir
 
-GLFW			= -I/usr/local/includes/GL/glfw -lglfw
+GLFW			= -lglfw3
 
 GL				= -framework OpenGL
 
