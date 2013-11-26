@@ -68,7 +68,7 @@
   };
 
   CFTypeRef values2[] = {
-    CTFontCreateWithName(CFSTR("HelveticaNeue"), 48, NULL),
+    CTFontCreateWithName(CFSTR("HelveticaNeue"), 36, NULL),
     CGColorCreateGenericRGB(0.95, 0.95, 0.95, 1),
   };
 
@@ -163,7 +163,7 @@
   // draw sharp symbol
   if (note.isSharp) {
     line = CTLineCreateWithAttributedString(sharpSign);
-    CGContextSetTextPosition(context, x + bounds.origin.x + bounds.size.width, 36);
+    CGContextSetTextPosition(context, x + bounds.origin.x + bounds.size.width + 5, 48);
     CTLineDraw(line, context);
     CFRelease(line);
   }
