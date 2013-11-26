@@ -31,8 +31,8 @@
 }
 
 
-- (void)keyDown:(NSEvent *)theEvent {
-}
+// prevents "beeps"
+- (void)keyDown:(NSEvent *)theEvent {}
 
 
 - (void)keyUp:(NSEvent *)theEvent {
