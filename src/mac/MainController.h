@@ -12,6 +12,4 @@
   @property IBOutlet StrobeView *strobeView;
   @property IBOutlet NoteView *noteView;
 
-  - (void) refreshNoteDisplay;
-
 @end

@@ -109,6 +109,9 @@
 
     Engine_estimatePitch(engine);
     if (engine->mode == AUTO) {
+      dispatch_async(dispatch_get_main_queue(),^ {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"NoteChangeNotification" object:self];
+      });
     }
 
     [NSThread sleepForTimeInterval:0.04];

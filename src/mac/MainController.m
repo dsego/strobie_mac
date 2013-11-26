@@ -14,12 +14,20 @@
 
   NSColor *bg = [NSColor colorWithDeviceRed:36.0/255.0 green:36.0/255.0 blue:36.0/255.0 alpha:1.0];
   [self.window setBackgroundColor: bg];
+  // Register to be notified when the note changed so we can update the UI
+  [[NSNotificationCenter defaultCenter]
+    addObserver:self
+    selector:@selector(refreshDisplay)
+    name:@"NoteChangeNotification"
+    object:nil
+  ];
 
 }
 
 
 - (void)windowWillClose:(NSNotification *)notification {
 
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
   [NSApp terminate: self];
 
 }
@@ -38,7 +46,6 @@
       if (engine->mode == MANUAL) {
         engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, -1);
         Engine_setStrobes(engine, engine->currentNote);
-        [_noteView setNeedsDisplay: YES];
       }
       break;
 
@@ -46,7 +53,6 @@
       if (engine->mode == MANUAL) {
         engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, 1);
         Engine_setStrobes(engine, engine->currentNote);
-        [_noteView setNeedsDisplay: YES];
       }
       break;
 
@@ -54,7 +60,6 @@
       if (engine->mode == MANUAL) {
         engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, -7);
         Engine_setStrobes(engine, engine->currentNote);
-        [_noteView setNeedsDisplay: YES];
       }
       break;
 
@@ -62,7 +67,6 @@
       if (engine->mode == MANUAL) {
         engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, 7);
         Engine_setStrobes(engine, engine->currentNote);
-        [_noteView setNeedsDisplay: YES];
       }
       break;
 
@@ -73,11 +77,12 @@
     default: // do nothing
       break;
   }
+  [self refreshDisplay];
 
 }
 
 
-- (void)refreshNoteDisplay {
+- (void)refreshDisplay {
 
   [_noteView setNeedsDisplay: YES];
 

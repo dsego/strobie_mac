@@ -60,10 +60,7 @@
 - (IBAction)transposeChanged: (id)sender {
 
   engine->config->transpose = [sender selectedItem].tag;
-
-  // there should be a nicer way to do this
-  AppDelegate *delegate = [(NSApplication*) NSApp delegate];
-  [delegate.mainController refreshNoteDisplay];
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"NoteChangeNotification" object:self];
 
 }
 
