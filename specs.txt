@@ -29,7 +29,14 @@
 - set buffer size (latency)
 - Strobe gain/sensitivity slider
 - preferences reset button
-- proper hash implementation for config
+- proper hash (associative array) implementation for config
+- handle audio device changes while app is running (https://www.assembla.com/spaces/portaudio/tickets/158)
+- website advice for unplugged electric, touch the desk with the headstock :D
+- hsv to rgb vertex shader (or tone mapping)
+- read partial data from ring buffer into output () -> lower latency ?
+- incremental snac
+- note change detection (?)
+- write tech info on precision
 
 
 strobie
