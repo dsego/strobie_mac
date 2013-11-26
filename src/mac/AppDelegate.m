@@ -69,9 +69,8 @@
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
 
-  // estimatePitchThread = [[NSThread alloc] initWithTarget:self selector:@selector(estimatePitch) object:nil ];
-  // [estimatePitchThread start];
-
+  estimatePitchThread = [[NSThread alloc] initWithTarget:self selector:@selector(estimatePitch) object:nil ];
+  [estimatePitchThread start];
 
   // setStrobesTimer = [NSTimer timerWithTimeInterval:0.05 target:self selector:@selector(setStrobes) userInfo:nil repeats:YES];
   // [setStrobesTimer setTolerance: 0.01];
@@ -104,35 +103,15 @@
 }
 
 
-- (void)setStrobes {
-
-  if (engine->mode == AUTO) {
-    Engine_setStrobes(engine, engine->currentNote);
-    [_mainController.noteView setNeedsDisplay: YES];
-  }
-
-}
-
-
 - (void)estimatePitch {
-
-  // near-Nyquist
-  float maxFreq = 0.45 * engine->config->samplerate;
 
   while ([estimatePitchThread isCancelled] == NO) {
 
+    Engine_estimatePitch(engine);
     if (engine->mode == AUTO) {
-      float pitch = Engine_estimatePitch(engine);
-
-      // sanity check
-      if (pitch > 0.0 && pitch < maxFreq) {
-        engine->currentNote = Tuning12TET_find(pitch, engine->config->pitchStandard, engine->config->centsOffset);
-        // float cents = Tuning12TET_freqToCents(pitch, engine->config->pitchStandard);
-        // Note transposed = Tuning12TET_transpose(note, engine->config->transpose);
-      }
     }
 
-    [NSThread sleepForTimeInterval:0.05];
+    [NSThread sleepForTimeInterval:0.04];
 
   }
 
