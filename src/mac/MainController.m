@@ -12,8 +12,6 @@
 
 - (void)awakeFromNib {
 
-  NSColor *bg = [NSColor colorWithDeviceRed:36.0/255.0 green:36.0/255.0 blue:36.0/255.0 alpha:1.0];
-  [self.window setBackgroundColor: bg];
   // Register to be notified when the note changed so we can update the UI
   [[NSNotificationCenter defaultCenter]
     addObserver:self

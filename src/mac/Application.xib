@@ -136,8 +136,8 @@
             <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <rect key="contentRect" x="410" y="248" width="500" height="400"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
-            <value key="minSize" type="size" width="250" height="200"/>
-            <view key="contentView" id="368">
+            <value key="minSize" type="size" width="500" height="400"/>
+            <view key="contentView" id="368" customClass="ContentView">
                 <rect key="frame" x="0.0" y="0.0" width="500" height="400"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
