@@ -12,9 +12,9 @@ typedef struct {
 
   FloatArray window;          // FFT window
   FloatArray audio;           // audio samples
-  FloatArray acf;             // autocorrelation
-  FloatArray sdf;             // square difference
-  IntArray primaryPeaks;      // primary peak positions in NSDF
+  FloatArray nsdf;            // normalized square difference
+  // FloatArray top;             // SNAC numerator
+  // FloatArray bottom;          // SNAC denominator
 
   CpxFloatArray fft;          // frequency data
   CpxFloatArray cepstrum;     // cepstrum -> FFT of power spectrum
@@ -33,6 +33,6 @@ typedef struct {
 
 
 
-Pitch* Pitch_create(int samplerate, int fftLength);
+Pitch* Pitch_create(int samplerate, int windowSize);
 void Pitch_destroy(Pitch* self);
-float Pitch_estimate(Pitch* self, float* data);
+void Pitch_estimate(Pitch* self, float* data, float *outFreq, float *outAmp);

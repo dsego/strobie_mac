@@ -16,9 +16,7 @@ Config* Config_create() {
   self->inputDevice  = 0;
   self->outputDevice = 0;
   self->samplerate   = 44100;
-
-  // minimum detectable frequency = sample rate / FFT size
-  self->fftLength     = 2048;
+  self->windowSize   = 2048;
 
   self->pitchStandard = 440;
   self->displayFlats  = 0;

@@ -66,38 +66,38 @@ inline static float complex blackmanFreq(
 
 
 
-Pitch* Pitch_create(int samplerate, int fftLength) {
+Pitch* Pitch_create(int samplerate, int windowSize) {
 
   Pitch* self = malloc(sizeof(Pitch));
   assert(self != NULL);
 
   self->samplerate = samplerate;
 
-  int fftBinCount = fftLength; // + 1 ?
-
   // zero-pad (autocorrelation)
-  fftLength = fftLength + fftLength;
+  int paddedLength = windowSize + windowSize;
 
-  self->fftPlan = ffts_init_1d_real(fftLength, -1);
-  self->ifftPlan = ffts_init_1d_real(fftLength, 1);
+  // The output of a real-to-complex transform is N/2+1 complex numbers
+  int fftBinCount = windowSize + 1;
 
-  self->fft = CpxFloatArray_create(fftBinCount);
-  self->window = FloatArray_create(fftLength);
-  self->audio = FloatArray_create(fftLength);
-  self->acf = FloatArray_create(fftLength);
-  self->sdf = FloatArray_create(fftLength);
-  self->powSpectrum = FloatArray_create(fftBinCount);
-  self->primaryPeaks = IntArray_create(fftLength);
+  self->fftPlan = ffts_init_1d_real(paddedLength, -1);
+  self->ifftPlan = ffts_init_1d_real(paddedLength, 1);
 
-  blackman(self->window.elements, fftLength);
+  self->fft   = CpxFloatArray_create(fftBinCount);
+  self->audio = FloatArray_create(paddedLength);
+  self->nsdf  = FloatArray_create(paddedLength);
+  // self->window = FloatArray_create(paddedLength);
+  // self->powSpectrum = FloatArray_create(fftBinCount);
+  // blackman(self->window.elements, paddedLength);
 
   // Cepstrum
-  int cepLength = fftLength / 2;
-  int cepBinCount = cepLength / 2;
-  self->cepPlan = ffts_init_1d_real(cepLength, -1);
-  self->cepstrum = CpxFloatArray_create(cepBinCount);
-  self->powCepstrum = FloatArray_create(cepBinCount);
+  // int cepLength = paddedLength / 2;
+  // int cepBinCount = cepLength / 2;
+  // self->cepPlan = ffts_init_1d_real(cepLength, -1);
+  // self->cepstrum = CpxFloatArray_create(cepBinCount);
+  // self->powCepstrum = FloatArray_create(cepBinCount);
 
+  // yeah, yeah, calloc, bla bla
+  FloatArray_fill(self->audio, 0.0);
 
   return self;
 
@@ -106,18 +106,16 @@ Pitch* Pitch_create(int samplerate, int fftLength) {
 
 void Pitch_destroy(Pitch* self) {
 
-  FloatArray_destroy(self->window);
   FloatArray_destroy(self->audio);
-  FloatArray_destroy(self->acf);
-  FloatArray_destroy(self->sdf);
-  IntArray_destroy(self->primaryPeaks);
-  FloatArray_destroy(self->powSpectrum);
-  FloatArray_destroy(self->powCepstrum);
+  FloatArray_destroy(self->nsdf);
   CpxFloatArray_destroy(self->fft);
-  CpxFloatArray_destroy(self->cepstrum);
   ffts_free(self->fftPlan);
-  ffts_free(self->cepPlan);
   ffts_free(self->ifftPlan);
+  // FloatArray_destroy(self->window);
+  // FloatArray_destroy(self->powSpectrum);
+  // FloatArray_destroy(self->powCepstrum);
+  // CpxFloatArray_destroy(self->cepstrum);
+  // ffts_free(self->cepPlan);
   free(self);
   self = NULL;
 
@@ -195,141 +193,152 @@ void Pitch_destroy(Pitch* self) {
 //
 
 
-// autocorrelation (type 2)
-static void acf2(Pitch* self) {
+inline static void findLag(Pitch* self, float *nsdf, int length, float *outLag, float *outAmp);
 
-  // forward Fourier transform
+
+// Normalized square difference
+inline static void nsdf(Pitch* self, float *outLag, float *outAmp) {
+
+  // autocorrelation:  FFT -> power spectrum -> inverse FFT
   ffts_execute(self->fftPlan, self->audio.elements, self->fft.elements);
 
-  // power spectrum
   for (int i = 0; i < self->fft.length; ++i) {
     self->fft.elements[i] = magnitude(self->fft.elements[i]);
   }
 
-  // inverse Fourier transform --> autocorrelation
-  ffts_execute(self->ifftPlan, self->fft.elements, self->acf.elements);
+  ffts_execute(self->ifftPlan, self->fft.elements, self->nsdf.elements);
+
+  // NSDF (SNAC)
+  int n = self->nsdf.length / 2;
+
+  // TODO - moves this to configuration !
+  int k = n / 2; //- 256;
+  float norm = 1.0 / (float) self->nsdf.length;
+  float *audio = self->audio.elements;
+
+  // left-hand summation for zero lag
+  double lhsum = 2.0 * (self->nsdf.elements[0] * norm);
+
+  // normalized SDF (via autocorrelation)
+  for (int i = 0; i < k; ++i) {
+
+    if (lhsum > 0.0) {
+      self->nsdf.elements[i] *= norm * 2.0 / lhsum;
+    }
+    else {
+      self->nsdf.elements[i] = 0.0;
+    }
+
+    lhsum -= audio[i] * audio[i] + audio[n-i-1] * audio[n-i-1];
+
+  }
+
+  findLag(self, self->nsdf.elements, k, outLag, outAmp);
 
 }
 
 
-// Normalized square difference
-static float nsdf(Pitch* self) {
-
-
-  /* ----------------------------------------------------------------
-
-    SDF formula (for lag t):
-
-      d[t] = sum( (x[i] - x[i+t])ˆ2 )
-
-      (sum is from 0 to W - 1 - t, 0 <= t < W)
-
-    Relationship with autocorrelation:
-
-      d[t] = sum( x[i]ˆ2 + x[i+t]ˆ2 ) - 2 * sum( x[i] * x[i+t] )
-           = m(t) + 2r(t)
-
-      m - left hand summation
-      r - autocorrelation
-
-    Normalized SDF or SNAC:
-
-      nsdf = 2r / m    ( = 1 - sdf/m )
-
-    ---------------------------------------------------------------- */
-
-  acf2(self);
-
-  int length = self->acf.length / 2;
-
-  float norm = 1.0 / (float)length;
-
-  // left-hand summation for zero lag
-  float lhsum = norm * self->acf.elements[0];
-
-  // normalized SDF (via autocorrelation)
-  for (int t = 0; t < length; ++t) {
-
-    if (lhsum > 0.0) {
-      self->sdf.elements[t] = norm * self->acf.elements[t] / lhsum;
-    }
-    else {
-      self->sdf.elements[t] = 0.0;
-    }
-
-    lhsum -= self->audio.elements[t] *
-      self->audio.elements[t] +
-      self->audio.elements[length-t-1] *
-      self->audio.elements[length-t-1];
-
-  }
-
-  // choose peak
+inline static void findLag(Pitch* self, float *data, int length, float *outLag, float *outAmp) {
 
   int t = 1;
-  int index = 0;
   int last = length - 1;
-  int pos = 0;
-  float peak = 0.0;
+
+  int index = 0;
+  int peakPos = 0;
+  int largestPeakPos = 0;
+
+  #define PP_LENGTH 512
+  int primaryPeaks[PP_LENGTH];
+
+
+  // ---- find all primary peaks ----
+  //
+  //  primary peak is the highest peak
+  //    between a pair of positive zero crossings
+  //
 
   // first negative zero crossing
-  while (self->sdf.elements[t] > 0.0 && t < length) { ++t; }
+  while (data[t] > 0.0 && t < last/2) { ++t; }
 
-  // loop over values below zero
-  while (self->sdf.elements[t] < 0.0 && t < length) { ++t; }
+  // loop over negative values
+  while (data[t] <= 0.0 && t < last) { ++t; }
+
+  // first positive zero crossing
 
   // find primary peaks
   while (t < last) {
 
-    // find primary peak
-    if (self->sdf.elements[t] > peak) {
-      peak = self->sdf.elements[t];
-      pos = t;
+    // primary peak
+    if (data[t-1] < data[t] && data[t] >= data[t+1]) {
+      if (peakPos == 0 || data[t] > data[peakPos]) {
+        peakPos = t;
+      }
     }
 
     ++t;
 
-    // negatively sloped zero crossing or the ending
-    if (self->sdf.elements[t] < 0.0 || t == last) {
-      peak = 0.0;
-      self->primaryPeaks.elements[index] = pos;
-      ++index;
+    // negatively sloped zero crossing
+    if (data[t] <= 0.0 && t < last) {
 
-      // loop over values below zero
-      while (self->sdf.elements[t] < 0.0 && t < length) {
-        ++t;
+      // there was a maximum
+      if (peakPos > 0 && index < PP_LENGTH) {
+        primaryPeaks[index] = peakPos;
+
+        // overall largest primary peak
+        if (largestPeakPos == 0 || data[peakPos] > data[largestPeakPos]) {
+          largestPeakPos = peakPos;
+        }
+        peakPos = 0;
+        ++index;
+      }
+
+      // loop over negative values
+      while (data[t] <= 0.0 && t < last) { ++t; }
+
+    }
+
+  }
+
+  // there was a peak in the last part
+  if (peakPos > 0 && index < PP_LENGTH) {
+    primaryPeaks[index] = peakPos;
+    if (largestPeakPos == 0 || data[peakPos] > data[largestPeakPos]) {
+      largestPeakPos = peakPos;
+    }
+    ++index;
+  }
+
+  *outLag = 0.0;
+  *outAmp = 0.0;
+
+  // choose the appropriate primary peak
+  if (index > 0) {
+
+    const float c = 0.8;
+    float threshold = c * data[largestPeakPos];
+    float delta = 0.0;
+    float amp = 0.0;
+    int lag = 1;
+
+    // first peak larger than the threshold
+    for (int i = 0; i < index; ++i) {
+      int pos = primaryPeaks[i];
+      if (data[pos] >= threshold) {
+        lag = primaryPeaks[i];
+        break;
       }
     }
 
+
+    parabolic(data[lag-1], data[lag], data[lag+1], &delta, &amp);
+    *outLag = lag + delta;
+    printf("%i        %6.4f  %8.4f  \r", lag, lag + delta, 44100.0 / ((double)lag + delta));fflush(stdout);
+    *outAmp = amp;
+
   }
 
 
-  float threshold = 0.0;
-
-  // find the largest primary peak value
-  for (int i = 0; i < index; ++i) {
-    int peakPos = self->primaryPeaks.elements[i];
-    if (self->sdf.elements[peakPos] > threshold) {
-      threshold = self->sdf.elements[peakPos];
-    }
-  }
-
-  threshold *= 0.9;
-  int lag = 1;
-
-
-  // first peak larger than the threshold
-  for (int i = 0; i < index; ++i) {
-    int t = self->primaryPeaks.elements[i];
-    if (self->sdf.elements[t] > threshold) {
-      lag = t;
-      break;
-    }
-  }
-
-  float delta = parabolic(self->sdf.elements[lag-1], self->sdf.elements[lag], self->sdf.elements[lag+1]);
-
-  return self->samplerate / (lag + delta);
+  #undef PP_LENGTH
 
 }
 
@@ -363,10 +372,16 @@ static float nsdf(Pitch* self) {
 
 
 
-float Pitch_estimate(Pitch* self, float* data) {
+void Pitch_estimate(Pitch* self, float* data, float *outFreq, float *outClarity) {
 
+  // padded audio data
   memcpy(self->audio.elements, data, (self->audio.length / 2) * sizeof(float));
-  return nsdf(self);
+
+  float lag, clarity;
+  nsdf(self, &lag, &clarity);
+
+  *outFreq = (lag > 2.0) ? self->samplerate / lag : 0.0; // anything less than 2 is probably an error
+  *outClarity = (clarity >= 0.0) ? clarity : 0.0;
 
 }
 

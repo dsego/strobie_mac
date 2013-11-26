@@ -21,10 +21,15 @@ Engine* Engine_create() {
   Engine* self = malloc(sizeof(Engine));
   assert(self != NULL);
 
+
+  pthread_mutex_init(&self->lock, NULL);
+
   Config* config = self->config = Config_create();
 
   self->currentNote = Tuning12TET_find(self->config->freq, self->config->pitchStandard, self->config->centsOffset);
-  self->mode = MANUAL;
+
+  // TODO: this should probably be in Config
+  self->mode = AUTO;
   self->audioFeed = AudioFeed_create();
   self->strobeCount = min(config->strobeCount, MAX_STROBES);
 
@@ -46,8 +51,8 @@ Engine* Engine_create() {
 
   }
 
-  self->pitch = Pitch_create(config->samplerate, config->fftLength);
-  self->audioBuffer = FloatArray_create(self->config->fftLength);
+  self->pitch = Pitch_create(config->samplerate, config->windowSize);
+  self->audioBuffer = FloatArray_create(self->config->windowSize);
   self->level = 0;
   self->stream = NULL;
   self->paInitFailed = 0;
@@ -79,6 +84,7 @@ void Engine_destroy(Engine* self) {
     Pa_Terminate();
   }
 
+  pthread_mutex_destroy(&self->lock);
   Config_destroy(self->config);
   AudioFeed_destroy(self->audioFeed);
   Pitch_destroy(self->pitch);
@@ -132,6 +138,8 @@ void Engine_setStrobes(Engine* self, Note note) {
 
   self->config->freq = self->currentNote.frequency;
 
+  // pthread_mutex_lock(&self->lock);
+
   for (int i = 0; i < self->strobeCount; ++i) {
 
     if (self->config->strobes[i].mode == OCTAVE) {
@@ -150,13 +158,18 @@ void Engine_setStrobes(Engine* self, Note note) {
 
   }
 
+  // pthread_mutex_unlock(&self->lock);
+
 }
 
 
 // return 0 if there is no new data
 int Engine_readStrobe(Engine* self, int index) {
 
-  return Strobe_read(self->strobes[index], self->strobeBuffers[index].elements, self->strobeLengths[index]);
+  // pthread_mutex_lock(&self->lock);
+  int hasData = Strobe_read(self->strobes[index], self->strobeBuffers[index].elements, self->strobeLengths[index]);
+  // pthread_mutex_unlock(&self->lock);
+  return hasData;
 
 }
 
@@ -225,27 +238,46 @@ static inline int Engine_streamCallback(
 }
 
 
-float Engine_estimatePitch(Engine* self) {
-
-  #define W_LENGTH 5
-  static float window[W_LENGTH] = { 0 };
-  static int index = 0;
+void Engine_estimatePitch(Engine* self) {
 
   // read in new data from the ring buffer
   AudioFeed_read(self->audioFeed, self->audioBuffer.elements, self->audioBuffer.length);
 
-  float pitch = Pitch_estimate(self->pitch, self->audioBuffer.elements);
+  float freq;
+  float clarity;
+  Pitch_estimate(self->pitch, self->audioBuffer.elements, &freq, &clarity);
+
 
   // rolling median filter
-  window[index] = pitch;
+  #define WLEN 5
+  static float freqWin[WLEN] = { 0 };
+  static float clarityWin[WLEN] = { 0 };
+  static int index = 0;
+
+  clarityWin[index] = clarity;
+  freqWin[index] = freq;
   index += 1;
-  if (index >= W_LENGTH) {
+  if (index >= WLEN) {
     index = 0;
   }
 
-  return median5(window);
+  #undef WLEN
 
-  #undef W_LENGTH
+  float medianFreq = median5(freqWin);
+  float medianClarity = median5(clarityWin);
+
+  printf("  %6.2f     %3.2f            \r", medianFreq , medianClarity); fflush(stdout);
+
+  // totally not arbitrary
+  const float maxFreq = 12345;
+
+  if (self->mode == AUTO) {
+    if (medianFreq > 0.0 && medianFreq < maxFreq && medianClarity > 0.8) {
+      self->currentNote = Tuning12TET_find(medianFreq, self->config->pitchStandard, self->config->centsOffset);
+      Engine_setStrobes(self, self->currentNote);
+    }
+  }
+
 
 }
 

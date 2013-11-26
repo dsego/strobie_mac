@@ -79,14 +79,18 @@ inline static float magnitude(float complex z) {
 
 
 // find parabolic peak
-inline static float parabolic(float a, float b, float c) {
+// x - interpolated peak location
+// y - peak magnitude estimate
+inline static void parabolic(double a, double b, double c, float *outX, float *outY) {
 
-  float bottom = a - 2.0 * b + c;
-  if (bottom == 0.0) {
-    return 0.0;
+  double bottom = 2.0 * (a - 2.0 * b + c);
+  if (fabs(bottom) < 0.00001) { // bottom == 0.0
+    *outY = b;
+    *outX = 0.0;
   }
   else {
-    return 0.5 * (a - c) / bottom;
+    *outX = (a - c) / bottom;
+    *outY = b - 0.25 * (a - c) * (*outX);
   }
 
 }

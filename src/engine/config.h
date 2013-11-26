@@ -40,7 +40,7 @@ typedef struct {
   int inputDevice;            // audio device index
   int outputDevice;           // audio device index
   int samplerate;             // input signal sampling rate
-  int fftLength;              // length of FFT
+  int windowSize;             // audio window to process when estimating the pitch
   float pitchStandard;        // aka concert pitch ( A440 )
   int displayFlats;           // display Db instead of C#
   int transpose;              // shift notes to another key
