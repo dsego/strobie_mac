@@ -153,14 +153,36 @@
                             <constraint firstAttribute="width" constant="100" id="v2T-Jd-oEw"/>
                         </constraints>
                     </customView>
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="XaM-70-RHD" customClass="OctaveView">
+                        <rect key="frame" x="0.0" y="100" width="20" height="290"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="20" id="WV8-W4-r2h"/>
+                        </constraints>
+                    </customView>
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="Esd-lZ-YSm" customClass="OctaveView">
+                        <rect key="frame" x="480" y="100" width="20" height="290"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="20" id="jNU-Nm-wRw"/>
+                        </constraints>
+                    </customView>
                 </subviews>
                 <constraints>
                     <constraint firstAttribute="centerX" secondItem="ogN-jV-Pqt" secondAttribute="centerX" id="2VZ-NR-xbA"/>
+                    <constraint firstItem="ILa-eD-b18" firstAttribute="bottom" secondItem="Esd-lZ-YSm" secondAttribute="bottom" id="3Q0-OG-hlp"/>
                     <constraint firstAttribute="trailing" secondItem="ILa-eD-b18" secondAttribute="trailing" constant="20" id="5kV-rd-Z7v"/>
                     <constraint firstItem="ILa-eD-b18" firstAttribute="leading" secondItem="368" secondAttribute="leading" constant="20" id="73a-Sf-H0k"/>
+                    <constraint firstItem="Esd-lZ-YSm" firstAttribute="leading" secondItem="ILa-eD-b18" secondAttribute="trailing" id="A2t-Wx-nwW"/>
+                    <constraint firstItem="ILa-eD-b18" firstAttribute="top" secondItem="Esd-lZ-YSm" secondAttribute="top" id="Hjl-d5-ChY"/>
+                    <constraint firstItem="ILa-eD-b18" firstAttribute="leading" secondItem="XaM-70-RHD" secondAttribute="trailing" id="S8A-Cz-cAa"/>
                     <constraint firstAttribute="bottom" secondItem="ogN-jV-Pqt" secondAttribute="bottom" constant="10" id="h0l-y8-Xjq"/>
                     <constraint firstItem="ILa-eD-b18" firstAttribute="top" secondItem="368" secondAttribute="top" constant="10" id="kfW-Y3-sTh"/>
                     <constraint firstAttribute="bottom" secondItem="ILa-eD-b18" secondAttribute="bottom" constant="100" id="mtX-3O-led"/>
+                    <constraint firstItem="ILa-eD-b18" firstAttribute="top" secondItem="XaM-70-RHD" secondAttribute="top" id="oMS-QG-KF7"/>
+                    <constraint firstItem="ILa-eD-b18" firstAttribute="height" secondItem="Esd-lZ-YSm" secondAttribute="height" id="u1o-Py-q7J"/>
+                    <constraint firstItem="ILa-eD-b18" firstAttribute="bottom" secondItem="XaM-70-RHD" secondAttribute="bottom" id="usc-TT-uJ1"/>
+                    <constraint firstItem="ILa-eD-b18" firstAttribute="height" secondItem="XaM-70-RHD" secondAttribute="height" id="wHF-b3-ugF"/>
                 </constraints>
             </view>
             <connections>
