@@ -346,13 +346,11 @@ static inline void refreshStrobeColors(Engine *engine, int sid) {
     int scale1 = end1 - start1;
     int scale2 = end2 - start2;
 
-
-    // TODO : add hysteresis !
-    float gain = 1000.0;
-
     int i = engine->strobeLengths[sid];
 
     for (int cid = 0; cid < 3 * strobes[sid].count; ) {
+
+      float gain = engine->config->strobes[sid].gain;
 
       --i;
 
