@@ -151,10 +151,10 @@
 
   // note name
   CTLineRef line = CTLineCreateWithAttributedString(noteNames[note.index]);
-  CGRect bounds = CTLineGetImageBounds(line, context);
+  float width = CTLineGetTypographicBounds(line, NULL, NULL, NULL);
 
   // center horizontally
-  float x = (rect.size.width - bounds.size.width) * 0.5;
+  float x = (rect.size.width - width) * 0.5;
 
   CGContextSetTextPosition(context, x, 14);
   CTLineDraw(line, context);
@@ -163,7 +163,7 @@
   // draw sharp symbol
   if (note.isSharp) {
     line = CTLineCreateWithAttributedString(sharpSign);
-    CGContextSetTextPosition(context, x + bounds.origin.x + bounds.size.width + 5, 48);
+    CGContextSetTextPosition(context, rect.size.width * 0.5 + 25, 45);
     CTLineDraw(line, context);
     CFRelease(line);
   }
