@@ -75,10 +75,6 @@
   estimatePitchThread = [[NSThread alloc] initWithTarget:self selector:@selector(estimatePitch) object:nil ];
   [estimatePitchThread start];
 
-  // setStrobesTimer = [NSTimer timerWithTimeInterval:0.05 target:self selector:@selector(setStrobes) userInfo:nil repeats:YES];
-  // [setStrobesTimer setTolerance: 0.01];
-  // [[NSRunLoop currentRunLoop] addTimer:setStrobesTimer forMode:NSDefaultRunLoopMode];
-
 }
 
 
