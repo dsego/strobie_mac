@@ -13,19 +13,20 @@ Config* Config_create() {
   Config* self = malloc(sizeof(Config));
   assert(self != NULL);
 
-  self->inputDevice  = 0;
-  self->outputDevice = 0;
-  self->samplerate   = 44100;
-  self->windowSize   = 2048;
+  self->inputDevice      = 0;
+  self->inputBufferSize  = 0;  // auto-detect
+  self->outputDevice     = 0;
+  self->samplerate       = 44100;
+  self->windowSize       = 2048;
 
   self->pitchStandard = 440;
   self->displayFlats  = 0;
   self->centsOffset   = 0;
   self->transpose     = 0;
   self->freq          = 82.4;
-
-  self->pitchDetectionUpperThreshold = 0.01;
-  self->pitchDetectionLowerThreshold = 0.005;
+  self->peakThreshold = 0.01;
+  self->clarityThreshold = 0.8;
+  self->gain = 1000;
 
   int samplesPerPeriod = 512;
   float periodsPerFrame = 1;
@@ -47,7 +48,6 @@ Config* Config_create() {
     self->strobes[i].bufferLength = 512;
     self->strobes[i].resampledLength = 1024;
     self->strobes[i].centsOffset = 0;
-    self->strobes[i].gain = 1000;
     self->strobes[i].mode = OCTAVE;
     self->strobes[i].value = i + 1;
     self->strobes[i].subdivCount = 0;
