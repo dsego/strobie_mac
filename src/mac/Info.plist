@@ -1,22 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>CFBundleName</key>
-  <string>Strobie</string>
-  <key>NSMainNibFile</key>
-  <string>Application.nib</string>
-  <key>CFBundlePackageType</key>
-  <string>APPL</string>
-  <key>CFBundleShortVersionString</key>
-  <string>1.0</string>
-  <key>CFBundleIconFile</key>
-  <string>app.icns</string>
-  <key>NSHumanReadableCopyright</key>
-  <string>Copyright © 2013 Davorin Šego. All rights reserved.</string>
-  <key>NSPrincipalClass</key>
-  <string>NSApplication</string>
-  <key>NSSupportsAutomaticGraphicsSwitching</key>
-  <true/>
-</dict>
-</plist>
+{
+  CFBundleName = "Strobie";
+  CFBundleExecutable = "Strobie";
+  CFBundleIconFile = "app.icns";
+  CFBundleIdentifier = "com.strobie-app.strobie";
+  CFBundlePackageType = APPL;
+  CFBundleShortVersionString = "1.0.0";
+  NSMainNibFile = "Application";
+  NSPrincipalClass = "NSApplication";
+  NSSupportsAutomaticGraphicsSwitching = YES;
+  LSMinimumSystemVersion = "10.9";
+  NSHumanReadableCopyright = "Copyright © 2013 Davorin Šego. All rights reserved.";
+}
