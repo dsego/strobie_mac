@@ -37,7 +37,9 @@
 - incremental snac
 - note change detection (?)
 - write tech info on precision
-
+- "fix" stepper behavior (increment/decrement to next whole number or change step to 0.1) ?
+- mirroring ring buffer (POSIX implementation using mmap - wikipedia)
+- icons in preferences
 
 strobie
 firefly
