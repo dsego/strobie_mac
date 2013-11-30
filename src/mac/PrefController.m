@@ -63,6 +63,8 @@
   [_concertPitchText setFloatValue: engine->config->pitchStandard];
   [_concertPitchStepper setFloatValue: engine->config->pitchStandard];
 
+  [_displayGainSlider setFloatValue: 20.0 * log10(engine->config->gain)];
+
 }
 
 
@@ -99,6 +101,13 @@
   Engine_setCentsOffset(engine, [sender floatValue]);
   [_centsOffsetText setFloatValue: engine->config->centsOffset];
   [_centsOffsetStepper setFloatValue: engine->config->centsOffset];
+
+}
+
+
+- (IBAction)displayGainChanged: (id)sender {
+
+  engine->config->gain = pow(10.0,[sender floatValue] / 20.0);
 
 }
 

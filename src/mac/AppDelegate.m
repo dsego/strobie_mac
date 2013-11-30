@@ -25,6 +25,7 @@
   [defaults setFloat: engine->config->pitchStandard forKey: @"pitchStandard"];
   [defaults setFloat: engine->config->centsOffset forKey: @"centsOffset"];
   [defaults setFloat: engine->config->freq forKey: @"freq"];
+  [defaults setFloat: engine->config->gain forKey: @"gain"];
   [defaults synchronize];
 
 }
@@ -41,7 +42,8 @@
     @"transpose": @(engine->config->transpose),
     @"pitchStandard": @(engine->config->pitchStandard),
     @"centsOffset": @(engine->config->centsOffset),
-    @"freq": @(engine->config->freq)
+    @"freq": @(engine->config->freq),
+    @"gain": @(engine->config->gain)
   };
 
   [defaults registerDefaults:factoryValues];
@@ -53,6 +55,7 @@
   engine->config->pitchStandard   = [defaults floatForKey: @"pitchStandard"];
   engine->config->centsOffset     = [defaults floatForKey: @"centsOffset"];
   engine->config->freq            = [defaults floatForKey: @"freq"];
+  engine->config->gain            = [defaults floatForKey: @"gain"];
 
   [_prefController loadFromConfig];
 
