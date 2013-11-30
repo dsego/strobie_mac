@@ -21,15 +21,14 @@ Engine* Engine_create() {
   Engine* self = malloc(sizeof(Engine));
   assert(self != NULL);
 
-
-  pthread_mutex_init(&self->lock, NULL);
+  // pthread_mutex_init(&self->lock, NULL);
 
   Config* config = self->config = Config_create();
 
   self->currentNote = Tuning12TET_find(self->config->freq, self->config->pitchStandard, self->config->centsOffset);
 
   // TODO: this should probably be in Config
-  self->mode = AUTO;
+  self->mode = MANUAL;
   self->audioFeed = AudioFeed_create();
   self->strobeCount = min(config->strobeCount, MAX_STROBES);
 
@@ -53,7 +52,8 @@ Engine* Engine_create() {
 
   self->pitch = Pitch_create(config->samplerate, config->windowSize);
   self->audioBuffer = FloatArray_create(self->config->windowSize);
-  self->level = 0;
+  self->peak = 0;
+  self->clarity = 0;
   self->stream = NULL;
   self->paInitFailed = 0;
 
@@ -84,7 +84,7 @@ void Engine_destroy(Engine* self) {
     Pa_Terminate();
   }
 
-  pthread_mutex_destroy(&self->lock);
+  // pthread_mutex_destroy(&self->lock);
   Config_destroy(self->config);
   AudioFeed_destroy(self->audioFeed);
   Pitch_destroy(self->pitch);
@@ -185,22 +185,17 @@ int Engine_readStrobes(Engine* self) {
 }
 
 
-static inline void calcLevel(float* input, int length, float* level) {
+static inline float calcPeak(float* input, int length) {
 
-  static int count = 0;
-  static float sum = 0.0;
+  float peak = 0.0;
 
   for (int i = 0; i < length; ++i) {
-    sum += input[i] * input[i];
-    count++;
+    if (input[i] > peak || input[i] < -peak) {
+      peak = fabs(input[i]);
+    }
   }
 
-  // should be around 100 ms
-  if (count >= 4096) {
-    *level = sqrt(sum / (float)count);
-    sum = 0.0;
-    count = 0;
-  }
+  return peak;
 
 }
 
@@ -225,13 +220,14 @@ static inline int Engine_streamCallback(
   Engine* self = (Engine*) userData;
   float *samples = (float*)input;
 
+  // self->peak = calcPeak(samples, frameCount);
+  // printf("%i   \r", (int) frameCount); fflush(stdout);
+
   AudioFeed_process(self->audioFeed, samples, frameCount);
 
   for (int i = 0; i < self->strobeCount; ++i) {
     Strobe_process(self->strobes[i], samples, frameCount);
   }
-
-  // calcLevel(samples, frameCount, &self->level);
 
   return paContinue;
 
@@ -266,13 +262,15 @@ void Engine_estimatePitch(Engine* self) {
   float medianFreq = median5(freqWin);
   float medianClarity = median5(clarityWin);
 
-  printf("  %6.2f     %3.2f            \r", medianFreq , medianClarity); fflush(stdout);
+  self->clarity = medianClarity;
+
+  // printf("freq  %6.2f   clarity   %3.2f    peak %12.10f    \r", medianFreq , medianClarity, self->peak); fflush(stdout);
 
   // totally not arbitrary
   const float maxFreq = 12345;
 
   if (self->mode == AUTO) {
-    if (medianFreq > 0.0 && medianFreq < maxFreq && medianClarity > 0.8) {
+    if (medianFreq > 0.0 && medianFreq < maxFreq && medianClarity > self->config->clarityThreshold) {
       self->currentNote = Tuning12TET_find(medianFreq, self->config->pitchStandard, self->config->centsOffset);
       Engine_setStrobes(self, self->currentNote);
     }
@@ -375,15 +373,6 @@ int Engine_deviceName(int index, char *outName, int *outIsInput, int *outIsOutpu
   *outIsInput = (info->maxInputChannels > 0) ? 1 : 0;
   *outIsOutput = (info->maxOutputChannels > 0) ? 1 : 0;
   return 1;
-
-}
-
-
-void Engine_setGain(Engine* self, float gain) {
-
-  for (int i = 0; i < self->strobeCount; ++i) {
-    self->config->strobes[i].gain = gain;
-  }
 
 }
 

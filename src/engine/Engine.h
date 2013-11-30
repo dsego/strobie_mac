@@ -33,7 +33,8 @@ typedef struct {
   Pitch* pitch;               // pitch recognition
 
   FloatArray audioBuffer;
-  float level;
+  float peak;
+  float clarity;
 
   DetectionMode mode;
   Note currentNote;

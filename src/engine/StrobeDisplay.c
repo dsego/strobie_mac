@@ -348,9 +348,9 @@ static inline void refreshStrobeColors(Engine *engine, int sid) {
 
     int i = engine->strobeLengths[sid];
 
-    for (int cid = 0; cid < 3 * strobes[sid].count; ) {
+    float gain = engine->config->gain;
 
-      float gain = engine->config->strobes[sid].gain;
+    for (int cid = 0; cid < 3 * strobes[sid].count; ) {
 
       --i;
 
