@@ -11,7 +11,7 @@
 
 
 #define STROBE_RB_LENGTH 16384
-#define STROBE_FILTER_BW 8     // filter bandwidth in Hz
+#define STROBE_FILTER_BW 12     // filter bandwidth in Hz
 // #define STROBE_FILTER_Q 100
 
 
@@ -29,7 +29,7 @@ Strobe* Strobe_create(
   self->samplesPerPeriod = samplesPerPeriod;
   self->subdivCount = subdivCount;
 
-  self->bandpass = Biquad_create(2);
+  self->bandpass = Biquad_create(3);
   self->src = Interpolator_create(1, 1);
 
   self->filteredBuffer = FloatArray_create(bufferLength);
