@@ -20,6 +20,7 @@
   NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
   [defaults setInteger: engine->config->inputDevice forKey: @"inputDevice"];
+  [defaults setInteger: engine->config->inputBufferSize forKey: @"inputBufferSize"];
   [defaults setInteger: engine->config->transpose forKey: @"transpose"];
   [defaults setFloat: engine->config->pitchStandard forKey: @"pitchStandard"];
   [defaults setFloat: engine->config->centsOffset forKey: @"centsOffset"];
@@ -36,6 +37,7 @@
   // register factory defaults
   NSDictionary *factoryValues = @{
     @"inputDevice": @(engine->config->inputDevice),
+    @"inputBufferSize": @(engine->config->inputBufferSize),
     @"transpose": @(engine->config->transpose),
     @"pitchStandard": @(engine->config->pitchStandard),
     @"centsOffset": @(engine->config->centsOffset),
@@ -45,11 +47,12 @@
   [defaults registerDefaults:factoryValues];
 
   // read saved values
-  engine->config->inputDevice   = [defaults integerForKey: @"inputDevice"];
-  engine->config->transpose     = [defaults integerForKey: @"transpose"];
-  engine->config->pitchStandard = [defaults floatForKey: @"pitchStandard"];
-  engine->config->centsOffset   = [defaults floatForKey: @"centsOffset"];
-  engine->config->freq          = [defaults floatForKey: @"freq"];
+  engine->config->inputDevice     = [defaults integerForKey: @"inputDevice"];
+  engine->config->inputBufferSize = [defaults integerForKey: @"inputBufferSize"];
+  engine->config->transpose       = [defaults integerForKey: @"transpose"];
+  engine->config->pitchStandard   = [defaults floatForKey: @"pitchStandard"];
+  engine->config->centsOffset     = [defaults floatForKey: @"centsOffset"];
+  engine->config->freq            = [defaults floatForKey: @"freq"];
 
   [_prefController loadFromConfig];
 
@@ -62,7 +65,7 @@
 
   Note note = Tuning12TET_find(engine->config->freq, engine->config->pitchStandard, engine->config->centsOffset);
   Engine_setStrobes(engine, note);
-  Engine_setInputDevice(engine, engine->config->inputDevice, engine->config->samplerate);
+  Engine_setInputDevice(engine, engine->config->inputDevice, engine->config->samplerate, engine->config->inputBufferSize);
 
 }
 

@@ -52,7 +52,7 @@ typedef struct {
 Engine* Engine_create(void);
 void Engine_destroy(Engine* self);
 
-int Engine_setInputDevice(Engine *self, int device, int samplerate);
+int Engine_setInputDevice(Engine *self, int device, int samplerate, int bufferSize);
 int Engine_readStrobe(Engine* self, int index);
 int Engine_readStrobes(Engine* self);
 void Engine_estimatePitch(Engine* self);

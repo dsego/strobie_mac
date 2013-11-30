@@ -282,13 +282,18 @@ void Engine_estimatePitch(Engine* self) {
 }
 
 
-int Engine_setInputDevice(Engine *self, int device, int samplerate) {
+int Engine_setInputDevice(Engine *self, int device, int samplerate, int bufferSize) {
+
+  if (bufferSize <= 0) {
+    bufferSize = paFramesPerBufferUnspecified;
+  }
 
   // illegal value
   static int currentDevice = -1;
+  static int currentBufferSize = -1;
 
   // already current device, don't bother changing
-  if (currentDevice == device) { return 1; }
+  if (currentDevice == device && currentBufferSize == bufferSize) { return 1; }
 
   // if device index doesn't exist, use default device
   if (device < 0 || device >= Pa_GetDeviceCount()) {
@@ -296,6 +301,7 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate) {
   }
 
   self->config->inputDevice = currentDevice = device;
+  self->config->inputBufferSize = bufferSize;
 
   PaError err;
 
@@ -316,7 +322,7 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate) {
     &params,
     NULL,
     samplerate,
-    paFramesPerBufferUnspecified,
+    bufferSize,
     paNoFlag,
     &Engine_streamCallback,
     self

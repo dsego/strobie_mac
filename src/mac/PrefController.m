@@ -36,6 +36,23 @@
     [_inputDevicePopup selectItemWithTag: Engine_getDefaultInputDevice()];
   }
 
+
+  [_bufferSizePopup addItemWithTitle: @"Auto"];
+  [[_bufferSizePopup lastItem] setTag: 0];
+
+  for (int i = 32; i < 256; i+= 32) {
+    [_bufferSizePopup addItemWithTitle: [NSString stringWithFormat: @"%i", i]];
+    [[_bufferSizePopup lastItem] setTag: i];
+  }
+
+  for (int i = 256; i <= 512; i+= 64) {
+    [_bufferSizePopup addItemWithTitle: [NSString stringWithFormat: @"%i", i]];
+    [[_bufferSizePopup lastItem] setTag: i];
+  }
+
+  [_bufferSizePopup selectItemWithTag: engine->config->inputBufferSize];
+
+
   [self generateItemsForTransposePopup];
   [_transposePopup selectItemWithTag: engine->config->transpose];
 
@@ -51,10 +68,13 @@
 
 - (IBAction)inputDeviceChanged: (id)sender {
 
-  int device = [sender selectedItem].tag;
-  Engine_setInputDevice(engine, device, engine->config->samplerate);
+  int device = [_inputDevicePopup selectedItem].tag;
+  int bufferSize = [_bufferSizePopup selectedItem].tag;
+  Engine_setInputDevice(engine, device, engine->config->samplerate, bufferSize);
+  NSLog(@"device");
 
 }
+
 
 
 - (IBAction)transposeChanged: (id)sender {

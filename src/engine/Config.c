@@ -13,10 +13,11 @@ Config* Config_create() {
   Config* self = malloc(sizeof(Config));
   assert(self != NULL);
 
-  self->inputDevice  = 0;
-  self->outputDevice = 0;
-  self->samplerate   = 44100;
-  self->windowSize   = 2048;
+  self->inputDevice      = 0;
+  self->inputBufferSize  = 0;  // auto-detect
+  self->outputDevice     = 0;
+  self->samplerate       = 44100;
+  self->windowSize       = 2048;
 
   self->pitchStandard = 440;
   self->displayFlats  = 0;

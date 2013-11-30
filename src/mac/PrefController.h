@@ -8,6 +8,7 @@
 @interface PrefController : NSWindowController
 
   @property IBOutlet NSPopUpButton *inputDevicePopup;
+  @property IBOutlet NSPopUpButton *bufferSizePopup;
   @property IBOutlet NSPopUpButton *transposePopup;
   @property IBOutlet NSTextField *concertPitchText;
   @property IBOutlet NSStepper *concertPitchStepper;
