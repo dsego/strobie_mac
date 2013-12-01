@@ -13,10 +13,10 @@
 //  to a multiple of the note's frequency
 typedef struct {
 
-  int samplerate;
   int samplesPerPeriod;         // number of samples used to describe one sound wave period
   float freq;                   // strobing frequency
   int subdivCount;
+  int samplerate;
 
   FloatArray filteredBuffer;    // store filtered data to be re-sampled
   FloatArray resampledBuffer;   // stores re-sampled data before writing to the circular buffer
@@ -32,21 +32,14 @@ typedef struct {
 
 
 
-Strobe* Strobe_create(
-  int bufferLength,
-  int resampledLength,
-  int samplerate,
-  int samplesPerPeriod,
-  int subdivCount
-);
-
+Strobe* Strobe_create(int bufferLength, int resampledLength, int samplesPerPeriod, int subdivCount);
 void Strobe_destroy(Strobe* self);
 
-// Read the newest data from the ring buffer (return 0 if no data was read)
+// Read data from the ring buffer (return 0 if no data was read)
 int Strobe_read(Strobe* self, float* output, int length);
 
-// Set the filter band and the sample rate to a multiple of the target frequency
-void Strobe_setFreq(Strobe* self, float freq);
+// Set strobing frequency to a multiple of the target frequency
+void Strobe_setFreq(Strobe* self, float freq, int samplerate);
 
 // Process (IIR, re-sample) the audio input and write into the ring buffer
 void Strobe_process(Strobe* self, float* input, int length);

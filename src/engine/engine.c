@@ -29,6 +29,7 @@ Engine* Engine_create() {
 
   // TODO: this should probably be in Config
   self->mode = MANUAL;
+  // self->mode = AUTO;
   self->audioFeed = AudioFeed_create();
   self->strobeCount = min(config->strobeCount, MAX_STROBES);
 
@@ -39,7 +40,6 @@ Engine* Engine_create() {
     self->strobes[i] = Strobe_create(
       self->config->strobes[i].bufferLength,
       self->config->strobes[i].resampledLength,
-      self->config->samplerate,
       self->config->strobes[i].samplesPerPeriod,
       self->config->strobes[i].subdivCount
     );
@@ -106,7 +106,7 @@ void Engine_setCentsOffset(Engine* self, float cents) {
   if (cents >= -50 && cents <= 50) {
     self->config->centsOffset = cents;
     self->currentNote = Tuning12TET_centsToNote(self->currentNote.cents, self->config->pitchStandard, self->config->centsOffset);
-    Engine_setStrobes(self, self->currentNote);
+    Engine_setStrobes(self, self->currentNote, self->config->samplerate);
   }
 
 }
@@ -117,13 +117,15 @@ void Engine_setPitchStandard(Engine* self, float freq) {
   if (freq >= 100 && freq <= 1000) {
     self->config->pitchStandard = freq;
     self->currentNote = Tuning12TET_centsToNote(self->currentNote.cents, self->config->pitchStandard, self->config->centsOffset);
-    Engine_setStrobes(self, self->currentNote);
+    Engine_setStrobes(self, self->currentNote, self->config->samplerate);
   }
 
 }
 
 
-void Engine_setStrobes(Engine* self, Note note) {
+void Engine_setStrobes(Engine* self, Note note, int samplerate) {
+
+  self->config->samplerate = samplerate;
 
   // reset octave
   if (note.octave > 8) {
@@ -144,10 +146,14 @@ void Engine_setStrobes(Engine* self, Note note) {
 
     if (self->config->strobes[i].mode == OCTAVE) {
       Note movedNote = Tuning12TET_moveToOctave(self->currentNote, self->config->strobes[i].value);
-      Strobe_setFreq(self->strobes[i], movedNote.frequency);
+      Strobe_setFreq(self->strobes[i], movedNote.frequency, self->config->samplerate);
     }
     else if (self->config->strobes[i].mode == PARTIAL) {
-      Strobe_setFreq(self->strobes[i], self->currentNote.frequency * self->config->strobes[i].value);
+      Strobe_setFreq(
+        self->strobes[i],
+        self->currentNote.frequency * self->config->strobes[i].value,
+        self->config->samplerate
+      );
     }
     else {
       // do nothing, strobe is already set to a particular note or frequency
@@ -272,7 +278,7 @@ void Engine_estimatePitch(Engine* self) {
   if (self->mode == AUTO) {
     if (medianFreq > 0.0 && medianFreq < maxFreq && medianClarity > self->config->clarityThreshold) {
       self->currentNote = Tuning12TET_find(medianFreq, self->config->pitchStandard, self->config->centsOffset);
-      Engine_setStrobes(self, self->currentNote);
+      Engine_setStrobes(self, self->currentNote, self->config->samplerate);
     }
   }
 
@@ -289,9 +295,10 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate, int bufferSi
   // illegal value
   static int currentDevice = -1;
   static int currentBufferSize = -1;
+  static int currentSamplerate = -1;
 
   // already current device, don't bother changing
-  if (currentDevice == device && currentBufferSize == bufferSize) { return 1; }
+  if (currentDevice == device && currentBufferSize == bufferSize && currentSamplerate == samplerate) { return 1; }
 
   // if device index doesn't exist, use default device
   if (device < 0 || device >= Pa_GetDeviceCount()) {
@@ -299,7 +306,8 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate, int bufferSi
   }
 
   self->config->inputDevice = currentDevice = device;
-  self->config->inputBufferSize = bufferSize;
+  self->config->inputBufferSize = currentBufferSize = bufferSize;
+  self->config->samplerate = currentSamplerate = samplerate;
 
   PaError err;
 
@@ -326,25 +334,13 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate, int bufferSi
     self
   );
 
-  // TODO
-  //
-  // try different sample rates
-  // while (err == paInvalidSampleRate) { }
-
-
-  if (err != paNoError) {
-    Pa_Terminate();
-    return 0;
-  }
+  if (err != paNoError) return 1;
 
   err = Pa_StartStream(self->stream);
 
-  if (err != paNoError) {
-    Pa_Terminate();
-    return 0;
-  }
+  if (err != paNoError) return 1;
 
-  return 1;
+  return 0;
 
 }
 
