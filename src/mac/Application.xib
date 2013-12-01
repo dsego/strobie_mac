@@ -27,6 +27,7 @@
                 <outlet property="concertPitchText" destination="2668" id="rfl-5N-xcu"/>
                 <outlet property="displayGainSlider" destination="Daj-b8-T8R" id="pQg-L5-uQd"/>
                 <outlet property="inputDevicePopup" destination="845" id="C8k-yC-qM6"/>
+                <outlet property="sampleratePopup" destination="Zt2-iU-dMH" id="Ngi-Yt-5cb"/>
                 <outlet property="transposePopup" destination="QmR-kg-xIX" id="f6B-X3-YVz"/>
                 <outlet property="window" destination="xie-yM-w28" id="UBr-SX-fds"/>
             </connections>
@@ -139,7 +140,7 @@
             <rect key="contentRect" x="410" y="248" width="500" height="400"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <value key="minSize" type="size" width="500" height="400"/>
-            <view key="contentView" id="368" customClass="ContentView">
+            <view key="contentView" id="368">
                 <rect key="frame" x="0.0" y="0.0" width="500" height="400"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
@@ -229,21 +230,21 @@
         <window title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hidesOnDeactivate="YES" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="xie-yM-w28" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="781" y="270" width="413" height="328"/>
+            <rect key="contentRect" x="781" y="270" width="413" height="352"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <view key="contentView" id="UBr-iN-f4h">
-                <rect key="frame" x="0.0" y="0.0" width="413" height="328"/>
+                <rect key="frame" x="0.0" y="0.0" width="413" height="352"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <box autoresizesSubviews="NO" fixedFrame="YES" title="Audio Input" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="ffk-vJ-dkq">
-                        <rect key="frame" x="17" y="223" width="379" height="92"/>
+                        <rect key="frame" x="17" y="212" width="379" height="125"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView">
-                            <rect key="frame" x="1" y="1" width="377" height="76"/>
+                            <rect key="frame" x="1" y="1" width="377" height="109"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="977">
-                                    <rect key="frame" x="-2" y="47" width="99" height="17"/>
+                                    <rect key="frame" x="-4" y="79" width="99" height="17"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Device:" id="978">
                                         <font key="font" metaFont="system"/>
@@ -252,7 +253,7 @@
                                     </textFieldCell>
                                 </textField>
                                 <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="845">
-                                    <rect key="frame" x="101" y="42" width="219" height="26"/>
+                                    <rect key="frame" x="99" y="74" width="219" height="26"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="846">
                                         <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -263,8 +264,29 @@
                                         <action selector="inputDeviceChanged:" target="bhj-6S-PFX" id="FSb-PQ-XQH"/>
                                     </connections>
                                 </popUpButton>
+                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Smb-gV-xz2">
+                                    <rect key="frame" x="12" y="48" width="83" height="17"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Sample rate:" id="6g5-d1-z0W">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zt2-iU-dMH">
+                                    <rect key="frame" x="99" y="43" width="219" height="26"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="OYX-Yn-Ors">
+                                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                        <menu key="menu" title="OtherViews" id="maU-fA-fbA"/>
+                                    </popUpButtonCell>
+                                    <connections>
+                                        <action selector="inputDeviceChanged:" target="bhj-6S-PFX" id="1ek-fM-kDv"/>
+                                    </connections>
+                                </popUpButton>
                                 <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="x06-TT-AEt">
-                                    <rect key="frame" x="-2" y="16" width="99" height="17"/>
+                                    <rect key="frame" x="-4" y="17" width="99" height="17"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Buffer size:" id="Vxp-0Q-BUb">
                                         <font key="font" metaFont="system"/>
@@ -273,7 +295,7 @@
                                     </textFieldCell>
                                 </textField>
                                 <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vwE-eo-ECQ">
-                                    <rect key="frame" x="101" y="11" width="219" height="26"/>
+                                    <rect key="frame" x="99" y="12" width="219" height="26"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="PYf-tz-xzM">
                                         <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -290,7 +312,7 @@
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </box>
                     <box autoresizesSubviews="NO" fixedFrame="YES" title="Tuning" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="zjf-zP-sEX">
-                        <rect key="frame" x="17" y="94" width="379" height="125"/>
+                        <rect key="frame" x="17" y="83" width="379" height="125"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView">
                             <rect key="frame" x="1" y="1" width="377" height="109"/>
@@ -425,7 +447,7 @@
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </box>
                     <box autoresizesSubviews="NO" fixedFrame="YES" title="Strobe Display" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="KsZ-mI-HMw">
-                        <rect key="frame" x="17" y="27" width="379" height="63"/>
+                        <rect key="frame" x="17" y="16" width="379" height="63"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView">
                             <rect key="frame" x="1" y="1" width="377" height="47"/>
@@ -440,9 +462,9 @@
                                     </connections>
                                 </slider>
                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ECO-jK-GKa">
-                                    <rect key="frame" x="53" y="19" width="37" height="17"/>
+                                    <rect key="frame" x="28" y="17" width="62" height="17"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Gain:" id="AsS-Px-dfb">
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Contrast:" id="AsS-Px-dfb">
                                         <font key="font" metaFont="system"/>
                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

@@ -123,7 +123,7 @@
 
   int noteIndex = [sender tag];
   Note note = Tuning12TET_noteFromIndex(noteIndex, 0, engine->config->pitchStandard, engine->config->centsOffset);
-  Engine_setStrobes(engine, note);
+  Engine_setStrobes(engine, note, engine->config->samplerate);
   [self setNeedsDisplay: YES];
 
 }

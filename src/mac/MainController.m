@@ -43,28 +43,28 @@
     case 123: // LEFT  semitone lower
       if (engine->mode == MANUAL) {
         engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, -1);
-        Engine_setStrobes(engine, engine->currentNote);
+        Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
       }
       break;
 
     case 124: // RIGHT  semitone higher
       if (engine->mode == MANUAL) {
         engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, 1);
-        Engine_setStrobes(engine, engine->currentNote);
+        Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
       }
       break;
 
     case 125: // DOWN   fifth lower (fourth higher)
       if (engine->mode == MANUAL) {
         engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, -7);
-        Engine_setStrobes(engine, engine->currentNote);
+        Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
       }
       break;
 
     case 126: // UP   fifth higher (fourth lower)
       if (engine->mode == MANUAL) {
         engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, 7);
-        Engine_setStrobes(engine, engine->currentNote);
+        Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
       }
       break;
 

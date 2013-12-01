@@ -18,16 +18,17 @@
 Strobe* Strobe_create(
   int bufferLength,
   int resampledLength,
-  int samplerate,
   int samplesPerPeriod,
   int subdivCount) {
 
   Strobe* self = malloc(sizeof(Strobe));
   assert(self != NULL);
 
-  self->samplerate = samplerate;
   self->samplesPerPeriod = samplesPerPeriod;
   self->subdivCount = subdivCount;
+
+  // invalid value
+  self->samplerate = -1;
 
   self->bandpass = Biquad_create(3);
   self->src = Interpolator_create(1, 1);
@@ -88,13 +89,15 @@ int Strobe_read(Strobe* self, float* output, int length) {
 }
 
 
-void Strobe_setFreq(Strobe* self, float freq) {
+void Strobe_setFreq(Strobe* self, float freq, int samplerate) {
 
   // assume freq is positive
-  if (fabs(freq - self->freq) < 0.000001) { return; }
+  if (freq < 1.0 || samplerate < 1.0) return;
+  if (self->samplerate == samplerate && fabs(freq - self->freq) < 0.000001) return;
 
-  float newRate = freq * self->samplesPerPeriod;
-  float ratio = newRate / self->samplerate;
+  self->samplerate = samplerate;
+  double newRate = freq * self->samplesPerPeriod;
+  double ratio = newRate / (double)samplerate;
 
   // re-sampled data should fit into the buffer
   if (ratio > self->bufferRatio) {
@@ -108,26 +111,25 @@ void Strobe_setFreq(Strobe* self, float freq) {
   int available = PaUtil_GetRingBufferReadAvailable(self->ringbuffer);
   // PaUtil_AdvanceRingBufferReadIndex(self->ringbuffer, available);
 
-  Interpolator_setRatio(self->src, newRate, self->samplerate);
+  Interpolator_setRatio(self->src, newRate, samplerate);
   Interpolator_reset(self->src);
   Biquad_reset(self->bandpass);
 
   double a[3], b[3];
   // double bw = freq * exp2(25.0/1200.0) - freq;
-  // printf("%f %f \n", freq, bw); fflush(stdout);
-  // resonator(freq, bw, self->samplerate, a, b);
-  resonator(freq, STROBE_FILTER_BW, self->samplerate, a, b);
+  // resonator(freq, bw, samplerate, a, b);
+  resonator(freq, STROBE_FILTER_BW, samplerate, a, b);
   Biquad_setCoefficients(self->bandpass, a[0], a[1], a[2], b[1], b[2]);
-  // Biquad_bandpass(self->bandpass, freq, self->samplerate, STROBE_FILTER_Q);
+  // Biquad_bandpass(self->bandpass, freq, samplerate, STROBE_FILTER_Q);
 
 }
 
 
-static inline void _process(Strobe* self, float* input, int length) {
+void Strobe_process(Strobe* self, float* input, int length) {
 
   Biquad_filter(self->bandpass, input, self->filteredBuffer.elements, length);
 
-  // filteredBuffer.length might be larger than length!
+  // filteredBuffer.length might be larger than length
   int count = Interpolator_cubicConvert(
     self->src,
     self->filteredBuffer.elements,
@@ -141,27 +143,6 @@ static inline void _process(Strobe* self, float* input, int length) {
 }
 
 
-void Strobe_process(Strobe* self, float* input, int length) {
 
-  int index = 0;
-  int inlen = length;
-  int bufflen = self->filteredBuffer.length;
-
-  // break into digestible chunks
-  while (inlen > bufflen) {
-    _process(self, &input[index], bufflen);
-    index += bufflen;
-    inlen -= bufflen;
-  };
-
-  if (inlen > 0) {
-     _process(self, &input[index], inlen);
-  }
-
-}
-
-
-
-
-
+#undef STROBE_FILTER_BW
 #undef STROBE_RB_LENGTH

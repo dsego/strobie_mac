@@ -58,7 +58,7 @@ int Engine_readStrobe(Engine* self, int index);
 int Engine_readStrobes(Engine* self);
 void Engine_estimatePitch(Engine* self);
 
-void Engine_setStrobes(Engine* self, Note note);
+void Engine_setStrobes(Engine* self, Note note, int samplerate);
 void Engine_setCentsOffset(Engine* self, float cents);
 void Engine_setPitchStandard(Engine* self, float freq);
 void Engine_setGain(Engine* self, float gain);
