@@ -22,7 +22,7 @@ typedef struct {
   int color2[3];    // color stop
   int color3[3];    // color stop
 
-  int bufferLength;           // audio buffer length
+  int bufferLength;           // audio buffer length ( >= input buffer size )
   int resampledLength;        // re-sampled buffer length
   float periodsPerFrame;      // wave cycles displayed in one frame
   int samplesPerPeriod;       // number of samples in a period
