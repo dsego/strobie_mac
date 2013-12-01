@@ -1,11 +1,13 @@
 
 # future (no particular order)
 
-- samples per period (latency vs resolution)
+
+- Vagrant for cross-platform builds?
+- Add descriptions and advice to preferences
+- Resolution (samples per period, latency?)
 - play tone
 - Noise gate
 - tech info (input, samplerate, bits) ?
-- Sample rate, drop-down
 - add/remove strobe bands
 - change options for each strobe band
 - choose preset ( 7 octaves, 4 harmonic bands, chords? )
@@ -13,7 +15,6 @@
 - Stretch tables
 - Partials, text box (drop down with combinations?)
 - Mute button
-- Resolution (samples per period)
 - Sound output, drop-down box
 - Pitch standard -> combo box that lists historical pitch standards
 - Enable sound output, check box
@@ -40,6 +41,7 @@
 - "fix" stepper behavior (increment/decrement to next whole number or change step to 0.1) ?
 - mirroring ring buffer (POSIX implementation using mmap - wikipedia)
 - icons in preferences
+- reset preferences
 
 strobie
 firefly
