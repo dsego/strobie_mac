@@ -212,7 +212,7 @@ inline static void nsdf(Pitch* self, float *outLag, float *outAmp) {
   int n = self->nsdf.length / 2;
 
   // TODO - moves this to configuration !
-  int k = n / 2; //- 256;
+  int k = n - 256;
   float norm = 1.0 / (float) self->nsdf.length;
   float *audio = self->audio.elements;
 
@@ -332,7 +332,7 @@ inline static void findLag(Pitch* self, float *data, int length, float *outLag, 
 
     parabolic(data[lag-1], data[lag], data[lag+1], &delta, &amp);
     *outLag = lag + delta;
-    printf("%i        %6.4f  %8.4f  \r", lag, lag + delta, 44100.0 / ((double)lag + delta));fflush(stdout);
+    // printf("%i        %6.4f  %8.4f  \r", lag, lag + delta, 44100.0 / ((double)lag + delta));fflush(stdout);
     *outAmp = amp;
 
   }
