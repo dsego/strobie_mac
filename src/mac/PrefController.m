@@ -75,8 +75,6 @@
   [_bufferSizePopup selectItemWithTag: engine->config->inputBufferSize];
 
   // sample rate
-  [_sampleratePopup addItemWithTitle: @"-1 Hz"];
-  [[_sampleratePopup lastItem] setTag: -1];
   [_sampleratePopup addItemWithTitle: @"16000 Hz"];
   [[_sampleratePopup lastItem] setTag: 16000];
   [_sampleratePopup addItemWithTitle: @"32000 Hz"];
