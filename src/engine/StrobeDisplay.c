@@ -297,6 +297,38 @@ void StrobeDisplay_cleanup() {
 
 }
 
+// #define PI  3.14159265358979323846264338327950288419716939937510582097494459230
+
+
+// static inline void refreshStrobePositions(Engine *engine, int w, int h) {
+
+//   float baseRadius = 0.1;
+//   float padding = 2.0f * 2.0f / (float)h; // circa 2px
+//   float height = 0.22f;
+//   float r = baseRadius;
+
+//   float ratio = (float)h / (float)w;
+
+//   for (int sid = 0; sid < strobeCount; ++sid) {
+
+//     float t = 0.0;
+//     float length = PI;
+//     float dt = length / (engine->strobeLengths[sid] - 1);
+
+//     for (int i = 0; i < 2 * strobes[sid].count; ) {
+//       strobes[sid].positions[i++] = (r + height) * cos(t) * ratio;
+//       strobes[sid].positions[i++] = (r + height) * sin(t) - 1;
+//       strobes[sid].positions[i++] = r * cos(t) * ratio;
+//       strobes[sid].positions[i++] = r * sin(t) - 1;
+//       t += dt;
+//     }
+
+//     r += height + padding;
+//   }
+
+// }
+
+
 
 static inline void refreshStrobePositions(Engine *engine, int w, int h) {
 
