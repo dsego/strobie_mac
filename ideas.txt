@@ -6,7 +6,10 @@
 - Add descriptions and advice to preferences
 - Resolution (samples per period, latency?)
 - play tone
+- sharp/flat indicator
 - Noise gate
+- keeping strobe phases in sync, how?
+- (red) line in the middle or rulers
 - tech info (input, samplerate, bits) ?
 - add/remove strobe bands
 - change options for each strobe band
@@ -42,6 +45,7 @@
 - mirroring ring buffer (POSIX implementation using mmap - wikipedia)
 - icons in preferences
 - reset preferences
+- quick help button (?) and/or menu item with a keyboard scheme view
 
 strobie
 firefly
