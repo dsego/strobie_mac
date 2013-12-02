@@ -35,7 +35,7 @@
 
   CFTypeRef values1[] = {
     CTFontCreateWithName(CFSTR("HelveticaNeue"), 72, NULL),
-    CGColorCreateGenericRGB(0.95, 0.95, 0.95, 1),
+    CGColorCreateGenericRGB(0.8, 0.8, 0.8, 1),
   };
 
   CFDictionaryRef attrs1 = CFDictionaryCreate(
@@ -69,7 +69,7 @@
 
   CFTypeRef values2[] = {
     CTFontCreateWithName(CFSTR("HelveticaNeue"), 36, NULL),
-    CGColorCreateGenericRGB(0.95, 0.95, 0.95, 1),
+    CGColorCreateGenericRGB(0.8, 0.8, 0.8, 1),
   };
 
   CFDictionaryRef attrs2 = CFDictionaryCreate(
@@ -157,6 +157,7 @@
   float x = (rect.size.width - width) * 0.5;
 
   CGContextSetTextPosition(context, x, 14);
+  // CGContextSetShadowWithColor(context, CGSizeMake(0, 0), 6, CGColorCreateGenericRGB(1, 1, 1, 0.4));
   CTLineDraw(line, context);
   CFRelease(line);
 
