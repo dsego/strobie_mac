@@ -27,6 +27,7 @@ Config* Config_create() {
   self->peakThreshold = 0.01;
   self->clarityThreshold = 0.8;
   self->gain = 1000;
+  self->maxGain = 10000;
 
   int samplesPerPeriod = 512;
   float periodsPerFrame = 1;

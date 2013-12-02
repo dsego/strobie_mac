@@ -24,7 +24,7 @@
   [_concertPitchText setFloatValue: engine->config->pitchStandard];
   [_concertPitchStepper setFloatValue: engine->config->pitchStandard];
 
-  [_displayGainSlider setFloatValue: 20.0 * log10(engine->config->gain)];
+  [_maxGainSlider setFloatValue: 20.0 * log10(engine->config->maxGain)];
 
 }
 
@@ -140,9 +140,9 @@
 }
 
 
-- (IBAction)displayGainChanged: (id)sender {
+- (IBAction)maxGainChanged: (id)sender {
 
-  engine->config->gain = pow(10.0,[sender floatValue] / 20.0);
+  engine->config->maxGain = pow(10.0, [sender floatValue] / 20.0);
 
 }
 

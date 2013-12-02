@@ -330,7 +330,7 @@ static inline void refreshStrobePositions(Engine *engine, int w, int h) {
 }
 
 
-static inline void refreshStrobeColors(Engine *engine, int sid) {
+static inline void refreshStrobeColors(Engine *engine, int sid, float gain) {
 
   if (Engine_readStrobe(engine, sid)) {
 
@@ -348,16 +348,13 @@ static inline void refreshStrobeColors(Engine *engine, int sid) {
 
     int i = engine->strobeLengths[sid];
 
-    float gain = engine->config->gain;
-
     for (int cid = 0; cid < 3 * strobes[sid].count; ) {
 
       --i;
 
       float value = engine->strobeBuffers[sid].elements[i];
 
-      // value = 1.0 / (1.0 + exp(-gain * value));
-      value = (value * gain + 1) * 0.5;
+      value = (value * gain + 1.0) * 0.5;
 
       if (value < 0) {
         value = 0.0;
@@ -403,13 +400,22 @@ void StrobeDisplay_initScene(Engine *engine, int w, int h) {
 
 void StrobeDisplay_drawScene(Engine *engine) {
 
+  // 100 / (0 + 0.01) = 10000
+  // 100 / (1 + 0.01) = 99
+  const float alpha = 100;
+  float beta = alpha / engine->config->maxGain; // limit gain
+  float gain = alpha / (engine->peak + beta);
+
+
+  printf("%10.1f        \r", gain); fflush(stdout);
+
   glClear(GL_COLOR_BUFFER_BIT);
 
   // draw strobes
   glUseProgram(sceneShader);
 
   for (int i = 0; i < strobeCount; ++i) {
-    refreshStrobeColors(engine, i);
+    refreshStrobeColors(engine, i, gain);
     glBindVertexArray(strobes[i].vao);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, strobes[i].count);
   }

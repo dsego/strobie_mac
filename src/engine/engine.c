@@ -201,6 +201,11 @@ static inline float calcPeak(float* input, int length) {
     }
   }
 
+  // for (int i = 0; i < length; ++i) {
+  //   peak = input[i] * input[i];
+  // }
+
+  // return sqrt(peak / (float)length);
   return peak;
 
 }
@@ -226,8 +231,9 @@ static inline int Engine_streamCallback(
   Engine* self = (Engine*) userData;
   float *samples = (float*)input;
 
-  // self->peak = calcPeak(samples, frameCount);
-  // printf("%i   \r", (int) frameCount); fflush(stdout);
+  // smooth peak
+  // self->peak = 0.98 * self->peak + 0.02 * calcPeak(samples, frameCount);
+  self->peak = calcPeak(samples, frameCount);
 
   AudioFeed_process(self->audioFeed, samples, frameCount);
 
@@ -238,6 +244,8 @@ static inline int Engine_streamCallback(
   return paContinue;
 
 }
+
+
 
 
 void Engine_estimatePitch(Engine* self) {
@@ -269,8 +277,6 @@ void Engine_estimatePitch(Engine* self) {
   float medianClarity = median5(clarityWin);
 
   self->clarity = medianClarity;
-
-  // printf("freq  %6.2f   clarity   %3.2f    peak %12.10f    \r", medianFreq , medianClarity, self->peak); fflush(stdout);
 
   // totally not arbitrary
   const float maxFreq = 12345;

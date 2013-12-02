@@ -49,6 +49,7 @@ typedef struct {
   float peakThreshold;
   float clarityThreshold;
   float gain;
+  float maxGain;              // limit display gain
   StrobeConfig strobes[CONFIG_MAX_STROBES];
   int strobeCount;
 
