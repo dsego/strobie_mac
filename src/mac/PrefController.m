@@ -57,21 +57,10 @@
   [[_bufferSizePopup lastItem] setTag: 0];
 
   // buffer size
-  for (int i = 32; i < 256; i+= 32) {
+  for (int i = 16; i <= 1024; i *= 2) {
     [_bufferSizePopup addItemWithTitle: [NSString stringWithFormat: @"%i", i]];
     [[_bufferSizePopup lastItem] setTag: i];
   }
-
-  for (int i = 256; i < 512; i+= 64) {
-    [_bufferSizePopup addItemWithTitle: [NSString stringWithFormat: @"%i", i]];
-    [[_bufferSizePopup lastItem] setTag: i];
-  }
-
-  for (int i = 512; i <= 1024; i+= 128) {
-    [_bufferSizePopup addItemWithTitle: [NSString stringWithFormat: @"%i", i]];
-    [[_bufferSizePopup lastItem] setTag: i];
-  }
-
   [_bufferSizePopup selectItemWithTag: engine->config->inputBufferSize];
 
   // sample rate

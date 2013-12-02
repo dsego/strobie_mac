@@ -46,8 +46,8 @@ Config* Config_create() {
 
     self->strobes[i].samplesPerPeriod = samplesPerPeriod;
     self->strobes[i].periodsPerFrame = periodsPerFrame;
-    self->strobes[i].bufferLength = 512;
-    self->strobes[i].resampledLength = 1024;
+    self->strobes[i].bufferLength = 1024;
+    self->strobes[i].resampledLength = 4096;
     self->strobes[i].centsOffset = 0;
     self->strobes[i].mode = OCTAVE;
     self->strobes[i].value = i + 1;
