@@ -443,7 +443,7 @@ void StrobeDisplay_drawScene(Engine *engine) {
   float gain = alpha / (engine->peak + beta);
 
 
-  printf("%10.1f        \r", gain); fflush(stdout);
+  // printf("%10.1f        \r", gain); fflush(stdout);
 
   glClear(GL_COLOR_BUFFER_BIT);
 
