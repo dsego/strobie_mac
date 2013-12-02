@@ -202,9 +202,9 @@ static inline void initStrobeBuffers(Engine *engine) {
 
 static inline void refreshShadowPositions(int screenWidth, int screenHeight) {
 
-  // 6 px shadow
-  float x = 1.f - 6.f * 2.f / (float)screenWidth;
-  float y = 1.f - 6.f * 2.f / (float)screenHeight;
+  // 9px shadow
+  float x = 1.f - 10.f * 2.f / (float)screenWidth;
+  float y = 1.f - 10.f * 2.f / (float)screenHeight;
 
   glBindVertexArray(shadowVao);
 
@@ -249,16 +249,20 @@ static inline void refreshShadowPositions(int screenWidth, int screenHeight) {
   glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 2 * sizeof(GLfloat));
 
   float pixels[] = {
-    0.f, 0.f, 0.f, 0.455f,
-    0.f, 0.f, 0.f, 0.326f,
-    0.f, 0.f, 0.f, 0.212f,
-    0.f, 0.f, 0.f, 0.126f,
-    0.f, 0.f, 0.f, 0.063f,
-    0.f, 0.f, 0.f, 0.024f
+    0, 0, 0, 0.6275,
+    0, 0, 0, 0.5451,
+    0, 0, 0, 0.4627,
+    0, 0, 0, 0.3765,
+    0, 0, 0, 0.2863,
+    0, 0, 0, 0.2118,
+    0, 0, 0, 0.1490,
+    0, 0, 0, 0.0941,
+    0, 0, 0, 0.0510,
+    0, 0, 0, 0.0157
   };
 
   glBindTexture(GL_TEXTURE_2D, shadowTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 6, 1, 0, GL_RGBA, GL_FLOAT, pixels);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 10, 1, 0, GL_RGBA, GL_FLOAT, pixels);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
