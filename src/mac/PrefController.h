@@ -16,6 +16,7 @@
   @property IBOutlet NSTextField *centsOffsetText;
   @property IBOutlet NSStepper *centsOffsetStepper;
   @property IBOutlet NSSlider *maxGainSlider;
+  @property IBOutlet NSTextField *maxGainLabel;
 
   - (void)loadFromConfig;
 
