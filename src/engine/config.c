@@ -13,21 +13,33 @@ Config* Config_create() {
   Config* self = malloc(sizeof(Config));
   assert(self != NULL);
 
-  self->inputDevice      = 0;
-  self->inputBufferSize  = 0;  // auto-detect
-  self->outputDevice     = 0;
-  self->samplerate       = 44100;
-  self->windowSize       = 2048;
+  self->inputDevice        = 0;
+  self->inputBufferSize    = 0;    // auto-detect
+  self->maxInputBufferSize = 1024; // max. input buffer size (so that buffers are allocated only once)
+  self->outputDevice       = 0;
+  self->samplerate         = 44100;
+  self->windowSize         = 2048;
+  self->pitchStandard      = 440;
+  self->displayFlats       = 0;
+  self->centsOffset        = 0;
+  self->transpose          = 0;
+  self->freq               = 82.4;
+  self->peakThreshold      = 0.01;   // not used
+  self->clarityThreshold   = 0.8; // should this be user-configurable?
+  self->gain               = 1000;            // not used
+  self->maxGain            = 1000;
 
-  self->pitchStandard = 440;
-  self->displayFlats  = 0;
-  self->centsOffset   = 0;
-  self->transpose     = 0;
-  self->freq          = 82.4;
-  self->peakThreshold = 0.01;
-  self->clarityThreshold = 0.8;
-  self->gain = 1000;
-  self->maxGain = 10000;
+
+
+  // 16, 32, 64, ...
+  {
+    int i = 0, n = 16;
+    while (n <= self->maxInputBufferSize) {
+      self->inputBufferSizes[i++] = n;
+      n *= 2;
+    }
+    self->inputBufferSizes[i] = 0; // zero-terminated
+  }
 
   int samplesPerPeriod = 512;
   float periodsPerFrame = 1;
@@ -46,8 +58,8 @@ Config* Config_create() {
 
     self->strobes[i].samplesPerPeriod = samplesPerPeriod;
     self->strobes[i].periodsPerFrame = periodsPerFrame;
-    self->strobes[i].bufferLength = 1024;
-    self->strobes[i].resampledLength = 4096;
+    self->strobes[i].bufferLength = self->maxInputBufferSize;
+    self->strobes[i].resampledLength = self->maxInputBufferSize * 4;
     self->strobes[i].centsOffset = 0;
     self->strobes[i].mode = OCTAVE;
     self->strobes[i].value = i + 1;

@@ -38,6 +38,8 @@ typedef struct {
 
   int inputDevice;            // audio device index
   int inputBufferSize;        // buffer size determines latency
+  int maxInputBufferSize;     // allocated memory
+  int inputBufferSizes[64];   // buffer size options (zero-terminated)
   int outputDevice;           // audio device index
   int samplerate;             // input signal sampling rate
   int windowSize;             // audio window to process when estimating the pitch

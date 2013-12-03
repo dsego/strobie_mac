@@ -56,12 +56,16 @@
   [_bufferSizePopup addItemWithTitle: @"Auto"];
   [[_bufferSizePopup lastItem] setTag: 0];
 
-  // buffer size
-  for (int i = 16; i <= 1024; i *= 2) {
-    [_bufferSizePopup addItemWithTitle: [NSString stringWithFormat: @"%i", i]];
-    [[_bufferSizePopup lastItem] setTag: i];
+  // buffer sizes (zero-terminated)
+  {
+    int i = 0;
+    while (engine->config->inputBufferSizes[i] != 0) {
+      [_bufferSizePopup addItemWithTitle: [NSString stringWithFormat: @"%i", engine->config->inputBufferSizes[i]]];
+      [[_bufferSizePopup lastItem] setTag: engine->config->inputBufferSizes[i]];
+      i++;
+    }
+    [_bufferSizePopup selectItemWithTag: engine->config->inputBufferSize];
   }
-  [_bufferSizePopup selectItemWithTag: engine->config->inputBufferSize];
 
   // sample rate
   [_sampleratePopup addItemWithTitle: @"16000 Hz"];
