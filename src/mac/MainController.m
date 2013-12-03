@@ -77,6 +77,7 @@
     default: // do nothing
       break;
   }
+
   [self refreshDisplay];
 
 }
