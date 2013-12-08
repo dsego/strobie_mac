@@ -70,8 +70,8 @@
       }
       break;
 
-    case 49:  // SPACEBAR
-      engine->mode = (engine->mode == AUTO) ? MANUAL : AUTO;
+    case 49:  // SPACEBAR -> handle with modeButton (key equivalent)
+      // engine->mode = (engine->mode == AUTO) ? MANUAL : AUTO;
       break;
 
     default: // do nothing
@@ -79,6 +79,12 @@
   }
 
   [self refreshDisplay];
+
+}
+
+- (IBAction)modeButtonOnClick: (id)sender {
+
+  engine->mode = (engine->mode == AUTO) ? MANUAL : AUTO;
 
 }
 

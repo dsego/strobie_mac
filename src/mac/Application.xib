@@ -13,6 +13,7 @@
         </customObject>
         <customObject id="1960" customClass="MainController">
             <connections>
+                <outlet property="modeButton" destination="i45-ea-1SF" id="kHq-dm-3TY"/>
                 <outlet property="noteView" destination="ogN-jV-Pqt" id="E5z-p5-cxi"/>
                 <outlet property="strobeView" destination="ILa-eD-b18" id="MWf-to-Fdl"/>
                 <outlet property="window" destination="367" id="2506"/>
@@ -171,6 +172,20 @@
                             <constraint firstAttribute="width" constant="20" id="jNU-Nm-wRw"/>
                         </constraints>
                     </customView>
+                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="i45-ea-1SF" customClass="ModeButton">
+                        <rect key="frame" x="408" y="69" width="66" height="24"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="bevel" title="manual" alternateTitle="manual" bezelStyle="rounded" alignment="right" imageScaling="proportionallyDown" inset="2" id="wUJ-vS-SZB">
+                            <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+IA
+</string>
+                        </buttonCell>
+                        <connections>
+                            <action selector="modeButtonOnClick:" target="1960" id="G3s-zh-USZ"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstAttribute="centerX" secondItem="ogN-jV-Pqt" secondAttribute="centerX" id="2VZ-NR-xbA"/>
@@ -520,7 +535,7 @@
                                 <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="toc-1o-arz">
                                     <rect key="frame" x="105" y="24" width="213" height="27"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="100" doubleValue="80" tickMarkPosition="below" numberOfTickMarks="6" sliderType="linear" id="JfF-pk-ILn"/>
+                                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="120" doubleValue="60" tickMarkPosition="below" numberOfTickMarks="7" sliderType="linear" id="JfF-pk-ILn"/>
                                     <connections>
                                         <action selector="maxGainChanged:" target="bhj-6S-PFX" id="dFD-Rr-xmA"/>
                                     </connections>

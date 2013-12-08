@@ -11,5 +11,8 @@
 
   @property IBOutlet StrobeView *strobeView;
   @property IBOutlet NoteView *noteView;
+  @property IBOutlet NSButton *modeButton;
+
+  - (IBAction)modeButtonOnClick: (id)sender;
 
 @end
