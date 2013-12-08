@@ -34,9 +34,9 @@ MAC_WARN	= $(WARN) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis 
 # -flto  is a link-time optimizer
 # -ffast-math (?)
 #  -fvectorize should be enabled by default for -O3
-OPTIONS			= -O3 -arch x86_64 -flto
+#  -O4 should be -O3 -flto
+OPTIONS			= -arch x86_64 -O4 -std=c11
 MAC_OPTIONS = $(OPTIONS) -fmodules -fobjc-arc
-
 
 all:
 	make mac
