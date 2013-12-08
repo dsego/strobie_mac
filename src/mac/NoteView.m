@@ -16,12 +16,10 @@
 }
 
 
-- (id)initWithFrame:(NSRect)frameRect {
+- (void)awakeFromNib {
 
-  self = [super initWithFrame: frameRect];
   [self buildStrings];
   [self buildMenu];
-  return self;
 
 }
 
@@ -35,7 +33,7 @@
 
   CFTypeRef values1[] = {
     CTFontCreateWithName(CFSTR("HelveticaNeue"), 72, NULL),
-    CGColorCreateGenericRGB(0.8, 0.8, 0.8, 1),
+    CGColorCreateGenericRGB(0.88, 0.88, 0.88, 1),
   };
 
   CFDictionaryRef attrs1 = CFDictionaryCreate(
@@ -61,6 +59,8 @@
   noteNames[11] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("B"), attrs1);
 
   CFRelease(attrs1);
+  CFRelease(values1[0]);
+  CFRelease(values1[1]);
 
   CFStringRef keys2[] = {
     kCTFontAttributeName,
@@ -84,6 +84,8 @@
   sharpSign = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("♯"), attrs2);
 
   CFRelease(attrs2);
+  CFRelease(values2[0]);
+  CFRelease(values2[1]);
 
 }
 
@@ -183,6 +185,16 @@
     ];
 
   }
+
+}
+
+
+- (void) dealloc {
+
+  for (int i = 0; i < 12; ++i) {
+    CFRelease(noteNames[i]);
+  }
+  CFRelease(sharpSign);
 
 }
 

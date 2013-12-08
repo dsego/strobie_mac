@@ -55,6 +55,8 @@
   }
 
   CFRelease(attrs);
+  CFRelease(values[0]);
+  CFRelease(values[1]);
 
 }
 
