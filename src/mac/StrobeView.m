@@ -144,10 +144,10 @@ CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext) {
 
 -(void)dealloc {
 
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
   CVDisplayLinkStop(displayLink);
   CVDisplayLinkRelease(displayLink);
   StrobeDisplay_cleanup();
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
 
 }
 
