@@ -8,4 +8,4 @@
 
 #include "shared.h"
 
-Engine *engine = NULL;
+Engine *engine;
