@@ -436,14 +436,7 @@ void StrobeDisplay_initScene(Engine *engine, int w, int h) {
 
 void StrobeDisplay_drawScene(Engine *engine) {
 
-  // 100 / (0 + 0.01) = 10000
-  // 100 / (1 + 0.01) = 99
-  const float alpha = 100;
-  float beta = alpha / engine->config->maxGain; // limit gain
-  float gain = alpha / (engine->peak + beta);
-
-
-  // printf("%10.1f        \r", gain); fflush(stdout);
+  float gain = Engine_gain(engine);
 
   glClear(GL_COLOR_BUFFER_BIT);
 
