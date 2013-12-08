@@ -18,6 +18,7 @@
 - choose preset ( 7 octaves, 4 harmonic bands, chords? )
 - Strobe color scheme
 - Stretch tables
+- sprinkle const all over the place :D
 - Partials, text box (drop down with combinations?)
 - Mute button
 - Sound output, drop-down box
@@ -48,6 +49,10 @@
 - icons in preferences
 - reset preferences
 - quick help button (?) and/or menu item with a keyboard scheme view
+- add menu items
+- fsanitize
+- modified cepstrum
+- harmonic product spectrum
 
 strobie
 firefly
