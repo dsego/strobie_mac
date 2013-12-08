@@ -15,7 +15,7 @@ AudioFeed* AudioFeed_create() {
   AudioFeed* self = malloc(sizeof(AudioFeed));
   assert(self != NULL);
 
-  self->rbdata = FloatArray_create(RB_LENGTH);
+  self->rbdata = Vec_create(RB_LENGTH, sizeof(float));
   self->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
   assert(self->ringbuffer != NULL);
 
@@ -28,7 +28,7 @@ AudioFeed* AudioFeed_create() {
 
 void AudioFeed_destroy(AudioFeed* self) {
 
-  FloatArray_destroy(self->rbdata);
+  Vec_destroy(self->rbdata);
   free(self->ringbuffer);
   free(self);
   self = NULL;

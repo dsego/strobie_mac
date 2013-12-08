@@ -3,7 +3,6 @@
 */
 
 #include <complex.h>
-#include "Array.h"
 #include "NSDF.h"
 #include "Cepstrum.h"
 // #include "HPS.h"

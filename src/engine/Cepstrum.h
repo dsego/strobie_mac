@@ -3,16 +3,16 @@
 */
 
 #include <complex.h>
-#include "Array.h"
+#include "Vec.h"
 #include "ffts.h"
 
 
 typedef struct {
 
-  FloatArray window;          // FFT windowing function
-  FloatArray audio;           // audio samples
-  CpxFloatArray fft;          // frequency data
-  FloatArray spectrum;
+  Vec window;          // FFT windowing function
+  Vec audio;           // audio samples
+  Vec fft;             // frequency data
+  Vec spectrum;
 
   ffts_plan_t *fftPlan;       // FFTS plan
   ffts_plan_t *cepPlan;       // FFTS plan

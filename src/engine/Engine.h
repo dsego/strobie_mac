@@ -13,7 +13,7 @@
 #include "Config.h"
 #include "Pitch.h"
 #include "AudioFeed.h"
-#include "Array.h"
+#include "Vec.h"
 #include "Strobe.h"
 
 
@@ -32,7 +32,7 @@ typedef struct {
   AudioFeed* audioFeed;
   Pitch* pitch;               // pitch recognition
 
-  FloatArray audioBuffer;
+  Vec audioBuffer;
   float peak;
   float clarity;
 
@@ -41,7 +41,7 @@ typedef struct {
 
   int strobeCount;
   Strobe* strobes[MAX_STROBES];
-  FloatArray strobeBuffers[MAX_STROBES];
+  Vec strobeBuffers[MAX_STROBES];
   int strobeLengths[MAX_STROBES];
 
 } Engine;

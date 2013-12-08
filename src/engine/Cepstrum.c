@@ -11,6 +11,8 @@
 #include "ffts.h"
 #include "findLag.h"
 
+
+
 #define PI  3.14159265358979323846264338327950288419716939937510582097494459230
 
 
@@ -38,17 +40,20 @@ Cepstrum* Cepstrum_create(int samplerate, int windowSize) {
 
   // The output of a real-to-complex transform is N/2+1 complex numbers
   int fftBinCount = windowSize + 1;
-
   self->fftPlan  = ffts_init_1d_real(windowSize, -1);
   self->ifftPlan = ffts_init_1d_real(windowSize, 1);
+  self->fft      = Vec_create(fftBinCount, sizeof(complex float));
+  self->audio    = Vec_create(windowSize, sizeof(float));
+  self->window   = Vec_create(windowSize, sizeof(float));
+  self->spectrum = Vec_create(fftBinCount, sizeof(float));
 
-  self->fft      = CpxFloatArray_create(fftBinCount);
-  self->audio    = FloatArray_create(windowSize);
-  self->window   = FloatArray_create(windowSize);
-  self->spectrum = FloatArray_create(fftBinCount);
+  blackman((float*)self->window.elements, windowSize);
 
-  blackman(self->window.elements, windowSize);
-  FloatArray_fill(self->audio, 0.0);
+  // fill with zeros
+  float *audio = (float*) self->audio.elements;
+  for (int i = 0; i < self->audio.count; ++i) {
+    audio[i] = 0.0;
+  }
 
   return self;
 
@@ -57,12 +62,12 @@ Cepstrum* Cepstrum_create(int samplerate, int windowSize) {
 
 void Cepstrum_destroy(Cepstrum* self) {
 
-  FloatArray_destroy(self->audio);
-  CpxFloatArray_destroy(self->fft);
+  Vec_destroy(self->audio);
+  Vec_destroy(self->fft);
+  Vec_destroy(self->window);
+  Vec_destroy(self->spectrum);
   ffts_free(self->fftPlan);
   ffts_free(self->ifftPlan);
-  FloatArray_destroy(self->window);
-  FloatArray_destroy(self->spectrum);
   ffts_free(self->cepPlan);
   free(self);
   self = NULL;
@@ -72,28 +77,32 @@ void Cepstrum_destroy(Cepstrum* self) {
 
 void Cepstrum_estimate(Cepstrum* self, float* data, float *outFreq, float *outAmp) {
 
+  float complex* fft = (float complex *) self->fft.elements;
+  float* audio = (float*) self->audio.elements;
+  float* spectrum = (float*) self->spectrum.elements;
+
   // padded audio data
-  memcpy(self->audio.elements, data, self->audio.length * sizeof(float));
+  memcpy(audio, data, self->audio.count * sizeof(float));
 
   // Blackman
-  for (int i = 0; i < self->window.length; ++i) {
+  for (int i = 0; i < self->window.count; ++i) {
     // self->audio.elements[i] *= self->window.elements[i];
   }
 
   // FFT
-  ffts_execute(self->fftPlan, self->audio.elements, self->fft.elements);
+  ffts_execute(self->fftPlan, audio, fft);
 
   // log power spectrum
-  for (int i = 0; i < self->fft.length; ++i) {
-    self->spectrum.elements[i] = log10(1.0 + creal(magnitude(self->fft.elements[i])));
+  for (int i = 0; i < self->fft.count; ++i) {
+    spectrum[i] = log10(1.0 + creal(magnitude(fft[i])));
   }
 
-  ffts_execute(self->cepPlan, self->spectrum.elements, self->fft.elements);
+  ffts_execute(self->cepPlan, spectrum, fft);
 
   // log power cepstrum
-  int n = self->fft.length/2;
+  int n = self->fft.count/2;
   for (int i = 0; i < n; ++i) {
-    self->spectrum.elements[i] = log10(creal(magnitude(self->fft.elements[i])));
+    spectrum[i] = log10(creal(magnitude(fft[i])));
   }
 
   float amp, lag;

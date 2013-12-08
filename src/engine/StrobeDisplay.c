@@ -370,6 +370,8 @@ static inline void refreshStrobeColors(Engine *engine, int sid, float gain) {
 
   if (Engine_readStrobe(engine, sid)) {
 
+    float *buffer = (float*)engine->strobeBuffers[sid].elements;
+
     int start0 = engine->config->strobes[sid].color1[0];
     int start1 = engine->config->strobes[sid].color1[1];
     int start2 = engine->config->strobes[sid].color1[2];
@@ -388,7 +390,7 @@ static inline void refreshStrobeColors(Engine *engine, int sid, float gain) {
 
       --i;
 
-      float value = engine->strobeBuffers[sid].elements[i];
+      float value = buffer[i];
 
       value = (value * gain + 1.0) * 0.5;
 

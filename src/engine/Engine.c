@@ -41,13 +41,13 @@ Engine* Engine_create() {
     );
 
     // allocate enough space for any strobe size (see Engine_readStrobes)
-    self->strobeBuffers[i] = FloatArray_create(ENGINE_STR_BUFFER_LENGTH);
+    self->strobeBuffers[i] = Vec_create(ENGINE_STR_BUFFER_LENGTH, sizeof(float));
     self->strobeLengths[i] = 0;
 
   }
 
   self->pitch = Pitch_create(NSDF_METHOD, config->samplerate, config->windowSize);
-  self->audioBuffer = FloatArray_create(self->config->windowSize);
+  self->audioBuffer = Vec_create(self->config->windowSize, sizeof(float));
   self->peak = 0;
   self->clarity = 0;
   self->stream = NULL;
@@ -86,10 +86,10 @@ void Engine_destroy(Engine* self) {
 
   for (int i = 0; i < self->strobeCount; ++i) {
     Strobe_destroy(self->strobes[i]);
-    FloatArray_destroy(self->strobeBuffers[i]);
+    Vec_destroy(self->strobeBuffers[i]);
   }
 
-  FloatArray_destroy(self->audioBuffer);
+  Vec_destroy(self->audioBuffer);
   free(self);
   self = NULL;
 
@@ -247,11 +247,11 @@ static inline int Engine_streamCallback(
 void Engine_estimatePitch(Engine* self) {
 
   // read in new data from the ring buffer
-  AudioFeed_read(self->audioFeed, self->audioBuffer.elements, self->audioBuffer.length);
+  AudioFeed_read(self->audioFeed, (float*)self->audioBuffer.elements, self->audioBuffer.count);
 
   float freq;
   float clarity;
-  Pitch_estimate(self->pitch, self->audioBuffer.elements, &freq, &clarity);
+  Pitch_estimate(self->pitch, (float*)self->audioBuffer.elements, &freq, &clarity);
 
 
   // rolling median filter

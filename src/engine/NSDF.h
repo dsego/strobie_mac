@@ -3,16 +3,16 @@
 */
 
 #include <complex.h>
-#include "Array.h"
+#include "Vec.h"
 #include "ffts.h"
 
 
 // Normalized square difference
 typedef struct {
 
-  FloatArray audio;           // audio samples
-  FloatArray nsdf;            // normalized square difference
-  CpxFloatArray fft;          // FFT data
+  Vec audio;                // audio samples
+  Vec nsdf;                 // normalized square difference
+  Vec fft;                  // FFT data
   // FloatArray top;          // SNAC numerator
   // FloatArray bottom;       // SNAC denominator
   ffts_plan_t *fftPlan;       // FFTS plan

@@ -27,9 +27,15 @@ NSDF* NSDF_create(int samplerate, int windowSize) {
 
   self->fftPlan  = ffts_init_1d_real(paddedLength, -1);
   self->ifftPlan = ffts_init_1d_real(paddedLength, 1);
-  self->fft      = CpxFloatArray_create(fftBinCount);
-  self->audio    = FloatArray_create(paddedLength);
-  self->nsdf     = FloatArray_create(paddedLength);
+  self->fft      = Vec_create(fftBinCount, sizeof(float complex));
+  self->audio    = Vec_create(paddedLength, sizeof(float));
+  self->nsdf     = Vec_create(paddedLength, sizeof(float));
+
+  // fill with zeros
+  float *audio = (float*) self->audio.elements;
+  for (int i = 0; i < self->audio.count; ++i) {
+    audio[i] = 0.0;
+  }
 
   return self;
 
@@ -38,9 +44,9 @@ NSDF* NSDF_create(int samplerate, int windowSize) {
 
 void NSDF_destroy(NSDF* self) {
 
-  FloatArray_destroy(self->audio);
-  FloatArray_destroy(self->nsdf);
-  CpxFloatArray_destroy(self->fft);
+  Vec_destroy(self->audio);
+  Vec_destroy(self->nsdf);
+  Vec_destroy(self->fft);
   ffts_free(self->fftPlan);
   ffts_free(self->ifftPlan);
   free(self);
@@ -51,37 +57,40 @@ void NSDF_destroy(NSDF* self) {
 
 void NSDF_estimate(NSDF* self, float* data, float *outFreq, float *outAmp) {
 
+  float complex *fft = (float complex *) self->fft.elements;
+  float *nsdf = (float *) self->nsdf.elements;
+  float *audio = (float *) self->audio.elements;
+
   // pad audio data
-  memcpy(self->audio.elements, data, (self->audio.length / 2) * sizeof(float));
+  memcpy(audio, data, (self->audio.count / 2) * sizeof(float));
 
   // autocorrelation:  FFT -> power spectrum -> inverse FFT
-  ffts_execute(self->fftPlan, self->audio.elements, self->fft.elements);
+  ffts_execute(self->fftPlan, audio, fft);
 
-  for (int i = 0; i < self->fft.length; ++i) {
-    self->fft.elements[i] = magnitude(self->fft.elements[i]);
+  for (int i = 0; i < self->fft.count; ++i) {
+    fft[i] = magnitude(fft[i]);
   }
 
-  ffts_execute(self->ifftPlan, self->fft.elements, self->nsdf.elements);
+  ffts_execute(self->ifftPlan, fft, nsdf);
 
-  int n = self->nsdf.length / 2;
+  int n = self->nsdf.count / 2;
 
   // TODO - parameter to constructor (?)
   int k = n - 256;
-  double norm = 1.0 / (double) self->nsdf.length;
+  double norm = 1.0 / (double) self->nsdf.count;
 
-  float *audio = self->audio.elements;
 
   // left-hand summation for zero lag
-  double lhsum = 2.0 * (self->nsdf.elements[0] * norm);
+  double lhsum = 2.0 * (nsdf[0] * norm);
 
   // normalized SDF (via autocorrelation)
   for (int i = 0; i < k; ++i) {
 
     if (lhsum > 0.0) {
-      self->nsdf.elements[i] *= norm * 2.0 / lhsum;
+      nsdf[i] *= norm * 2.0 / lhsum;
     }
     else {
-      self->nsdf.elements[i] = 0.0;
+      nsdf[i] = 0.0;
     }
 
     lhsum -= audio[i] * audio[i] + audio[n-i-1] * audio[n-i-1];
@@ -89,7 +98,7 @@ void NSDF_estimate(NSDF* self, float* data, float *outFreq, float *outAmp) {
   }
 
   float amp, lag;
-  findLag(self->nsdf.elements, k, 0.9, &lag, &amp);
+  findLag(nsdf, k, 0.9, &lag, &amp);
 
   *outFreq = (lag > 2.0) ? self->samplerate / lag : 0.0; // anything less than 2 is probably an error
   *outAmp = (amp >= 0.0) ? amp : 0.0;

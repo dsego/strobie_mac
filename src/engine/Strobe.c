@@ -25,23 +25,17 @@ Strobe* Strobe_create(
   assert(self != NULL);
 
   self->samplesPerPeriod = samplesPerPeriod;
-  self->subdivCount = subdivCount;
-
-  // invalid value
-  self->samplerate = -1;
-
-  self->bandpass = Biquad_create(3);
-  self->src = Interpolator_create(1, 1);
-
-  self->filteredBuffer = FloatArray_create(bufferLength);
-  self->resampledBuffer = FloatArray_create(resampledLength);
-  self->rbdata = FloatArray_create(STROBE_RB_LENGTH);
+  self->subdivCount      = subdivCount;
+  self->samplerate       = -1;  // invalid value
+  self->bandpass         = Biquad_create(3);
+  self->src              = Interpolator_create(1, 1);
+  self->filteredBuffer   = Vec_create(bufferLength, sizeof(float));
+  self->resampledBuffer  = Vec_create(resampledLength, sizeof(float));
+  self->rbdata           = Vec_create(STROBE_RB_LENGTH, sizeof(float));
 
   self->bufferRatio = resampledLength / (float)bufferLength;
-
   self->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
   assert(self->ringbuffer != NULL);
-
   PaUtil_InitializeRingBuffer(
     self->ringbuffer,
     sizeof(float),
@@ -58,9 +52,9 @@ void Strobe_destroy(Strobe* self) {
 
   Biquad_destroy(self->bandpass);
   Interpolator_destroy(self->src);
-  FloatArray_destroy(self->filteredBuffer);
-  FloatArray_destroy(self->resampledBuffer);
-  FloatArray_destroy(self->rbdata);
+  Vec_destroy(self->filteredBuffer);
+  Vec_destroy(self->resampledBuffer);
+  Vec_destroy(self->rbdata);
   free(self->ringbuffer);
   free(self);
   self = NULL;
@@ -130,7 +124,7 @@ void Strobe_process(Strobe* self, float* input, int length) {
     self->filteredBuffer.elements,
     length,
     self->resampledBuffer.elements,
-    self->resampledBuffer.length
+    self->resampledBuffer.count
   );
 
   PaUtil_WriteRingBuffer(self->ringbuffer, self->resampledBuffer.elements, count);
