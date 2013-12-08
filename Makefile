@@ -61,7 +61,7 @@ mac:
 
 ###########
 
-.PHONY: test
+.PHONY: test biquad
 test:
 	make engine
 	cc $(OPTIONS) $(WARN) -Isrc/engine $(GL) $(GLFW) $(FFTS) $(PORTAUDIO) $(DSP) src/test.c engine.a -o test
@@ -69,3 +69,5 @@ test:
 experiment:
 	cc $(OPTIONS) $(WARN) $(FFTS) $(PORTAUDIO) src/experiment.c -o experiment
 
+biquad:
+	cc src/biquad.c $(DSP)  -o biquad
