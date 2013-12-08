@@ -43,7 +43,6 @@ typedef struct {
   Strobe* strobes[MAX_STROBES];
   FloatArray strobeBuffers[MAX_STROBES];
   int strobeLengths[MAX_STROBES];
-  pthread_mutex_t lock;
 
 } Engine;
 
@@ -56,6 +55,7 @@ void Engine_destroy(Engine* self);
 int Engine_setInputDevice(Engine *self, int device, int samplerate, int bufferSize);
 int Engine_readStrobe(Engine* self, int index);
 int Engine_readStrobes(Engine* self);
+float Engine_gain(Engine* self);
 void Engine_estimatePitch(Engine* self);
 
 void Engine_setStrobes(Engine* self, Note note, int samplerate);

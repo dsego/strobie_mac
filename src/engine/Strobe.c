@@ -106,18 +106,14 @@ void Strobe_setFreq(Strobe* self, float freq, int samplerate) {
   }
 
   self->freq = freq;
-  // skip stale data
-  int available = PaUtil_GetRingBufferReadAvailable(self->ringbuffer);
-  // PaUtil_AdvanceRingBufferReadIndex(self->ringbuffer, available);
-
   Interpolator_setRatio(self->src, newRate, samplerate);
   Interpolator_reset(self->src);
-  Biquad_reset(self->bandpass);
 
   double a[3], b[3];
   // double bw = freq * exp2(25.0/1200.0) - freq;
   // resonator(freq, bw, samplerate, a, b);
   resonator(freq, STROBE_FILTER_BW, samplerate, a, b);
+  Biquad_reset(self->bandpass);
   Biquad_setCoefficients(self->bandpass, a[0], a[1], a[2], b[1], b[2]);
   // Biquad_bandpass(self->bandpass, freq, samplerate, STROBE_FILTER_Q);
 
@@ -129,7 +125,7 @@ void Strobe_process(Strobe* self, float* input, int length) {
   Biquad_filter(self->bandpass, input, self->filteredBuffer.elements, length);
 
   // filteredBuffer.length might be larger than length
-  int count = Interpolator_cubicConvert(
+  int count = Interpolator_linearConvert(
     self->src,
     self->filteredBuffer.elements,
     length,

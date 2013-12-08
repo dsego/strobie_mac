@@ -21,14 +21,11 @@ Engine* Engine_create() {
   Engine* self = malloc(sizeof(Engine));
   assert(self != NULL);
 
-  // pthread_mutex_init(&self->lock, NULL);
-
   Config* config = self->config = Config_create();
-
   self->currentNote = Tuning12TET_find(self->config->freq, self->config->pitchStandard, self->config->centsOffset);
 
-  // TODO: this should probably be in Config
-  self->mode = MANUAL;
+  // TODO: this should probably be in Config, maybe?
+  self->mode = AUTO;
   self->audioFeed = AudioFeed_create();
   self->strobeCount = min(config->strobeCount, MAX_STROBES);
 
@@ -49,7 +46,7 @@ Engine* Engine_create() {
 
   }
 
-  self->pitch = Pitch_create(config->samplerate, config->windowSize);
+  self->pitch = Pitch_create(NSDF_METHOD, config->samplerate, config->windowSize);
   self->audioBuffer = FloatArray_create(self->config->windowSize);
   self->peak = 0;
   self->clarity = 0;
@@ -83,7 +80,6 @@ void Engine_destroy(Engine* self) {
     Pa_Terminate();
   }
 
-  // pthread_mutex_destroy(&self->lock);
   Config_destroy(self->config);
   AudioFeed_destroy(self->audioFeed);
   Pitch_destroy(self->pitch);
@@ -139,7 +135,6 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate) {
 
   self->config->freq = self->currentNote.frequency;
 
-  // pthread_mutex_lock(&self->lock);
 
   for (int i = 0; i < self->strobeCount; ++i) {
 
@@ -163,17 +158,13 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate) {
 
   }
 
-  // pthread_mutex_unlock(&self->lock);
-
 }
 
 
 // return 0 if there is no new data
 int Engine_readStrobe(Engine* self, int index) {
 
-  // pthread_mutex_lock(&self->lock);
   int hasData = Strobe_read(self->strobes[index], self->strobeBuffers[index].elements, self->strobeLengths[index]);
-  // pthread_mutex_unlock(&self->lock);
   return hasData;
 
 }
@@ -190,6 +181,17 @@ int Engine_readStrobes(Engine* self) {
 }
 
 
+float Engine_gain(Engine* self) {
+
+  // 100 / (0 + 0.01) = 10000
+  // 100 / (1 + 0.01) = 99
+  const float alpha = 100;
+  float beta = alpha / self->config->maxGain; // limit gain
+  return alpha / (self->peak + beta);
+
+}
+
+
 static inline float calcPeak(float* input, int length) {
 
   float peak = 0.0;
@@ -200,11 +202,6 @@ static inline float calcPeak(float* input, int length) {
     }
   }
 
-  // for (int i = 0; i < length; ++i) {
-  //   peak = input[i] * input[i];
-  // }
-
-  // return sqrt(peak / (float)length);
   return peak;
 
 }
