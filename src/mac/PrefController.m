@@ -70,10 +70,6 @@
   }
 
   // sample rate
-  [_sampleratePopup addItemWithTitle: @"16000 Hz"];
-  [[_sampleratePopup lastItem] setTag: 16000];
-  [_sampleratePopup addItemWithTitle: @"32000 Hz"];
-  [[_sampleratePopup lastItem] setTag: 32000];
   [_sampleratePopup addItemWithTitle: @"44100 Hz"];
   [[_sampleratePopup lastItem] setTag: 44100];
   [_sampleratePopup addItemWithTitle: @"48000 Hz"];
