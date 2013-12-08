@@ -7,9 +7,17 @@
 #import "shared.h"
 
 
+static void finish(void) {
+
+  Engine_destroy(engine);
+
+}
+
+
 int main(int argc, char *argv[]) {
 
   engine = Engine_create();
-  return NSApplicationMain(argc, (const char **)argv);
+  atexit(finish);
+  return NSApplicationMain(argc, (const char **)argv); // never returns
 
 }

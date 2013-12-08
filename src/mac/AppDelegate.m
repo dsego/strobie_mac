@@ -104,7 +104,6 @@
 
   [estimatePitchThread cancel];
   [self savePreferences];
-  // Engine_destroy(engine);  -> why bother? memory should be freed when the application exits, and this could cause some multi-threading issues
 
 }
 
