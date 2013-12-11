@@ -13,7 +13,7 @@
 
 
 
-static char* sceneVertexSource =
+static const char* sceneVertexSource =
   "#version 150 core\n"
   "in vec2 position;"
   "in vec3 color;"
@@ -23,7 +23,7 @@ static char* sceneVertexSource =
   "   gl_Position = vec4(position, 0.0, 1.0);"
   "}";
 
-static char* sceneFragmentSource =
+static const char* sceneFragmentSource =
   "#version 150 core\n"
   "out vec4 outColor;"
   "in vec3 Color;"
@@ -31,7 +31,7 @@ static char* sceneFragmentSource =
   "   outColor = vec4(Color, 1.0);"
   "}";
 
-static char* texVertexSource =
+static const char* texVertexSource =
   "#version 150 core\n"
   "in vec2 position;"
   "in vec2 texcoord;"
@@ -41,7 +41,7 @@ static char* texVertexSource =
   "  gl_Position = vec4(position, 0.0, 1.0);"
   "}";
 
-static char* texFragmentSource =
+static const char* texFragmentSource =
   "#version 150 core\n"
   "in vec2 Texcoord;"
   "out vec4 outColor;"
@@ -88,7 +88,7 @@ static GLuint shadowTexture;
 
 
 
-static inline GLuint createShaderProgram(char* vertexSource, char* fragmentSource) {
+static inline GLuint createShaderProgram(const char* vertexSource, const char* fragmentSource) {
 
   GLint status;
 
