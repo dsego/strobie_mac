@@ -9,8 +9,7 @@
 
 @implementation NoteView {
 
-  CFAttributedStringRef noteNames[12];
-  CFAttributedStringRef sharpSign;
+  CGImageRef noteSprites[12];
   NSMenu *noteMenu;
 
 }
@@ -18,74 +17,85 @@
 
 - (void)awakeFromNib {
 
-  [self buildStrings];
+  [self buildStringImages];
   [self buildMenu];
 
 }
 
 
-- (void)buildStrings {
+- (void)buildStringImages {
 
-  CFStringRef keys1[] = {
+  CFAttributedStringRef noteNames[12];
+
+  CFStringRef keys[] = {
     kCTFontAttributeName,
     kCTForegroundColorAttributeName
   };
 
-  CFTypeRef values1[] = {
-    CTFontCreateWithName(CFSTR("HelveticaNeue"), 72, NULL),
-    CGColorCreateGenericRGB(0.88, 0.88, 0.88, 1),
+  CFTypeRef values[] = {
+    CTFontCreateWithName(CFSTR("HelveticaNeue-Medium"), 72, NULL),
+    CGColorCreateGenericRGB(1, 1, 1, 1)
   };
 
-  CFDictionaryRef attrs1 = CFDictionaryCreate(
+  CFDictionaryRef attrs = CFDictionaryCreate(
     kCFAllocatorDefault,
-    (const void**)&keys1,
-    (const void**)&values1,
-    sizeof(keys1) / sizeof(keys1[0]),
+    (const void**)&keys,
+    (const void**)&values,
+    sizeof(keys) / sizeof(keys[0]),
     &kCFTypeDictionaryKeyCallBacks,
     &kCFTypeDictionaryValueCallBacks
   );
 
-  noteNames[0] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("C"), attrs1);
-  noteNames[1] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("C"), attrs1);
-  noteNames[2] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("D"), attrs1);
-  noteNames[3] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("D"), attrs1);
-  noteNames[4] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("E"), attrs1);
-  noteNames[5] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("F"), attrs1);
-  noteNames[6] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("F"), attrs1);
-  noteNames[7] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("G"), attrs1);
-  noteNames[8] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("G"), attrs1);
-  noteNames[9] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("A"), attrs1);
-  noteNames[10] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("A"), attrs1);
-  noteNames[11] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("B"), attrs1);
+  noteNames[0] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("C"), attrs);
+  noteNames[1] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("C♯"), attrs);
+  noteNames[2] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("D"), attrs);
+  noteNames[3] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("D♯"), attrs);
+  noteNames[4] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("E"), attrs);
+  noteNames[5] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("F"), attrs);
+  noteNames[6] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("F♯"), attrs);
+  noteNames[7] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("G"), attrs);
+  noteNames[8] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("G♯"), attrs);
+  noteNames[9] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("A"), attrs);
+  noteNames[10] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("A♯"), attrs);
+  noteNames[11] = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("B"), attrs);
 
-  CFRelease(attrs1);
-  CFRelease(values1[0]);
-  CFRelease(values1[1]);
+  CFRelease(attrs);
+  CFRelease(values[0]);
+  CFRelease(values[1]);
 
-  CFStringRef keys2[] = {
-    kCTFontAttributeName,
-    kCTForegroundColorAttributeName
-  };
 
-  CFTypeRef values2[] = {
-    CTFontCreateWithName(CFSTR("HelveticaNeue"), 36, NULL),
-    CGColorCreateGenericRGB(0.8, 0.8, 0.8, 1),
-  };
+  int width  = _bounds.size.width;
+  int height = _bounds.size.height;
 
-  CFDictionaryRef attrs2 = CFDictionaryCreate(
-    kCFAllocatorDefault,
-    (const void**)&keys2,
-    (const void**)&values2,
-    sizeof(keys2) / sizeof(keys2[0]),
-    &kCFTypeDictionaryKeyCallBacks,
-    &kCFTypeDictionaryValueCallBacks
-  );
+  for (int i = 0; i < 12; ++i) {
 
-  sharpSign = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("♯"), attrs2);
+    CGColorSpaceRef genericRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+    CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, 0, genericRGB, kCGImageAlphaPremultipliedLast);
 
-  CFRelease(attrs2);
-  CFRelease(values2[0]);
-  CFRelease(values2[1]);
+    CTLineRef line = CTLineCreateWithAttributedString(noteNames[i]);
+    float typoWidth = CTLineGetTypographicBounds(line, NULL, NULL, NULL);
+    float x = (width - typoWidth) * 0.5; // center horizontally
+    CGImageRef mask = maskFromCTLine(line, x, 14, width, height);
+    CGImageRef inverted = invertedMaskFromMask(mask);
+
+    CGContextSetRGBFillColor(context, 0.9, 0.9, 0.9, 1);
+
+    CGColorRef shadowColor = CGColorCreateGenericRGB(0, 0, 0, 0.6);
+    CGContextSetShadowWithColor(context, CGSizeMake(0, -2), 1, shadowColor);
+    CGContextClipToMask(context, _bounds, mask);
+    CGContextFillRect(context, _bounds);
+    CGContextDrawImage(context, _bounds, inverted);
+
+    noteSprites[i] = CGBitmapContextCreateImage(context);
+
+    CGColorRelease(shadowColor);
+    CGContextRelease(context);
+    CGImageRelease(mask);
+    CGImageRelease(inverted);
+    CFRelease(noteNames[i]);
+
+  }
+
 
 }
 
@@ -151,25 +161,7 @@
     note = Tuning12TET_transpose(engine->currentNote, engine->config->transpose);
   }
 
-  // note name
-  CTLineRef line = CTLineCreateWithAttributedString(noteNames[note.index]);
-  float width = CTLineGetTypographicBounds(line, NULL, NULL, NULL);
-
-  // center horizontally
-  float x = (rect.size.width - width) * 0.5;
-
-  CGContextSetTextPosition(context, x, 14);
-  // CGContextSetShadowWithColor(context, CGSizeMake(0, 0), 6, CGColorCreateGenericRGB(1, 1, 1, 0.4));
-  CTLineDraw(line, context);
-  CFRelease(line);
-
-  // draw sharp symbol
-  if (note.isSharp) {
-    line = CTLineCreateWithAttributedString(sharpSign);
-    CGContextSetTextPosition(context, rect.size.width * 0.5 + 25, 45);
-    CTLineDraw(line, context);
-    CFRelease(line);
-  }
+  CGContextDrawImage(context, rect, noteSprites[note.index]);
 
 }
 
@@ -192,12 +184,52 @@
 - (void) dealloc {
 
   for (int i = 0; i < 12; ++i) {
-    CFRelease(noteNames[i]);
+    CFRelease(noteSprites[i]);
   }
-  CFRelease(sharpSign);
 
 }
 
+
+
+static CGImageRef maskFromCTLine(CTLineRef line, float x, float y, int w, int h) {
+
+  CGColorSpaceRef grayscale = CGColorSpaceCreateDeviceGray();
+  CGContextRef context = CGBitmapContextCreate(NULL, w, h, 8, 0, grayscale, kCGImageAlphaOnly);
+
+  CGContextSetTextPosition(context, x, y);
+  CTLineDraw(line, context);
+  CGImageRef mask = CGBitmapContextCreateImage(context);
+
+  CGColorSpaceRelease(grayscale);
+  CFRelease(line);
+  CGContextRelease(context);
+
+  return mask;
+
+}
+
+
+static CGImageRef invertedMaskFromMask(CGImageRef mask) {
+
+  int width = CGImageGetWidth(mask);
+  int height = CGImageGetHeight(mask);
+
+  CGColorSpaceRef genericRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+  CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, 0, genericRGB, kCGImageAlphaPremultipliedLast);
+
+  CGRect rect = CGRectMake(0, 0, width, height);
+  CGContextSetRGBFillColor(context, 0, 0, 0, 1);
+  CGContextFillRect(context, rect);
+  CGContextClipToMask(context, rect, mask);
+  CGContextClearRect(context, rect);
+  CGImageRef inverted = CGBitmapContextCreateImage(context);
+
+  CGContextRelease(context);
+  CGColorSpaceRelease(genericRGB);
+
+  return inverted;
+
+}
 
 
 @end
