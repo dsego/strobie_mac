@@ -4,6 +4,7 @@
 
 #import "AppDelegate.h"
 #import "shared.h"
+#import "alerts.h"
 
 
 @implementation AppDelegate {
@@ -68,17 +69,18 @@
 - (void)awakeFromNib {
 
   [self loadPreferences];
-
   Note note = Tuning12TET_find(engine->config->freq, engine->config->pitchStandard, engine->config->centsOffset);
   Engine_setStrobes(engine, note, engine->config->samplerate);
-  int err = Engine_setInputDevice(engine, engine->config->inputDevice, engine->config->samplerate, engine->config->inputBufferSize);
-  // if (err) {
-  // }
 
 }
 
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
+
+  int err = Engine_setInputDevice(engine, engine->config->inputDevice, engine->config->samplerate, engine->config->inputBufferSize);
+  if (err) {
+    audioDeviceErrorAlert();
+  }
 
   estimatePitchThread = [[NSThread alloc] initWithTarget:self selector:@selector(estimatePitch) object:nil ];
   [estimatePitchThread start];

@@ -5,6 +5,7 @@
 #import <Cocoa/Cocoa.h>
 #import "AppDelegate.h"
 #import "PrefController.h"
+#import "alerts.h"
 #import "shared.h"
 
 
@@ -92,14 +93,9 @@
     Engine_setStrobes(engine, engine->currentNote, samplerate);
   }
   int err = Engine_setInputDevice(engine, device, samplerate, bufferSize);
-  // if (err) {
-  //   NSAlert *alert = [[NSAlert alloc] init];
-  //   alert.messageText = @"Audio device error";
-  //   alert.informativeText = @"Current audio settings aren't working. "
-  //     "Please try a different sample rate and buffer size, "
-  //     "or choose a different audio device.";
-  //   [alert runModal];
-  // }
+  if (err) {
+    audioDeviceErrorAlert();
+  }
 
 }
 
