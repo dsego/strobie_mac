@@ -14,8 +14,8 @@ FFTS = -I/usr/local/include/ffts /usr/local/lib/libffts.a
 #
 # 	CFLAGS="-w -arch x86_64" ./configure  --enable-mac-universal=NO && make
 #
-PORTAUDIO = ../portaudio/src/common/pa_ringbuffer.c -I../portaudio/include \
-						-I../portaudio/src/common ../portaudio/lib/.libs/libportaudio.dylib
+PORTAUDIO = ../portaudio/trunk/src/common/pa_ringbuffer.c -I../portaudio/trunk/include \
+						-I../portaudio/trunk/src/common ../portaudio/trunk/lib/.libs/libportaudio.dylib
 
 DSP					= ../AudioPlayground/biquad/biquad.c -I../AudioPlayground/biquad \
 						../AudioPlayground/src/Interpolator.c -I../AudioPlayground/src \
@@ -35,20 +35,23 @@ MAC_WARN	= $(WARN) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis 
 # -ffast-math (?)
 #  -fvectorize should be enabled by default for -O3
 #  -O4 should be -O3 -flto
-OPTIONS			= -arch x86_64 -O4 -std=c11
-MAC_OPTIONS = $(OPTIONS) -fmodules -fobjc-arc
+#
+# MAC_OPTIONS = -fobjc-arc -O2 -std=c11 -g  -fsanitize=address -fPIE -pie -arch x86_64
+MAC_OPTIONS = -fmodules -fobjc-arc -arch x86_64 -O4 -std=c11 -mmacosx-version-min=10.7
+# CC = ~/Development/build/Debug+Asserts/bin/clang
+CC = cc
 
 all:
 	make mac
 
 engine:
-	cc -c $(WARN) $(OPTIONS) $(FFTS) $(PORTAUDIO) $(DSP) src/engine/*.c
+	$(CC) -c $(WARN) $(MAC_OPTIONS) $(FFTS) $(PORTAUDIO) $(DSP) src/engine/*.c
 	ar rcs engine.a *.o
 	rm *.o
 
 mac:
 	make engine
-	cc $(MAC_WARN) $(MAC_OPTIONS) $(FFTS) $(PORTAUDIO) $(DSP) \
+	$(CC) $(MAC_WARN) $(MAC_OPTIONS) $(FFTS) $(PORTAUDIO) $(DSP) \
 		-framework Cocoa -framework AppKit -framework QuartzCore -framework OpenGL \
 		engine.a src/mac/*.m src/mac/*.c \
 		-o Strobie.app/Contents/MacOS/Strobie
