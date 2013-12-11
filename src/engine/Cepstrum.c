@@ -105,7 +105,7 @@ void Cepstrum_estimate(Cepstrum* self, float* data, float *outFreq, float *outAm
     spectrum[i] = log10(creal(magnitude(fft[i])));
   }
 
-  float amp, lag;
+  // float amp, lag;
   // findLag(self->spectrum.elements, n, 0.5, &lag, &amp);
 
   // *outFreq = (lag > 2.0) ? self->samplerate / lag : 0.0; // anything less than 2 is probably an error
