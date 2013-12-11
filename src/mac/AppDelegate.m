@@ -153,7 +153,7 @@
 
 -(IBAction)showHelp:(id)sender {
 
-  id url = [NSURL URLWithString:@"http://www.google.com"];
+  id url = [NSURL URLWithString:@"http://www.strobie-app.com"];
   [[NSWorkspace sharedWorkspace] openURL:url];
 
 }
