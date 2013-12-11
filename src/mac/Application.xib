@@ -173,7 +173,7 @@
                         </constraints>
                     </customView>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="i45-ea-1SF" customClass="ModeButton">
-                        <rect key="frame" x="423" y="64" width="51" height="32"/>
+                        <rect key="frame" x="421" y="60" width="51" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="bevel" title="manual" alternateTitle="manual" bezelStyle="rounded" alignment="right" imageScaling="proportionallyDown" inset="2" id="wUJ-vS-SZB">
                             <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
@@ -195,13 +195,13 @@ IA
                     <constraint firstItem="Esd-lZ-YSm" firstAttribute="leading" secondItem="ILa-eD-b18" secondAttribute="trailing" id="A2t-Wx-nwW"/>
                     <constraint firstItem="ILa-eD-b18" firstAttribute="top" secondItem="Esd-lZ-YSm" secondAttribute="top" id="Hjl-d5-ChY"/>
                     <constraint firstItem="ILa-eD-b18" firstAttribute="leading" secondItem="XaM-70-RHD" secondAttribute="trailing" id="S8A-Cz-cAa"/>
-                    <constraint firstAttribute="bottom" secondItem="i45-ea-1SF" secondAttribute="bottom" constant="64" id="cdf-F3-91c"/>
+                    <constraint firstAttribute="bottom" secondItem="i45-ea-1SF" secondAttribute="bottom" constant="60" id="cdf-F3-91c"/>
                     <constraint firstAttribute="bottom" secondItem="ogN-jV-Pqt" secondAttribute="bottom" constant="5" id="h0l-y8-Xjq"/>
                     <constraint firstItem="ILa-eD-b18" firstAttribute="top" secondItem="368" secondAttribute="top" constant="10" id="kfW-Y3-sTh"/>
                     <constraint firstAttribute="bottom" secondItem="ILa-eD-b18" secondAttribute="bottom" constant="90" id="mtX-3O-led"/>
                     <constraint firstItem="ILa-eD-b18" firstAttribute="top" secondItem="XaM-70-RHD" secondAttribute="top" id="oMS-QG-KF7"/>
                     <constraint firstItem="ILa-eD-b18" firstAttribute="bottom" secondItem="XaM-70-RHD" secondAttribute="bottom" id="usc-TT-uJ1"/>
-                    <constraint firstAttribute="trailing" secondItem="i45-ea-1SF" secondAttribute="trailing" constant="26" id="yiR-vo-eMG"/>
+                    <constraint firstAttribute="trailing" secondItem="i45-ea-1SF" secondAttribute="trailing" constant="28" id="yiR-vo-eMG"/>
                 </constraints>
             </view>
             <connections>
