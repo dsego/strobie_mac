@@ -42,7 +42,7 @@ Engine* Engine_create() {
 
     // allocate enough space for any strobe size (see Engine_readStrobes)
     self->strobeBuffers[i] = Vec_create(ENGINE_STR_BUFFER_LENGTH, sizeof(float));
-    self->strobeLengths[i] = 0;
+    self->strobeBuffers[i].count = 0;
 
   }
 
@@ -154,7 +154,7 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate) {
     }
 
     // number of samples displayed
-    self->strobeLengths[i] = self->config->strobes[i].periodsPerFrame * self->config->strobes[i].samplesPerPeriod;
+    self->strobeBuffers[i].count = self->config->strobes[i].periodsPerFrame * self->config->strobes[i].samplesPerPeriod;
 
   }
 
@@ -164,7 +164,7 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate) {
 // return 0 if there is no new data
 int Engine_readStrobe(Engine* self, int index) {
 
-  int hasData = Strobe_read(self->strobes[index], self->strobeBuffers[index].elements, self->strobeLengths[index]);
+  int hasData = Strobe_read(self->strobes[index], self->strobeBuffers[index].elements, self->strobeBuffers[index].count);
   return hasData;
 
 }
@@ -174,7 +174,7 @@ int Engine_readStrobes(Engine* self) {
 
   int fresh = 0;
   for (int i = 0; i < self->strobeCount; ++i) {
-    fresh += Strobe_read(self->strobes[i], self->strobeBuffers[i].elements, self->strobeLengths[i]);
+    fresh += Strobe_read(self->strobes[i], self->strobeBuffers[i].elements, self->strobeBuffers[i].count);
   }
   return fresh; // there is new data
 
@@ -207,9 +207,6 @@ static inline float calcPeak(float* input, int length) {
 }
 
 
-
-
-
 // fetch audio data from the sound card and process
 
 static inline int Engine_streamCallback(
@@ -240,8 +237,6 @@ static inline int Engine_streamCallback(
   return paContinue;
 
 }
-
-
 
 
 void Engine_estimatePitch(Engine* self) {
@@ -325,6 +320,11 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate, int bufferSi
   params.suggestedLatency = Pa_GetDeviceInfo(device)->defaultLowInputLatency;
   params.hostApiSpecificStreamInfo = NULL;
 
+  // NOTE
+  // Calls to open and close streams are definitely not thread safe on any platform.
+  // This means that if you plan to open and close streams from more than one thread,
+  // you will need to provide a locking mechanism to ensure that you don't
+  // open or close streams in different threads at the same time.
   err = Pa_OpenStream(
     &self->stream,
     &params,
