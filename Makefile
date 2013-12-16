@@ -14,8 +14,8 @@ FFTS = -I/usr/local/include/ffts /usr/local/lib/libffts.a
 #
 # 	CFLAGS="-w -arch x86_64" ./configure  --enable-mac-universal=NO && make
 #
-PORTAUDIO = ../portaudio/trunk/src/common/pa_ringbuffer.c -I../portaudio/trunk/include \
-						-I../portaudio/trunk/src/common ../portaudio/trunk/lib/.libs/libportaudio.dylib
+PORTAUDIO = ../portaudio/trunk/src/common/pa_ringbuffer.c -I../portaudio/trunk/include -I../portaudio/trunk/src/common \
+						../portaudio/trunk/lib/.libs/libportaudio.dylib
 
 DSP					= ../AudioPlayground/biquad/biquad.c -I../AudioPlayground/biquad \
 						../AudioPlayground/src/Interpolator.c -I../AudioPlayground/src \
@@ -30,7 +30,7 @@ WARN			= -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion
 MAC_WARN	= $(WARN) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis -Wno-implicit-atomic-properties -Wno-auto-import
 
 
-# -Ofast enables -O3, vectorization, strict aliasing,fast math
+# -Ofast enables -O3, vectorization, strict aliasing, fast math
 # -flto  is a link-time optimizer
 # -ffast-math (?)
 #  -fvectorize should be enabled by default for -O3
@@ -53,12 +53,15 @@ mac:
 	make engine
 	$(CC) $(MAC_WARN) $(MAC_OPTIONS) $(FFTS) $(PORTAUDIO) $(DSP) \
 		-framework Cocoa -framework AppKit -framework QuartzCore -framework OpenGL \
-		engine.a src/mac/*.m src/mac/*.c \
+		engine.a \
+		src/mac/*.m src/mac/*.c \
 		-o Strobie.app/Contents/MacOS/Strobie
 		ibtool --compile Strobie.app/Contents/Resources/Application.nib src/mac/Application.xib
 		cp src/mac/Info.plist Strobie.app/Contents/Info.plist
-		# iconutil -c icns src/app.iconset
-		# cp src/app.icns Strobie.app/Contents/Resources/app.icns
+
+icons:
+	iconutil -c icns src/app.iconset
+	cp src/app.icns Strobie.app/Contents/Resources/app.icns
 
 
 
