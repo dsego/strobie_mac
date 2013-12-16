@@ -114,8 +114,8 @@
 
   while ([estimatePitchThread isCancelled] == NO) {
 
-    Engine_estimatePitch(engine);
     if (engine->mode == AUTO) {
+      Engine_estimatePitch(engine);
       dispatch_async(dispatch_get_main_queue(),^ {
         [[NSNotificationCenter defaultCenter] postNotificationName:@"NoteChangeNotification" object:self];
       });
