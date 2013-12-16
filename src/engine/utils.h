@@ -9,28 +9,28 @@
 
 
 
-inline static float min(int a, int b) {
+inline static float min(const int a, const int b) {
 
   return (a < b) ? a : b;
 
 }
 
 
-inline static float minf(float a, float b) {
+inline static float minf(const float a, const float b) {
 
   return (a < b) ? a : b;
 
 }
 
 
-inline static float max(int a, int b) {
+inline static float max(const int a, const int b) {
 
   return (a > b) ? a : b;
 
 }
 
 
-inline static float maxf(float a, float b) {
+inline static float maxf(const float a, const float b) {
 
   return (a > b) ? a : b;
 
@@ -38,7 +38,7 @@ inline static float maxf(float a, float b) {
 
 
 // limit a value
-inline static float clamp(float val, float lower, float upper) {
+inline static float clamp(const float val, const float lower, const float upper) {
 
   if (val < lower) {
     return lower;
@@ -53,7 +53,7 @@ inline static float clamp(float val, float lower, float upper) {
 }
 
 
-inline static float findWavePeak(float* buffer, int bufferLength) {
+inline static float findWavePeak(const float* buffer, const int bufferLength) {
 
   float peak = 0;
 
@@ -69,7 +69,7 @@ inline static float findWavePeak(float* buffer, int bufferLength) {
 }
 
 
-inline static float magnitude(float complex z) {
+inline static float magnitude(const float complex z) {
 
   return creal(z) * creal(z) + cimag(z) * cimag(z);
 
@@ -79,7 +79,7 @@ inline static float magnitude(float complex z) {
 // find parabolic peak
 // x - interpolated peak location
 // y - peak magnitude estimate
-inline static void parabolic(double a, double b, double c, float *outX, float *outY) {
+inline static void parabolic(const double a, const double b, const double c, float *outX, float *outY) {
 
   double bottom = 2.0 * (a - 2.0 * b + c);
   if (fabs(bottom) < 0.00001) { // bottom == 0.0
