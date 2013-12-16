@@ -58,11 +58,9 @@ inline static float findWavePeak(float* buffer, int bufferLength) {
   float peak = 0;
 
   for (int i = 0; i < bufferLength; ++i) {
-    if (buffer[i] < -peak) {
-      peak = -buffer[i];
-    }
-    else if (buffer[i] > peak) {
-      peak = buffer[i];
+    float pk = fabs(buffer[i]);
+    if (pk > peak) {
+      peak = pk;
     }
   }
 
