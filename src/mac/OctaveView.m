@@ -32,6 +32,10 @@
 
   CGContextRef context = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
   CGContextSetTextMatrix(context, CGAffineTransformIdentity);   // why do I need to do this?
+
+  CGColorRef shadowColor = CGColorCreateGenericRGB(0, 0, 0, 1);
+  CGContextSetShadowWithColor(context, CGSizeMake(0, 2), 0, shadowColor);
+
   float height = rect.size.height / engine->config->strobeCount;
   float y = height * 0.5;
 
@@ -54,6 +58,7 @@
 
   }
 
+  CFRelease(shadowColor);
   CFRelease(attrs);
   CFRelease(values[0]);
   CFRelease(values[1]);
