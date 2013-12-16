@@ -114,7 +114,7 @@ void Strobe_setFreq(Strobe* self, float freq, int samplerate) {
 }
 
 
-void Strobe_process(Strobe* self, float* input, int length) {
+void Strobe_process(Strobe* self, const float* input, int length) {
 
   Biquad_filter(self->bandpass, input, self->filteredBuffer.elements, length);
 

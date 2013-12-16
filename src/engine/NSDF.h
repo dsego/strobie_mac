@@ -24,4 +24,4 @@ typedef struct {
 
 NSDF* NSDF_create(int samplerate, int windowSize);
 void NSDF_destroy(NSDF* self);
-void NSDF_estimate(NSDF* self, float* data, float *outFreq, float *outAmp);
+void NSDF_estimate(NSDF* self, const float* data, float *outFreq, float *outAmp);

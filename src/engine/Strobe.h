@@ -42,4 +42,4 @@ int Strobe_read(Strobe* self, float* output, int length);
 void Strobe_setFreq(Strobe* self, float freq, int samplerate);
 
 // Process (IIR, re-sample) the audio input and write into the ring buffer
-void Strobe_process(Strobe* self, float* input, int length);
+void Strobe_process(Strobe* self, const float* input, int length);

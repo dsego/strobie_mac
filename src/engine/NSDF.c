@@ -55,7 +55,7 @@ void NSDF_destroy(NSDF* self) {
 }
 
 
-void NSDF_estimate(NSDF* self, float* data, float *outFreq, float *outAmp) {
+void NSDF_estimate(NSDF* self, const float* data, float *outFreq, float *outAmp) {
 
   float complex *fft = (float complex *) self->fft.elements;
   float *nsdf = (float *) self->nsdf.elements;

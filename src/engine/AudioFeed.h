@@ -25,4 +25,4 @@ void AudioFeed_destroy(AudioFeed* self);
 void AudioFeed_read(AudioFeed* self, float* output, int outputLength);
 
 // write into the ring buffer
-void AudioFeed_process(AudioFeed* self, float* input, int inputLength);
+void AudioFeed_process(AudioFeed* self, const float* input, int inputLength);

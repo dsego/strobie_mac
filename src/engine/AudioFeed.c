@@ -55,7 +55,7 @@ void AudioFeed_read(AudioFeed* self, float* output, int length) {
 
 
 // 150Hz high pass Butterworth filter
-inline static void highpass(float *input, float* output, int length) {
+inline static void highpass(const float *input, float* output, int length) {
 
   const float a0 =  0.9850016172570234;
   const float a1 = -1.9700032345140468;
@@ -103,7 +103,7 @@ inline static void highpass(float *input, float* output, int length) {
 // }
 
 
-void AudioFeed_process(AudioFeed* self, float* input, int length) {
+void AudioFeed_process(AudioFeed* self, const float* input, int length) {
 
   // const int n = 1024;
   // static float smoothed[n];

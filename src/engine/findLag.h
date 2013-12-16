@@ -7,7 +7,7 @@
 #define FIND_LAG
 
 
-inline static void findLag(float *data, int length, float threshold, float *outLag, float *outAmp) {
+inline static void findLag(const float *data, int length, float threshold, float *outLag, float *outAmp) {
 
   int t = 1;
   int last = length - 1;
@@ -86,7 +86,6 @@ inline static void findLag(float *data, int length, float threshold, float *outL
     // float threshold = data[largestPeakPos] + (c - 1.0) * data[largestPeakPos] * data[largestPeakPos];
     // float threshold = c + (1.0 - c) * (1.0 - data[largestPeakPos]);
     threshold = threshold * data[largestPeakPos];
-
     float delta = 0.0;
     float amp = 0.0;
     int lag = 1;

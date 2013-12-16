@@ -75,7 +75,7 @@ void Cepstrum_destroy(Cepstrum* self) {
 }
 
 
-void Cepstrum_estimate(Cepstrum* self, float* data, float *outFreq, float *outAmp) {
+void Cepstrum_estimate(Cepstrum* self, const float* data, float *outFreq, float *outAmp) {
 
   float complex* fft = (float complex *) self->fft.elements;
   float* audio = (float*) self->audio.elements;

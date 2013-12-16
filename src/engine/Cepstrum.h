@@ -28,4 +28,4 @@ typedef struct {
 
 Cepstrum* Cepstrum_create(int samplerate, int windowSize);
 void Cepstrum_destroy(Cepstrum* self);
-void Cepstrum_estimate(Cepstrum* self, float* data, float *outFreq, float *outAmp);
+void Cepstrum_estimate(Cepstrum* self, const float* data, float *outFreq, float *outAmp);

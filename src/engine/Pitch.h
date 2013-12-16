@@ -22,4 +22,4 @@ typedef struct {
 
 Pitch* Pitch_create(EstimationMethod method, int samplerate, int windowSize);
 void Pitch_destroy(Pitch* self);
-void Pitch_estimate(Pitch* self, float* data, float *outFreq, float *outAmp);
+void Pitch_estimate(Pitch* self, const float* data, float *outFreq, float *outAmp);

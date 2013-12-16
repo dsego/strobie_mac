@@ -53,7 +53,7 @@ void Pitch_destroy(Pitch* self) {
 }
 
 
-void Pitch_estimate(Pitch* self, float* data, float *outFreq, float *outClarity) {
+void Pitch_estimate(Pitch* self, const float* data, float *outFreq, float *outClarity) {
 
   switch (self->method) {
     case CEPSTRUM_METHOD:
