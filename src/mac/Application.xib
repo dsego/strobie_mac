@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13A603" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
     </dependencies>
@@ -42,6 +42,10 @@
         </customObject>
         <customObject id="Xmk-Yz-Pc3" customClass="DevPanelController">
             <connections>
+                <outlet property="colorWell1" destination="Q6p-ds-JMT" id="OsD-3H-f26"/>
+                <outlet property="colorWell2" destination="Ro3-OG-A4K" id="Pg6-eg-3E1"/>
+                <outlet property="colorWell3" destination="ddd-Nx-6TF" id="qvW-Hf-EKd"/>
+                <outlet property="colorWell4" destination="VRS-LO-XXy" id="u9n-De-Qoq"/>
                 <outlet property="colorWellA" destination="Q6p-ds-JMT" id="ADz-jR-tfa"/>
                 <outlet property="colorWellB" destination="Ro3-OG-A4K" id="5Ui-rD-66n"/>
                 <outlet property="window" destination="a3H-GV-tNq" id="jzc-yH-x1w"/>
@@ -136,22 +140,22 @@
                 </menuItem>
             </items>
         </menu>
-        <window title="Strobie" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="367" customClass="MainWindow">
+        <window title="Strobie" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" frameAutosaveName="MainWindow" animationBehavior="default" id="367" customClass="MainWindow">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
-            <rect key="contentRect" x="410" y="248" width="500" height="400"/>
+            <rect key="contentRect" x="410" y="248" width="460" height="400"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
-            <value key="minSize" type="size" width="500" height="400"/>
-            <view key="contentView" id="368">
-                <rect key="frame" x="0.0" y="0.0" width="500" height="400"/>
+            <value key="minSize" type="size" width="460" height="400"/>
+            <view key="contentView" id="368" customClass="ContentView">
+                <rect key="frame" x="0.0" y="0.0" width="460" height="400"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <customView autoresizesSubviews="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ILa-eD-b18" customClass="StrobeView">
-                        <rect key="frame" x="20" y="90" width="460" height="300"/>
+                        <rect key="frame" x="20" y="90" width="420" height="300"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </customView>
                     <customView wantsLayer="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ogN-jV-Pqt" customClass="NoteView">
-                        <rect key="frame" x="200" y="5" width="100" height="80"/>
+                        <rect key="frame" x="180" y="5" width="100" height="80"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="80" id="1BU-ha-2V3"/>
@@ -166,14 +170,14 @@
                         </constraints>
                     </customView>
                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="Esd-lZ-YSm" customClass="OctaveView">
-                        <rect key="frame" x="480" y="90" width="20" height="300"/>
+                        <rect key="frame" x="440" y="90" width="20" height="300"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="20" id="jNU-Nm-wRw"/>
                         </constraints>
                     </customView>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="i45-ea-1SF" customClass="ModeButton">
-                        <rect key="frame" x="421" y="60" width="51" height="32"/>
+                        <rect key="frame" x="381" y="60" width="51" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="bevel" title="manual" alternateTitle="manual" bezelStyle="rounded" alignment="right" imageScaling="proportionallyDown" inset="2" id="wUJ-vS-SZB">
                             <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
@@ -218,17 +222,17 @@ IA
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ro3-OG-A4K">
-                        <rect key="frame" x="200" y="209" width="44" height="23"/>
+                        <rect key="frame" x="89" y="175" width="44" height="23"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <color key="color" red="0.29803922772407532" green="0.29803922772407532" blue="0.29803922772407532" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="color" red="0.85273836096938771" green="0.39494337724468848" blue="0.27910028481393795" alpha="1" colorSpace="calibratedRGB"/>
                         <connections>
                             <action selector="colorWellChanged:" target="Xmk-Yz-Pc3" id="9lh-Jw-nk6"/>
                         </connections>
                     </colorWell>
                     <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Q6p-ds-JMT">
-                        <rect key="frame" x="135" y="209" width="44" height="23"/>
+                        <rect key="frame" x="37" y="175" width="44" height="23"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <color key="color" red="0.80000001192092896" green="0.80000001192092896" blue="0.80000001192092896" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="color" red="0.94331951530612246" green="0.83243543229784112" blue="0.26920888836799639" alpha="1" colorSpace="calibratedRGB"/>
                         <connections>
                             <action selector="colorWellChanged:" target="Xmk-Yz-Pc3" id="obg-sE-RY7"/>
                         </connections>
@@ -242,10 +246,26 @@ IA
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ddd-Nx-6TF">
+                        <rect key="frame" x="141" y="175" width="44" height="23"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <color key="color" red="0.60397401147959184" green="0.16020310471324731" blue="0.11749069827366398" alpha="1" colorSpace="calibratedRGB"/>
+                        <connections>
+                            <action selector="colorWellChanged:" target="Xmk-Yz-Pc3" id="RUi-Pb-s45"/>
+                        </connections>
+                    </colorWell>
+                    <colorWell fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VRS-LO-XXy">
+                        <rect key="frame" x="193" y="175" width="44" height="23"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <color key="color" red="0.28844467474489799" green="0.029108887323901607" blue="0.078626428243794913" alpha="1" colorSpace="calibratedRGB"/>
+                        <connections>
+                            <action selector="colorWellChanged:" target="Xmk-Yz-Pc3" id="0UX-cH-U0f"/>
+                        </connections>
+                    </colorWell>
                 </subviews>
             </view>
         </window>
-        <window title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hidesOnDeactivate="YES" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="xie-yM-w28" customClass="NSPanel">
+        <window title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hidesOnDeactivate="YES" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="PreferencesWindow" animationBehavior="default" id="xie-yM-w28" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="781" y="270" width="413" height="373"/>
@@ -537,7 +557,7 @@ IA
                                 <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="toc-1o-arz">
                                     <rect key="frame" x="105" y="24" width="213" height="27"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="120" doubleValue="60" tickMarkPosition="below" numberOfTickMarks="7" sliderType="linear" id="JfF-pk-ILn"/>
+                                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="60" doubleValue="30" tickMarkPosition="below" numberOfTickMarks="7" sliderType="linear" id="JfF-pk-ILn"/>
                                     <connections>
                                         <action selector="maxGainChanged:" target="bhj-6S-PFX" id="dFD-Rr-xmA"/>
                                     </connections>
