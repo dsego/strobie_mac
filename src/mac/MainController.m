@@ -43,40 +43,39 @@
   switch ([theEvent keyCode]) {
 
     case 123: // LEFT  semitone lower
-      if (engine->mode == MANUAL) {
-        engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, -1);
-        Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
-      }
+      engine->mode = MANUAL; // automatically go to manual mode
+      engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, -1);
+      Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
       break;
 
     case 124: // RIGHT  semitone higher
-      if (engine->mode == MANUAL) {
-        engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, 1);
-        Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
-      }
+      engine->mode = MANUAL; // automatically go to manual mode
+      engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, 1);
+      Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
       break;
 
-    case 125: // DOWN   fifth lower (fourth higher)
-      if (engine->mode == MANUAL) {
-        engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, -7);
-        Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
-      }
+    case 125: // DOWN   fourth lower (fifth higher)
+      engine->mode = MANUAL; // automatically go to manual mode
+      engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, 7);
+      Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
       break;
 
-    case 126: // UP   fifth higher (fourth lower)
-      if (engine->mode == MANUAL) {
-        engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, 7);
-        Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
-      }
+    case 126: // UP   fourth higher (fifth lower)
+      engine->mode = MANUAL; // automatically go to manual mode
+      engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, -7);
+      Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
       break;
 
-    case 49:  // SPACEBAR -> handle with modeButton (key equivalent)
-      // engine->mode = (engine->mode == AUTO) ? MANUAL : AUTO;
+    case 49:  // SPACEBAR -> toggle mode
+      // mode button key equivalent is set to space bar
       break;
 
     default: // do nothing
       break;
   }
+
+  // refresh mode button
+  _modeButton.state = (engine->mode == AUTO) ? NSOffState : NSOnState;
 
   [self refreshDisplay];
 
