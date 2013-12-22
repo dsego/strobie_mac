@@ -13,6 +13,7 @@
 #include "Config.h"
 #include "Pitch.h"
 #include "AudioFeed.h"
+#include "Median.h"
 #include "Vec.h"
 #include "Strobe.h"
 
@@ -32,16 +33,17 @@ typedef struct {
   AudioFeed* audioFeed;
   Pitch* pitch;               // pitch recognition
 
-  Vec audioBuffer;
-  float peak;
-  float clarity;
+  Median *clarityMedian;
+  Median *freqMedian;
+
+  Vec *audioBuffer;
 
   DetectionMode mode;
   Note currentNote;
 
   int strobeCount;
   Strobe* strobes[MAX_STROBES];
-  Vec strobeBuffers[MAX_STROBES];
+  Vec *strobeBuffers[MAX_STROBES];
 
 } Engine;
 

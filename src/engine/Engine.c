@@ -24,6 +24,9 @@ Engine* Engine_create() {
   Config* config = self->config = Config_create();
   self->currentNote = Tuning12TET_find(self->config->freq, self->config->pitchStandard, self->config->centsOffset);
 
+  self->freqMedian = Median_create(9);
+  self->clarityMedian = Median_create(9);
+
   // TODO: this should probably be in Config, maybe?
   self->mode = AUTO;
   self->audioFeed = AudioFeed_create();
@@ -81,6 +84,8 @@ void Engine_destroy(Engine* self) {
   }
 
   Config_destroy(self->config);
+  Median_destroy(self->freqMedian);
+  Median_destroy(self->clarityMedian);
   AudioFeed_destroy(self->audioFeed);
   Pitch_destroy(self->pitch);
 
@@ -248,32 +253,17 @@ void Engine_estimatePitch(Engine* self) {
   float freq, clarity;
   Pitch_estimate(self->pitch, (float*)self->audioBuffer->elements, &freq, &clarity);
 
-  // rolling median filter
-  #define WLEN 5
-  static float freqWin[WLEN] = { 0 };
-  static float clarityWin[WLEN] = { 0 };
-  static int index = 0;
-
-  clarityWin[index] = clarity;
-  freqWin[index] = freq;
-  index += 1;
-  if (index >= WLEN) {
-    index = 0;
-  }
-
-  #undef WLEN
-
-  float medianFreq = median5(freqWin);
-  float medianClarity = median5(clarityWin);
-
-  self->clarity = medianClarity;
+  Median_push(self->freqMedian, freq);
+  Median_push(self->clarityMedian, clarity);
+  freq = Median_value(self->freqMedian);
+  clarity = Median_value(self->clarityMedian);
 
   // totally not arbitrary
   const float maxFreq = 12345;
 
   if (self->mode == AUTO) {
-    if (medianFreq > 0.0 && medianFreq < maxFreq && medianClarity > self->config->clarityThreshold) {
-      self->currentNote = Tuning12TET_find(medianFreq, self->config->pitchStandard, self->config->centsOffset);
+    if (freq > 0.0 && freq < maxFreq && clarity > self->config->clarityThreshold) {
+      self->currentNote = Tuning12TET_find(freq, self->config->pitchStandard, self->config->centsOffset);
       Engine_setStrobes(self, self->currentNote, self->config->samplerate);
     }
   }
