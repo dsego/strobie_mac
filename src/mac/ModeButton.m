@@ -14,20 +14,27 @@
   NSMutableParagraphStyle *centered = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
   centered.alignment = NSCenterTextAlignment;
 
+
+  NSShadow *letterpress = [[NSShadow alloc] init];
+  [letterpress setShadowBlurRadius:0];
+  [letterpress setShadowOffset:NSMakeSize(0, 1)];
+  [letterpress setShadowColor:[NSColor colorWithCalibratedWhite:0 alpha:1]];
+
   NSDictionary *attrs = @{
     NSFontAttributeName: [NSFont fontWithName: @"HelveticaNeue" size: 14],
-    NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.4 green:0.4 blue:0.4 alpha:1.0],
-    NSParagraphStyleAttributeName: centered
+    NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.4 green:0.4 blue:0.4 alpha:1],
+    NSParagraphStyleAttributeName: centered,
+    NSShadowAttributeName:  letterpress
   };
 
   NSShadow *shadow = [[NSShadow alloc] init];
-  [shadow setShadowBlurRadius:6.0];
+  [shadow setShadowBlurRadius:8];
   [shadow setShadowOffset:NSMakeSize(0.0, 0.0)];
-  [shadow setShadowColor:[NSColor colorWithCalibratedWhite:0.8 alpha:0.8]];
+  [shadow setShadowColor:[NSColor colorWithCalibratedWhite:0.8 alpha:0.6]];
 
   NSDictionary *subAttrs = @{
     NSFontAttributeName: [NSFont fontWithName: @"HelveticaNeue" size: 14],
-    NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:0.8 blue:0.8 alpha:1.0],
+    NSForegroundColorAttributeName: [NSColor colorWithCalibratedRed:0.8 green:0.8 blue:0.8 alpha:1],
     NSParagraphStyleAttributeName: centered,
     NSShadowAttributeName:  shadow
   };
