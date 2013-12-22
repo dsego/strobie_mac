@@ -25,9 +25,9 @@
   [_concertPitchText setFloatValue: engine->config->pitchStandard];
   [_concertPitchStepper setFloatValue: engine->config->pitchStandard];
 
-  float maxGainVal = 20.0 * log10(engine->config->maxGain);
-  [_maxGainSlider setFloatValue: maxGainVal];
-  [_maxGainLabel setStringValue: [NSString stringWithFormat: @"%2.0f", maxGainVal]];
+  float gainVal = 20.0 * log10(engine->config->gain);
+  [_gainSlider setFloatValue: gainVal];
+  [_gainLabel setStringValue: [NSString stringWithFormat: @"%2.0f", gainVal]];
 
 }
 
@@ -127,11 +127,11 @@
 }
 
 
-- (IBAction)maxGainChanged: (id)sender {
+- (IBAction)gainChanged: (id)sender {
 
-  float maxGainVal = [sender floatValue];
-  engine->config->maxGain = pow(10.0, maxGainVal / 20.0);
-  [_maxGainLabel setStringValue: [NSString stringWithFormat: @"%2.0f", maxGainVal]];
+  float gainVal = [sender floatValue];
+  engine->config->gain = pow(10.0, gainVal / 20.0);
+  [_gainLabel setStringValue: [NSString stringWithFormat: @"%2.0f", gainVal]];
 
 }
 

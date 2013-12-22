@@ -15,8 +15,8 @@
   @property IBOutlet NSStepper *concertPitchStepper;
   @property IBOutlet NSTextField *centsOffsetText;
   @property IBOutlet NSStepper *centsOffsetStepper;
-  @property IBOutlet NSSlider *maxGainSlider;
-  @property IBOutlet NSTextField *maxGainLabel;
+  @property IBOutlet NSSlider *gainSlider;
+  @property IBOutlet NSTextField *gainLabel;
 
   - (void)loadFromConfig;
 
@@ -24,7 +24,7 @@
   - (IBAction)transposeChanged: (id)sender;
   - (IBAction)concertPitchChanged: (id)sender;
   - (IBAction)centsOffsetChanged: (id)sender;
-  - (IBAction)maxGainChanged: (id)sender;
+  - (IBAction)gainChanged: (id)sender;
 
 
 @end

@@ -26,6 +26,8 @@
                 <outlet property="centsOffsetText" destination="9sm-vs-5yP" id="gQB-12-jFd"/>
                 <outlet property="concertPitchStepper" destination="bDh-Ro-tjG" id="hmj-aG-kTb"/>
                 <outlet property="concertPitchText" destination="2668" id="rfl-5N-xcu"/>
+                <outlet property="gainLabel" destination="2Hv-P1-ce8" id="Ca2-Ia-44a"/>
+                <outlet property="gainSlider" destination="toc-1o-arz" id="29v-JO-zSv"/>
                 <outlet property="inputDevicePopup" destination="845" id="C8k-yC-qM6"/>
                 <outlet property="maxGainLabel" destination="2Hv-P1-ce8" id="A1Q-aJ-zXK"/>
                 <outlet property="maxGainSlider" destination="toc-1o-arz" id="EGx-s1-dUa"/>
@@ -557,9 +559,9 @@ IA
                                 <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="toc-1o-arz">
                                     <rect key="frame" x="105" y="24" width="213" height="27"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="60" doubleValue="30" tickMarkPosition="below" numberOfTickMarks="7" sliderType="linear" id="JfF-pk-ILn"/>
+                                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="80" doubleValue="40" tickMarkPosition="below" numberOfTickMarks="5" sliderType="linear" id="JfF-pk-ILn"/>
                                     <connections>
-                                        <action selector="maxGainChanged:" target="bhj-6S-PFX" id="dFD-Rr-xmA"/>
+                                        <action selector="gainChanged:" target="bhj-6S-PFX" id="kmQ-AA-X2Y"/>
                                     </connections>
                                 </slider>
                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="2Hv-P1-ce8">

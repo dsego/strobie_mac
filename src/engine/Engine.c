@@ -51,6 +51,9 @@ Engine* Engine_create() {
 
   self->pitch = Pitch_create(NSDF_METHOD, config->samplerate, config->windowSize);
   self->audioBuffer = Vec_create(self->config->windowSize, sizeof(float));
+  self->peakSampleCount = 0;
+  self->peakWindowSize = 512;
+  self->tempPeak = 0;
   self->peak = 0;
   self->clarity = 0;
   self->stream = NULL;
@@ -188,28 +191,22 @@ int Engine_readStrobes(Engine* self) {
 
 float Engine_gain(Engine* self) {
 
-  // 100 / (0 + 0.01) = 10000
-  // 100 / (1 + 0.01) = 99
-  const float alpha = 100;
-  float beta = alpha / self->config->maxGain; // limit gain
-  return alpha / (self->peak + beta);
+  // 1 / (0 + 0.00001) = 100000
+  // 1 / (1 + 0.00001) = 0.9999 (~= 1)
+  const float maxGain = 100000; //  gain limit
+  return self->config->gain / (self->peak + 1.0 / maxGain);
 
 }
 
 
-static inline float calcPeak(float* input, int length) {
+// float Engine_gain(Engine* self, float alpha) {
 
-  float peak = 0.0;
+//   // 100 / (0 + 0.01) = 10000
+//   // 100 / (1 + 0.01) = 99
+//   float beta = alpha / self->config->maxGain; // limit gain
+//   return alpha / (self->peak + beta);
 
-  for (int i = 0; i < length; ++i) {
-    if (input[i] > peak || input[i] < -peak) {
-      peak = fabs(input[i]);
-    }
-  }
-
-  return peak;
-
-}
+// }
 
 
 // fetch audio data from the sound card and process
@@ -229,9 +226,18 @@ static inline int Engine_streamCallback(
   Engine* self = (Engine*) userData;
   float *samples = (float*)input;
 
-  // smooth peak
-  // self->peak = 0.98 * self->peak + 0.02 * calcPeak(samples, frameCount);
-  self->peak = calcPeak(samples, frameCount);
+  // find temp peak
+  float peak = findWavePeak(samples, frameCount);
+  if (peak > self->tempPeak) {
+    self->tempPeak = peak;
+  }
+  self->peakSampleCount += frameCount;
+
+  // full window reached
+  if (self->peakSampleCount >= self->peakWindowSize) {
+    self->peak = self->tempPeak;
+    self->peakSampleCount = 0;
+  }
 
   AudioFeed_process(self->audioFeed, samples, frameCount);
 

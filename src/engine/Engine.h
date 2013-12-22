@@ -37,6 +37,11 @@ typedef struct {
   Median *freqMedian;
 
   Vec *audioBuffer;
+  int peakSampleCount;
+  int peakWindowSize;
+  float peak;                 // audio peak - highest peak in peakWindowSize
+  float tempPeak;             // temp peak for each audio frame (in audio callback)
+  float clarity; // not used
 
   DetectionMode mode;
   Note currentNote;
