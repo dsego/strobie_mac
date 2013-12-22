@@ -19,7 +19,7 @@ AudioFeed* AudioFeed_create() {
   self->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
   assert(self->ringbuffer != NULL);
 
-  PaUtil_InitializeRingBuffer(self->ringbuffer, sizeof(float), RB_LENGTH, self->rbdata.elements);
+  PaUtil_InitializeRingBuffer(self->ringbuffer, sizeof(float), RB_LENGTH, self->rbdata->elements);
 
   return self;
 

@@ -47,11 +47,11 @@ Cepstrum* Cepstrum_create(int samplerate, int windowSize) {
   self->window   = Vec_create(windowSize, sizeof(float));
   self->spectrum = Vec_create(fftBinCount, sizeof(float));
 
-  blackman((float*)self->window.elements, windowSize);
+  blackman((float*)self->window->elements, windowSize);
 
   // fill with zeros
-  float *audio = (float*) self->audio.elements;
-  for (int i = 0; i < self->audio.count; ++i) {
+  float *audio = (float*) self->audio->elements;
+  for (int i = 0; i < self->audio->count; ++i) {
     audio[i] = 0.0;
   }
 
@@ -77,36 +77,36 @@ void Cepstrum_destroy(Cepstrum* self) {
 
 void Cepstrum_estimate(Cepstrum* self, const float* data, float *outFreq, float *outAmp) {
 
-  float complex* fft = (float complex *) self->fft.elements;
-  float* audio = (float*) self->audio.elements;
-  float* spectrum = (float*) self->spectrum.elements;
+  float complex* fft = (float complex *) self->fft->elements;
+  float* audio = (float*) self->audio->elements;
+  float* spectrum = (float*) self->spectrum->elements;
 
   // padded audio data
-  memcpy(audio, data, self->audio.count * sizeof(float));
+  memcpy(audio, data, self->audio->count * sizeof(float));
 
   // Blackman
-  for (int i = 0; i < self->window.count; ++i) {
-    // self->audio.elements[i] *= self->window.elements[i];
+  for (int i = 0; i < self->window->count; ++i) {
+    // self->audio->elements[i] *= self->window->elements[i];
   }
 
   // FFT
   ffts_execute(self->fftPlan, audio, fft);
 
   // log power spectrum
-  for (int i = 0; i < self->fft.count; ++i) {
+  for (int i = 0; i < self->fft->count; ++i) {
     spectrum[i] = log10(1.0 + creal(magnitude(fft[i])));
   }
 
   ffts_execute(self->cepPlan, spectrum, fft);
 
   // log power cepstrum
-  int n = self->fft.count/2;
+  int n = self->fft->count/2;
   for (int i = 0; i < n; ++i) {
     spectrum[i] = log10(creal(magnitude(fft[i])));
   }
 
   // float amp, lag;
-  // findLag(self->spectrum.elements, n, 0.5, &lag, &amp);
+  // findLag(self->spectrum->elements, n, 0.5, &lag, &amp);
 
   // *outFreq = (lag > 2.0) ? self->samplerate / lag : 0.0; // anything less than 2 is probably an error
   // *outAmp = (amp >= 0.0) ? amp : 0.0;

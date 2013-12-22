@@ -10,25 +10,25 @@
 #include "Vec.h"
 
 
-Vec Vec_create(const int capacity, const int size) {
+Vec* Vec_create(int capacity, int size) {
 
-  Vec vec;
-  vec.elements = malloc(capacity * size);
-  assert(vec.elements != NULL);
+  Vec* self = malloc(sizeof(Vec));
+  assert(self != NULL);
 
-  vec.size = size;
-  vec.capacity = capacity;
-  vec.count = capacity;
-  return vec;
+  self->elements = malloc(capacity * size);
+  assert(self->elements != NULL);
+
+  self->size = size;
+  self->capacity = capacity;
+  self->count = capacity;
+  return self;
 
 }
 
 
-void Vec_destroy(Vec vec) {
+void Vec_destroy(Vec* self) {
 
-  free(vec.elements);
-  vec.size = 0;
-  vec.capacity = 0;
-  vec.count = 0;
+  free(self->elements);
+  free(self);
 
 }

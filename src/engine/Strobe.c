@@ -40,7 +40,7 @@ Strobe* Strobe_create(
     self->ringbuffer,
     sizeof(float),
     STROBE_RB_LENGTH,
-    self->rbdata.elements
+    self->rbdata->elements
   );
 
   return self;
@@ -116,18 +116,18 @@ void Strobe_setFreq(Strobe* self, float freq, int samplerate) {
 
 void Strobe_process(Strobe* self, const float* input, int length) {
 
-  Biquad_filter(self->bandpass, input, self->filteredBuffer.elements, length);
+  Biquad_filter(self->bandpass, input, self->filteredBuffer->elements, length);
 
   // filteredBuffer.length might be larger than length
   int count = Interpolator_linearConvert(
     self->src,
-    self->filteredBuffer.elements,
+    self->filteredBuffer->elements,
     length,
-    self->resampledBuffer.elements,
-    self->resampledBuffer.count
+    self->resampledBuffer->elements,
+    self->resampledBuffer->count
   );
 
-  PaUtil_WriteRingBuffer(self->ringbuffer, self->resampledBuffer.elements, count);
+  PaUtil_WriteRingBuffer(self->ringbuffer, self->resampledBuffer->elements, count);
 
 }
 

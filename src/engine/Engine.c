@@ -42,7 +42,7 @@ Engine* Engine_create() {
 
     // allocate enough space for any strobe size (see Engine_readStrobes)
     self->strobeBuffers[i] = Vec_create(ENGINE_STR_BUFFER_LENGTH, sizeof(float));
-    self->strobeBuffers[i].count = 0;
+    self->strobeBuffers[i]->count = 0;
 
   }
 
@@ -154,7 +154,7 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate) {
     }
 
     // number of samples displayed
-    self->strobeBuffers[i].count = self->config->strobes[i].periodsPerFrame * self->config->strobes[i].samplesPerPeriod;
+    self->strobeBuffers[i]->count = self->config->strobes[i].periodsPerFrame * self->config->strobes[i].samplesPerPeriod;
 
   }
 
@@ -164,7 +164,7 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate) {
 // return 0 if there is no new data
 int Engine_readStrobe(Engine* self, int index) {
 
-  int hasData = Strobe_read(self->strobes[index], self->strobeBuffers[index].elements, self->strobeBuffers[index].count);
+  int hasData = Strobe_read(self->strobes[index], self->strobeBuffers[index]->elements, self->strobeBuffers[index]->count);
   return hasData;
 
 }
@@ -174,7 +174,7 @@ int Engine_readStrobes(Engine* self) {
 
   int fresh = 0;
   for (int i = 0; i < self->strobeCount; ++i) {
-    fresh += Strobe_read(self->strobes[i], self->strobeBuffers[i].elements, self->strobeBuffers[i].count);
+    fresh += Strobe_read(self->strobes[i], self->strobeBuffers[i]->elements, self->strobeBuffers[i]->count);
   }
   return fresh; // there is new data
 
@@ -242,12 +242,11 @@ static inline int Engine_streamCallback(
 void Engine_estimatePitch(Engine* self) {
 
   // read in new data from the ring buffer
-  AudioFeed_read(self->audioFeed, (float*)self->audioBuffer.elements, self->audioBuffer.count);
 
-  float freq;
-  float clarity;
-  Pitch_estimate(self->pitch, (float*)self->audioBuffer.elements, &freq, &clarity);
+  AudioFeed_read(self->audioFeed, (float*)self->audioBuffer->elements, self->audioBuffer->count);
 
+  float freq, clarity;
+  Pitch_estimate(self->pitch, (float*)self->audioBuffer->elements, &freq, &clarity);
 
   // rolling median filter
   #define WLEN 5

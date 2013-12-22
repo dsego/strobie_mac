@@ -10,9 +10,9 @@
 // Normalized square difference
 typedef struct {
 
-  Vec audio;                // audio samples
-  Vec nsdf;                 // normalized square difference
-  Vec fft;                  // FFT data
+  Vec* audio;                 // audio samples
+  Vec* nsdf;                  // normalized square difference
+  Vec* fft;                   // FFT data
   // FloatArray top;          // SNAC numerator
   // FloatArray bottom;       // SNAC denominator
   ffts_plan_t *fftPlan;       // FFTS plan

@@ -9,10 +9,10 @@
 
 typedef struct {
 
-  Vec window;          // FFT windowing function
-  Vec audio;           // audio samples
-  Vec fft;             // frequency data
-  Vec spectrum;
+  Vec* window;          // FFT windowing function
+  Vec* audio;           // audio samples
+  Vec* fft;             // frequency data
+  Vec* spectrum;
 
   ffts_plan_t *fftPlan;       // FFTS plan
   ffts_plan_t *cepPlan;       // FFTS plan

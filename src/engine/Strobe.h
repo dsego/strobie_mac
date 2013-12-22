@@ -18,9 +18,9 @@ typedef struct {
   int subdivCount;
   int samplerate;
 
-  Vec filteredBuffer;           // store filtered data to be re-sampled
-  Vec resampledBuffer;          // stores re-sampled data before writing to the circular buffer
-  Vec rbdata;                   // circular buffer data store
+  Vec* filteredBuffer;          // store filtered data to be re-sampled
+  Vec* resampledBuffer;         // stores re-sampled data before writing to the circular buffer
+  Vec* rbdata;                  // circular buffer data store
   float bufferRatio;            // resampledBuffer.length / filteredBuffer.length
 
   Biquad* bandpass;             // band pass filter

@@ -175,7 +175,7 @@ static inline void initStrobeBuffers(Engine *engine) {
 
     glBindVertexArray(strobes[sid].vao);
 
-    int count = strobes[sid].count = engine->strobeBuffers[sid].count * 2;
+    int count = strobes[sid].count = engine->strobeBuffers[sid]->count * 2;
 
     // Static position data
     glBindBuffer(GL_ARRAY_BUFFER, strobes[sid].posBuffer);
@@ -315,7 +315,7 @@ void StrobeDisplay_cleanup() {
 //     float length = PI;
 //     float dt = length / (engine->strobeLengths[sid] - 1);
 
-//     for (int i = 0; i < 2 * strobes[sid].count; ) {
+//     for (int i = 0; i < 2 * strobes[sid]->count; ) {
 //       strobes[sid].positions[i++] = (r + height) * cos(t) * ratio;
 //       strobes[sid].positions[i++] = (r + height) * sin(t) - 1;
 //       strobes[sid].positions[i++] = r * cos(t) * ratio;
@@ -350,7 +350,7 @@ static inline void refreshStrobePositions(Engine *engine, int w, int h) {
 
     // generate vertex positions
     float x = -1.0f;
-    float dx = 2.0f / (engine->strobeBuffers[sid].count - 1);
+    float dx = 2.0f / (engine->strobeBuffers[sid]->count - 1);
 
     for (int i = 0; i < 2 * strobes[sid].count; ) {
       strobes[sid].positions[i++] = x;

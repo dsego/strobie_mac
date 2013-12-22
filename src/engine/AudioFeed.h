@@ -11,7 +11,7 @@
 typedef struct {
 
   PaUtilRingBuffer* ringbuffer;
-  Vec rbdata;
+  Vec* rbdata;
 
 } AudioFeed;
 

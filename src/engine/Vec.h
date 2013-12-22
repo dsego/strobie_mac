@@ -17,8 +17,8 @@ typedef struct {
 } Vec;
 
 
-Vec Vec_create(const int capacity, const int size);
-void Vec_destroy(Vec vec);
+Vec* Vec_create(int capacity, int size);
+void Vec_destroy(Vec* vec);
 
 
 #endif
