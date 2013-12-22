@@ -25,21 +25,30 @@
 
 - (IBAction)colorWellChanged: (id)sender {
 
-  NSColor *colorA = [self.colorWellA color];
-  NSColor *colorB = [self.colorWellB color];
+  NSColor *color1 = [self.colorWell1 color];
+  NSColor *color2 = [self.colorWell2 color];
+  NSColor *color3 = [self.colorWell3 color];
+  NSColor *color4 = [self.colorWell4 color];
 
-  int rgbA[3];
-  int rgbB[3];
+  int rgb[4][3];
 
-  rgbA[0] = (int) ([colorA redComponent] * 255);
-  rgbA[1] = (int) ([colorA greenComponent] * 255);
-  rgbA[2] = (int) ([colorA blueComponent] * 255);
+  rgb[0][0] = (int) ([color1 redComponent] * 255);
+  rgb[0][1] = (int) ([color1 greenComponent] * 255);
+  rgb[0][2] = (int) ([color1 blueComponent] * 255);
 
-  rgbB[0] = (int) ([colorB redComponent] * 255);
-  rgbB[1] = (int) ([colorB greenComponent] * 255);
-  rgbB[2] = (int) ([colorB blueComponent] * 255);
+  rgb[1][0] = (int) ([color2 redComponent] * 255);
+  rgb[1][1] = (int) ([color2 greenComponent] * 255);
+  rgb[1][2] = (int) ([color2 blueComponent] * 255);
 
-  Engine_setColors(engine, rgbA, rgbB);
+  rgb[2][0] = (int) ([color3 redComponent] * 255);
+  rgb[2][1] = (int) ([color3 greenComponent] * 255);
+  rgb[2][2] = (int) ([color3 blueComponent] * 255);
+
+  rgb[3][0] = (int) ([color4 redComponent] * 255);
+  rgb[3][1] = (int) ([color4 greenComponent] * 255);
+  rgb[3][2] = (int) ([color4 blueComponent] * 255);
+
+  Engine_setColors(engine, rgb, 4);
 
 }
 

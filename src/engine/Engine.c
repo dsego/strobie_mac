@@ -253,7 +253,6 @@ static inline int Engine_streamCallback(
 void Engine_estimatePitch(Engine* self) {
 
   // read in new data from the ring buffer
-
   AudioFeed_read(self->audioFeed, (float*)self->audioBuffer->elements, self->audioBuffer->count);
 
   float freq, clarity;
@@ -370,17 +369,18 @@ int Engine_deviceName(int index, char *outName, int *outIsInput, int *outIsOutpu
 }
 
 
-void Engine_setColors(Engine* self, int color1[3], int color2[3]) {
+void Engine_setColors(Engine* self, int colors[][3], int count) {
+
+  if (count > CONFIG_MAX_COLORS) {
+    count = CONFIG_MAX_COLORS;
+  }
 
   for (int i = 0; i < self->strobeCount; ++i) {
-
-    self->config->strobes[i].color1[0] = color1[0];
-    self->config->strobes[i].color1[1] = color1[1];
-    self->config->strobes[i].color1[2] = color1[2];
-
-    self->config->strobes[i].color2[0] = color2[0];
-    self->config->strobes[i].color2[1] = color2[1];
-    self->config->strobes[i].color2[2] = color2[2];
+    for (int j = 0; j < count; ++j) {
+      self->config->strobes[i].colors[j][0] = colors[j][0];
+      self->config->strobes[i].colors[j][1] = colors[j][1];
+      self->config->strobes[i].colors[j][2] = colors[j][2];
+    }
   }
 
 }

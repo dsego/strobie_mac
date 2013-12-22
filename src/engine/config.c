@@ -47,13 +47,12 @@ Config* Config_create() {
 
   for (int i = 0; i < self->strobeCount; ++i) {
 
-    self->strobes[i].color1[0] = 217;
-    self->strobes[i].color1[1] = 254;
-    self->strobes[i].color1[2] = 163;
-
-    self->strobes[i].color2[0] = 27;
-    self->strobes[i].color2[1] = 79;
-    self->strobes[i].color2[2] = 161;
+    self->strobes[i].colors[0][0] = 217;
+    self->strobes[i].colors[0][1] = 254;
+    self->strobes[i].colors[0][2] = 163;
+    self->strobes[i].colors[1][0] = 27;
+    self->strobes[i].colors[1][1] = 79;
+    self->strobes[i].colors[1][2] = 161;
 
     self->strobes[i].samplesPerPeriod = samplesPerPeriod;
     self->strobes[i].periodsPerFrame = periodsPerFrame;

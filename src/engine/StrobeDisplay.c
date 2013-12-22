@@ -4,8 +4,10 @@
 
 
 #include <math.h>
+#include <string.h>
 #include <OpenGL/gl3.h>
 #include "utils.h"
+#include "Median.h"
 #include "StrobeDisplay.h"
 #include "glDebug.h"
 
@@ -16,8 +18,8 @@
 static const char* sceneVertexSource =
   "#version 150 core\n"
   "in vec2 position;"
-  "in vec3 color;"
-  "out vec3 Color;"
+  "in vec4 color;"
+  "out vec4 Color;"
   "void main() {"
   "   Color = color;"
   "   gl_Position = vec4(position, 0.0, 1.0);"
@@ -26,9 +28,9 @@ static const char* sceneVertexSource =
 static const char* sceneFragmentSource =
   "#version 150 core\n"
   "out vec4 outColor;"
-  "in vec3 Color;"
+  "in vec4 Color;"
   "void main() {"
-  "   outColor = vec4(Color, 1.0);"
+  "   outColor = Color;"
   "}";
 
 static const char* texVertexSource =
@@ -61,6 +63,8 @@ typedef struct {
   GLuint colorBuffer;
   GLfloat *positions;
   GLubyte *colors;
+  Median* peakMedian;
+  float peak;
   int count;
 
 } StrobeDisplay;
@@ -188,12 +192,14 @@ static inline void initStrobeBuffers(Engine *engine) {
 
     // Dynamic color data
     glBindBuffer(GL_ARRAY_BUFFER, strobes[sid].colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, 3 * count * sizeof(GLubyte), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 4 * count * sizeof(GLubyte), NULL, GL_DYNAMIC_DRAW);
     strobes[sid].colors = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 
     GLint colAttrib = glGetAttribLocation(sceneShader, "color");
-    glVertexAttribPointer(colAttrib, 3, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
+    glVertexAttribPointer(colAttrib, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
     glEnableVertexAttribArray(colAttrib);
+
+    strobes[sid].peakMedian = Median_create(25);
 
   }
 
@@ -368,30 +374,49 @@ static inline void refreshStrobePositions(Engine *engine, int w, int h) {
 
 static inline void refreshStrobeColors(Engine *engine, int sid, float gain) {
 
+  int colors[4][3];
+
+  memcpy(colors, engine->config->strobes[0].colors, 4 * 3 * sizeof(int));
+
+  float scale[3];
+
+  scale[0] = colors[0][0] - colors[1][0];
+  scale[1] = colors[0][1] - colors[1][1];
+  scale[2] = colors[0][2] - colors[1][2];
+
+  // scales[1][0] = colors[1][0] - colors[2][0];
+  // scales[1][1] = colors[1][1] - colors[2][1];
+  // scales[1][2] = colors[1][2] - colors[2][2];
+
+  // scales[2][0] = colors[2][0] - colors[3][0];
+  // scales[2][1] = colors[2][1] - colors[3][1];
+  // scales[2][2] = colors[2][2] - colors[3][2];
+
+
   if (Engine_readStrobe(engine, sid)) {
 
-    float *buffer = (float*)engine->strobeBuffers[sid].elements;
+    float *buffer = (float*)engine->strobeBuffers[sid]->elements;
+    int i = engine->strobeBuffers[sid]->count;
+    int cid = 0;
+    GLubyte opacity = 255;
 
-    int start0 = engine->config->strobes[sid].color1[0];
-    int start1 = engine->config->strobes[sid].color1[1];
-    int start2 = engine->config->strobes[sid].color1[2];
+    // strobes[sid].peak = gain * findWavePeak(buffer, i);
+    // strobes[sid].peak = 0.85 * strobes[sid].peak + 0.15 * 100 * findWavePeak(buffer, i);
+    // Median_push(strobes[sid].peakMedian, strobes[sid].peak);
+    // strobes[sid].peak = Median_value(strobes[sid].peakMedian);
 
-    int end0 = engine->config->strobes[sid].color2[0];
-    int end1 = engine->config->strobes[sid].color2[1];
-    int end2 = engine->config->strobes[sid].color2[2];
-
-    int scale0 = end0 - start0;
-    int scale1 = end1 - start1;
-    int scale2 = end2 - start2;
-
-    int i = engine->strobeBuffers[sid].count;
-
-    for (int cid = 0; cid < 3 * strobes[sid].count; ) {
+    // if (strobes[sid].peak < 1 / engine->config->maxGain) {
+      // opacity = 150 + 105 * gain * strobes[sid].peak;
+      // opacity = 150;
+    // }
+// printf("%5.4f        \r", strobes[sid].peak * gain);fflush(stdout);
+    do {
 
       --i;
 
       float value = buffer[i];
 
+      // value = value * gain;
       value = (value * gain + 1.0) * 0.5;
 
       if (value < 0) {
@@ -402,24 +427,49 @@ static inline void refreshStrobeColors(Engine *engine, int sid, float gain) {
       }
 
       GLubyte color[3];
+      color[0] = (GLubyte) (colors[1][0] + scale[0] * value);
+      color[1] = (GLubyte) (colors[1][1] + scale[1] * value);
+      color[2] = (GLubyte) (colors[1][2] + scale[2] * value);
+
       // GLfloat color[3];
       // hsv2rgb(hsv, rgb);
 
-      color[0] = (GLubyte) (start0 + scale0 * value);
-      color[1] = (GLubyte) (start1 + scale1 * value);
-      color[2] = (GLubyte) (start2 + scale2 * value);
+      // if (value > 0.66) {
+      //   color[0] = (GLubyte) (colors[1][0] + scales[0][0] * (value-0.66));
+      //   color[1] = (GLubyte) (colors[1][1] + scales[0][1] * (value-0.66));
+      //   color[2] = (GLubyte) (colors[1][2] + scales[0][2] * (value-0.66));
+      // }
+      // else if (value > 0.33) {
+      //   color[0] = (GLubyte) (colors[2][0] + scales[1][0] * (value-0.33));
+      //   color[1] = (GLubyte) (colors[2][1] + scales[1][1] * (value-0.33));
+      //   color[2] = (GLubyte) (colors[2][2] + scales[1][2] * (value-0.33));
+      // }
+      // else {
+      //   color[0] = (GLubyte) (colors[3][0] + scales[2][0] * value);
+      //   color[1] = (GLubyte) (colors[3][1] + scales[2][1] * value);
+      //   color[2] = (GLubyte) (colors[3][2] + scales[2][2] * value);
+      // }
+
+
+      // color[0] = (GLubyte) (start0 + scale0 * value);
+      // color[1] = (GLubyte) (start1 + scale1 * value);
+      // color[2] = (GLubyte) (start2 + scale2 * value);
 
       // color (RGB)
       strobes[sid].colors[cid++] = color[0];
       strobes[sid].colors[cid++] = color[1];
       strobes[sid].colors[cid++] = color[2];
+      strobes[sid].colors[cid++] = (GLubyte)opacity;
 
       // color (RGB)
       strobes[sid].colors[cid++] = color[0];
       strobes[sid].colors[cid++] = color[1];
       strobes[sid].colors[cid++] = color[2];
+      strobes[sid].colors[cid++] = (GLubyte)opacity;
 
     }
+    while (i > 0);
+
   }
 
 }
@@ -430,7 +480,7 @@ void StrobeDisplay_initScene(Engine *engine, int w, int h) {
   glViewport(0, 0, w, h);
   refreshShadowPositions(w, h);
   refreshStrobePositions(engine, w, h);
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0, 0, 0, 1);   // TODO - move to configuration
   glClear(GL_COLOR_BUFFER_BIT);
 
 }

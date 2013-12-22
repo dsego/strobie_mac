@@ -8,7 +8,8 @@
 
 
 
-#define CONFIG_MAX_STROBES   10
+#define CONFIG_MAX_STROBES   16
+#define CONFIG_MAX_COLORS    8
 
 
 
@@ -18,18 +19,15 @@ typedef enum { OCTAVE, PARTIAL, FREQUENCY } StrobeMode;
 // configuration options for each strobe band
 typedef struct {
 
-  int color1[3];    // color stop
-  int color2[3];    // color stop
-  int color3[3];    // color stop
-
-  int bufferLength;           // audio buffer length ( >= input buffer size )
-  int resampledLength;        // re-sampled buffer length
-  float periodsPerFrame;      // wave cycles displayed in one frame
-  int samplesPerPeriod;       // number of samples in a period
-  float centsOffset;          // offset the note in cents
-  StrobeMode mode;            //
-  float value;                // frequency, multiplier or octave
-  int subdivCount;            // sub-divide the strobe into multiple bands
+  int colors[CONFIG_MAX_COLORS][3];   // color stops
+  int bufferLength;                   // audio buffer length ( >= input buffer size )
+  int resampledLength;                // re-sampled buffer length
+  float periodsPerFrame;              // wave cycles displayed in one frame
+  int samplesPerPeriod;               // number of samples in a period
+  float centsOffset;                  // offset the note in cents
+  StrobeMode mode;                    //
+  float value;                        // frequency, multiplier or octave
+  int subdivCount;                    // sub-divide the strobe into multiple bands
 
 } StrobeConfig;
 

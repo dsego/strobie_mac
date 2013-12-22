@@ -68,7 +68,7 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate);
 void Engine_setCentsOffset(Engine* self, float cents);
 void Engine_setPitchStandard(Engine* self, float freq);
 void Engine_setGain(Engine* self, float gain);
-void Engine_setColors(Engine* self, int color1[3], int color2[3]);
+void Engine_setColors(Engine* self, int colors[][3], int count);
 
 void Engine_getSamplerates(int device, int outSamplerates[11]);
 int Engine_getDefaultInputDevice(void);
