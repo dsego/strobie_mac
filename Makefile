@@ -5,8 +5,6 @@
 
 KISS = -I../kiss_fft130/tools -I../kiss_fft130 ../kiss_fft130/kiss_fft.c \
 						../kiss_fft130/tools/kiss_fftr.c
-
-
 FFTS = -I/usr/local/include/ffts /usr/local/lib/libffts.a
 
 #
@@ -17,13 +15,14 @@ FFTS = -I/usr/local/include/ffts /usr/local/lib/libffts.a
 PORTAUDIO = ../portaudio/trunk/src/common/pa_ringbuffer.c -I../portaudio/trunk/include -I../portaudio/trunk/src/common \
 						../portaudio/trunk/lib/.libs/libportaudio.dylib
 
-DSP					= ../AudioPlayground/biquad/biquad.c -I../AudioPlayground/biquad \
-						../AudioPlayground/src/Interpolator.c -I../AudioPlayground/src \
-						-I../AudioPlayground/fir
+DSP	= ../AudioPlayground/biquad/biquad.c -I../AudioPlayground/biquad \
+			../AudioPlayground/src/Interpolator.c -I../AudioPlayground/src \
+			-I../AudioPlayground/fir
 
-GLFW			= -lglfw3
+GLFW = -lglfw3
 
-GL				= -framework OpenGL
+LIBS = $(PORTAUDIO) $(DSP) $(FFTS)
+MAC_LIBS = $(LIBS) -framework OpenGL -framework Cocoa -framework AppKit -framework QuartzCore
 
 
 WARN			= -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion
@@ -42,24 +41,30 @@ MAC_OPTIONS = -fmodules -fobjc-arc -arch x86_64 -O4 -std=c11 -mmacosx-version-mi
 CC = cc
 
 all:
+	make engine
 	make mac
+	make mac_trial
 
 engine:
-	$(CC) -c $(WARN) $(MAC_OPTIONS) $(FFTS) $(PORTAUDIO) $(DSP) src/engine/*.c
+	$(CC) -c $(WARN) $(MAC_OPTIONS) $(LIBS) src/engine/*.c
 	ar rcs engine.a *.o
 	rm *.o
 
 mac:
-	make engine
-	$(CC) $(MAC_WARN) $(MAC_OPTIONS) $(FFTS) $(PORTAUDIO) $(DSP) \
-		-framework Cocoa -framework AppKit -framework QuartzCore -framework OpenGL \
-		engine.a \
-		src/mac/*.m src/mac/*.c \
-		-o Strobie.app/Contents/MacOS/Strobie
-		ibtool --compile Strobie.app/Contents/Resources/Application.nib src/mac/Application.xib
-		cp src/mac/Info.plist Strobie.app/Contents/Info.plist
+	$(CC) $(MAC_WARN) $(MAC_OPTIONS) $(MAC_LIBS) engine.a src/mac/*.m src/mac/*.c -o full/Strobie.app/Contents/MacOS/Strobie
+		ibtool --compile full/Strobie.app/Contents/Resources/Application.nib src/mac/Application.xib
+		cp src/mac/Info.plist full/Strobie.app/Contents/Info.plist
+		cp src/mac/Credits.rtf full/Strobie.app/Contents/Resources/Credits.rtf
 
-icons:
+mac_trial:
+	$(CC) -DTRIAL $(MAC_WARN) $(MAC_OPTIONS) $(MAC_LIBS) engine.a src/mac/*.m src/mac/*.c -o trial/Strobie.app/Contents/MacOS/Strobie
+		ibtool --compile trial/Strobie.app/Contents/Resources/Application.nib src/mac/Application.xib
+		cp src/mac/Info.plist trial/Strobie.app/Contents/Info.plist
+		cp src/mac/Credits.rtf trial/Strobie.app/Contents/Resources/Credits.rtf
+
+
+
+mac_icons:
 	iconutil -c icns src/app.iconset
 	cp src/app.icns Strobie.app/Contents/Resources/app.icns
 

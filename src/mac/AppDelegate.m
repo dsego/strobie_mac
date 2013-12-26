@@ -2,6 +2,8 @@
     Copyright (c) 2013 Davorin Šego. All rights reserved.
 */
 
+
+#include <time.h>
 #import "AppDelegate.h"
 #import "shared.h"
 #import "alerts.h"
@@ -62,6 +64,39 @@
   engine->config->gain            = [defaults floatForKey: @"gain"];
 
   [_prefController loadFromConfig];
+
+  #ifdef TRIAL
+
+    int trialTimestamp = [defaults integerForKey: @"this is not a trial time-stamp"];
+    if (trialTimestamp == 0) {
+      [defaults setInteger: (int)time(NULL) forKey: @"this is not a trial time-stamp"];
+      [defaults synchronize];
+    }
+
+    int duration = time(NULL) - trialTimestamp;
+    int oneWeekTrial = 60 * 60 * 24 * 7;
+
+    if (duration >= oneWeekTrial || duration < 0) {
+
+      // show alert (Buy or Close)
+      if (trialExpiredAlert() == NSAlertDefaultReturn) {
+        [self showStrobieWebsite: nil];
+      }
+      [NSApp terminate: self];
+
+    } else {
+
+      int daysLeft = (int)(double) ceil((double)(oneWeekTrial - duration) / (24.0 * 60.0 * 60.0));
+
+      // n days left (Continue or Buy)
+      if (alertDaysLeft(daysLeft) == NSAlertSecondButtonReturn) {
+        [self showStrobieWebsite: nil];
+        [NSApp terminate: self];
+      }
+
+    }
+
+  #endif
 
 }
 
