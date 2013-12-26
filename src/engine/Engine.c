@@ -191,10 +191,17 @@ int Engine_readStrobes(Engine* self) {
 
 float Engine_gain(Engine* self) {
 
-  // 1 / (0 + 0.00001) = 100000
-  // 1 / (1 + 0.00001) = 0.9999 (~= 1)
-  const float maxGain = 100000; //  gain limit
-  return self->config->gain / (self->peak + 1.0 / maxGain);
+  if (self->config->gain <= 0) {
+    return 0;
+  }
+  float gain = self->config->gain;
+  float peak = self->peak;
+
+  // limit gain
+  //  100 / (0 + 1/100) = 10000
+  //  100 / (1 + 1/100) = 99
+  return gain / (peak + 1.0 / gain);
+  // return gain;
 
 }
 
@@ -236,6 +243,7 @@ static inline int Engine_streamCallback(
   // full window reached
   if (self->peakSampleCount >= self->peakWindowSize) {
     self->peak = self->tempPeak;
+    self->tempPeak = 0; // reset temp peak
     self->peakSampleCount = 0;
   }
 

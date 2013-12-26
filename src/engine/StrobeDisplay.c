@@ -7,7 +7,6 @@
 #include <string.h>
 #include <OpenGL/gl3.h>
 #include "utils.h"
-#include "Median.h"
 #include "StrobeDisplay.h"
 #include "glDebug.h"
 
@@ -63,7 +62,6 @@ typedef struct {
   GLuint colorBuffer;
   GLfloat *positions;
   GLubyte *colors;
-  Median* peakMedian;
   float peak;
   int count;
 
@@ -198,8 +196,6 @@ static inline void initStrobeBuffers(Engine *engine) {
     GLint colAttrib = glGetAttribLocation(sceneShader, "color");
     glVertexAttribPointer(colAttrib, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
     glEnableVertexAttribArray(colAttrib);
-
-    strobes[sid].peakMedian = Median_create(25);
 
   }
 
@@ -400,12 +396,11 @@ static inline void refreshStrobeColors(Engine *engine, int sid, float gain) {
     int cid = 0;
     GLubyte opacity = 255;
 
+    // float peak = gain * findWavePeak(buffer, i);
     // strobes[sid].peak = gain * findWavePeak(buffer, i);
-    // strobes[sid].peak = 0.85 * strobes[sid].peak + 0.15 * 100 * findWavePeak(buffer, i);
-    // Median_push(strobes[sid].peakMedian, strobes[sid].peak);
-    // strobes[sid].peak = Median_value(strobes[sid].peakMedian);
+    // strobes[sid].peak = 0.8 * strobes[sid].peak + 0.2 * peak;
 
-    // if (strobes[sid].peak < 1 / engine->config->maxGain) {
+    // if (engine->peak < 0.05) {
       // opacity = 150 + 105 * gain * strobes[sid].peak;
       // opacity = 150;
     // }
