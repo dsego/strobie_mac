@@ -20,10 +20,6 @@
     object:nil
   ];
 
-  // self.window.backgroundColor = [NSColor colorWithCalibratedRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-  // self.window.backgroundColor = [NSColor colorWithDeviceRed:0.7 green:0.7 blue:0.7 alpha:1.0];
-  // self.window.backgroundColor = [NSColor colorWithDeviceRed:0.14 green:0.14 blue:0.14 alpha:1.0];
-
 }
 
 
