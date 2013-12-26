@@ -52,7 +52,7 @@ Engine* Engine_create() {
   self->pitch = Pitch_create(NSDF_METHOD, config->samplerate, config->windowSize);
   self->audioBuffer = Vec_create(self->config->windowSize, sizeof(float));
   self->peakSampleCount = 0;
-  self->peakWindowSize = 512;
+  self->peakWindowSize = 4096; // circa 100ms
   self->tempPeak = 0;
   self->peak = 0;
   self->clarity = 0;
