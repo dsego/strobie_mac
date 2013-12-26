@@ -15,5 +15,6 @@
   @property (strong) IBOutlet DevPanelController *devPanelController;
 
   -(IBAction) showHelp:(id)sender;
+  -(IBAction) showStrobieWebsite:(id)sender;
 
 @end

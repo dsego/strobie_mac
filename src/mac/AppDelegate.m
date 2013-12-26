@@ -153,13 +153,25 @@
 }
 
 
--(IBAction)showHelp:(id)sender {
+-(IBAction)showStrobieWebsite:(id)sender {
 
-  id url = [NSURL URLWithString:@"http://www.strobie-app.com"];
-  [[NSWorkspace sharedWorkspace] openURL:url];
+  [self openWebsite: @"http://www.strobie-app.com"];
 
 }
 
+
+-(IBAction)showHelp:(id)sender {
+
+  [self openWebsite: @"http://www.strobie-app.com/help"];
+
+}
+
+
+-(void) openWebsite:(NSString*)url {
+
+  [[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString: url]];
+
+}
 
 
 @end
