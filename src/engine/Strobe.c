@@ -8,6 +8,7 @@
 #include "Strobe.h"
 #include "utils.h"
 #include "resonator.h"
+#include "atomic.h"
 
 
 #define STROBE_RB_LENGTH 16384
@@ -15,23 +16,20 @@
 // #define STROBE_FILTER_Q 100
 
 
-Strobe* Strobe_create(
-  int bufferLength,
-  int resampledLength,
-  int samplesPerPeriod,
-  int subdivCount) {
+Strobe* Strobe_create(int bufferLength, int resampledLength, int samplesPerPeriod, int subdivCount) {
 
   Strobe* self = malloc(sizeof(Strobe));
   assert(self != NULL);
 
-  self->samplesPerPeriod = samplesPerPeriod;
-  self->subdivCount      = subdivCount;
-  self->samplerate       = -1;  // invalid value
-  self->bandpass         = Biquad_create(3);
-  self->src              = Interpolator_create(1, 1);
-  self->filteredBuffer   = Vec_create(bufferLength, sizeof(float));
-  self->resampledBuffer  = Vec_create(resampledLength, sizeof(float));
-  self->rbdata           = Vec_create(STROBE_RB_LENGTH, sizeof(float));
+  self->samplesPerPeriod  = samplesPerPeriod;
+  self->subdivCount       = subdivCount;
+  self->samplerate        = -1;  // invalid value
+  self->bandpass          = Biquad_create(3);
+  self->src               = Interpolator_create(1, 1);
+  self->filteredBuffer    = Vec_create(bufferLength, sizeof(float));
+  self->resampledBuffer   = Vec_create(resampledLength, sizeof(float));
+  self->rbdata            = Vec_create(STROBE_RB_LENGTH, sizeof(float));
+  self->freqChanged = 0;
 
   self->bufferRatio = resampledLength / (float)bufferLength;
   self->ringbuffer = malloc(sizeof(PaUtilRingBuffer));
@@ -68,6 +66,15 @@ int Strobe_read(Strobe* self, float* output, int length) {
   // avoid an infinite loop
   if (length <= 0) return 0;
 
+  // avoid displaying the filter transient
+  if (self->freqChanged == 1) {
+    int available = PaUtil_GetRingBufferReadAvailable(self->ringbuffer);
+    PaUtil_AdvanceRingBufferReadIndex(self->ringbuffer, available);
+    // CASB(self->freqChanged, 0, &self->freqChanged);
+    FullMemoryBarrier();
+    self->freqChanged = 0;
+  }
+
   // advance pointer to latest data
   while (PaUtil_GetRingBufferReadAvailable(self->ringbuffer) >= 2 * length) {
     PaUtil_AdvanceRingBufferReadIndex(self->ringbuffer, length);
@@ -78,6 +85,7 @@ int Strobe_read(Strobe* self, float* output, int length) {
     PaUtil_ReadRingBuffer(self->ringbuffer, output, length);
     return 1;
   }
+
   return 0;
 
 }
@@ -100,6 +108,11 @@ void Strobe_setFreq(Strobe* self, float freq, int samplerate) {
   }
 
   self->freq = freq;
+
+  FullMemoryBarrier();
+  // CASB(self->freqChanged, 1, &self->freqChanged);
+  self->freqChanged = 1;
+
   Interpolator_setRatio(self->src, newRate, samplerate);
   Interpolator_reset(self->src);
 

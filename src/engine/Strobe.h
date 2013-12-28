@@ -17,6 +17,7 @@ typedef struct {
   float freq;                   // strobing frequency
   int subdivCount;
   int samplerate;
+  volatile int freqChanged;
 
   Vec* filteredBuffer;          // store filtered data to be re-sampled
   Vec* resampledBuffer;         // stores re-sampled data before writing to the circular buffer
