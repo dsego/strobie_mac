@@ -86,7 +86,7 @@ int Strobe_read(Strobe* self, float* output, int length) {
 void Strobe_setFreq(Strobe* self, float freq, int samplerate) {
 
   if (freq < 1.0 || samplerate < 1.0) return;
-  if (self->samplerate == samplerate && fabs(freq - self->freq) < 0.000001) return;
+  if (self->samplerate == samplerate && fabs(freq - self->freq) < 0.001) return;
 
   self->samplerate = samplerate;
   double newRate = freq * self->samplesPerPeriod;
