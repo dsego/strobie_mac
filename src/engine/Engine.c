@@ -151,11 +151,8 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate) {
       Strobe_setFreq(self->strobes[i], movedNote.frequency, self->config->samplerate);
     }
     else if (self->config->strobes[i].mode == PARTIAL) {
-      Strobe_setFreq(
-        self->strobes[i],
-        self->currentNote.frequency * self->config->strobes[i].value,
-        self->config->samplerate
-      );
+      float freq = self->currentNote.frequency * self->config->strobes[i].value;
+      Strobe_setFreq(self->strobes[i], freq, self->config->samplerate );
     }
     else {
       // do nothing, strobe is already set to a particular note or frequency
