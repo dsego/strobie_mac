@@ -294,7 +294,11 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate, int bufferSi
   static int currentSamplerate = -1;
 
   // already current device, don't bother changing
-  if (currentDevice == device && currentBufferSize == bufferSize && currentSamplerate == samplerate) { return 1; }
+  if (currentDevice == device &&
+    currentBufferSize == bufferSize &&
+    currentSamplerate == samplerate) {
+    return 0;
+  }
 
   // if device index doesn't exist, use default device
   if (device < 0 || device >= Pa_GetDeviceCount()) {
