@@ -33,10 +33,7 @@
 
   // add color schemes to pop-up
   for (int i = 0; i < engine->config->schemeCount; ++i) {
-    NSString *str = [NSString stringWithCString:
-      engine->config->schemes[i].name
-      encoding: NSASCIIStringEncoding
-    ];
+    NSString *str = @(engine->config->schemes[i].name);
     [_colorSchemePopup addItemWithTitle: str];
     [[_colorSchemePopup lastItem] setTag: i];
   }
@@ -58,7 +55,7 @@
     int isOutput;
     Engine_deviceName(i, name, &isInput, &isOutput);
     if (isInput) {
-      [_inputDevicePopup addItemWithTitle: [NSString stringWithCString: name encoding: NSASCIIStringEncoding]];
+      [_inputDevicePopup addItemWithTitle: @(name)];
       [[_inputDevicePopup lastItem] setTag: i];
     }
   }
