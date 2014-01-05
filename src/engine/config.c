@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 #include "Config.h"
 
 
@@ -27,7 +28,7 @@ Config* Config_create() {
   self->peakThreshold      = 0.01;      // not used
   self->clarityThreshold   = 0.8;       // should this be user-configurable?
   self->gain               = 100;
-
+  self->highlightBands     = 0;
 
 
   // 16, 32, 64, ...
@@ -47,13 +48,6 @@ Config* Config_create() {
 
   for (int i = 0; i < self->strobeCount; ++i) {
 
-    self->strobes[i].colors[0][0] = 217;
-    self->strobes[i].colors[0][1] = 254;
-    self->strobes[i].colors[0][2] = 163;
-    self->strobes[i].colors[1][0] = 27;
-    self->strobes[i].colors[1][1] = 79;
-    self->strobes[i].colors[1][2] = 161;
-
     self->strobes[i].samplesPerPeriod = samplesPerPeriod;
     self->strobes[i].periodsPerFrame = periodsPerFrame;
     self->strobes[i].bufferLength = self->maxInputBufferSize;
@@ -67,6 +61,49 @@ Config* Config_create() {
     periodsPerFrame *= 2;
 
   }
+
+  self->schemeCount = 5;
+  self->schemeIndex = 0;
+
+  strcpy(self->schemes[0].name, "Default");
+  self->schemes[0].a[0] = 181;
+  self->schemes[0].a[1] = 242;
+  self->schemes[0].a[2] = 219;
+  self->schemes[0].b[0] = 107;
+  self->schemes[0].b[1] = 61;
+  self->schemes[0].b[2] = 125;
+
+  strcpy(self->schemes[1].name, "Classic Red");
+  self->schemes[1].a[0] = 255;
+  self->schemes[1].a[1] = 98;
+  self->schemes[1].a[2] = 80;
+  self->schemes[1].b[0] = 111;
+  self->schemes[1].b[1] = 34;
+  self->schemes[1].b[2] = 37;
+
+  strcpy(self->schemes[2].name, "Vintage");
+  self->schemes[2].a[0] = 245;
+  self->schemes[2].a[1] = 224;
+  self->schemes[2].a[2] = 132;
+  self->schemes[2].b[0] = 107;
+  self->schemes[2].b[1] = 73;
+  self->schemes[2].b[2] = 68;
+
+  strcpy(self->schemes[3].name, "Grayscale");
+  self->schemes[3].a[0] = 240;
+  self->schemes[3].a[1] = 240;
+  self->schemes[3].a[2] = 240;
+  self->schemes[3].b[0] = 80;
+  self->schemes[3].b[1] = 80;
+  self->schemes[3].b[2] = 80;
+
+  strcpy(self->schemes[4].name, "Custom...");
+  self->schemes[4].a[0] = 240;
+  self->schemes[4].a[1] = 240;
+  self->schemes[4].a[2] = 240;
+  self->schemes[4].b[0] = 80;
+  self->schemes[4].b[1] = 80;
+  self->schemes[4].b[2] = 80;
 
   return self;
 

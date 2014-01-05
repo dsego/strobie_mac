@@ -8,7 +8,7 @@
 #include <OpenGL/gl3.h>
 #include "utils.h"
 #include "StrobeDisplay.h"
-#include "glDebug.h"
+// #include "glDebug.h"
 
 #define MAX_STROBE_COUNT 10
 
@@ -63,6 +63,7 @@ typedef struct {
   GLfloat *positions;
   GLubyte *colors;
   float peak;
+  int highlighted;
   int count;
 
 } StrobeDisplay;
@@ -370,49 +371,50 @@ static inline void refreshStrobePositions(Engine *engine, int w, int h) {
 
 static inline void refreshStrobeColors(Engine *engine, int sid, float gain) {
 
-  int colors[4][3];
+  ColorScheme scheme = engine->config->schemes[engine->config->schemeIndex];
 
-  memcpy(colors, engine->config->strobes[0].colors, 4 * 3 * sizeof(int));
-
+  GLubyte color[3];
   float scale[3];
 
-  scale[0] = colors[0][0] - colors[1][0];
-  scale[1] = colors[0][1] - colors[1][1];
-  scale[2] = colors[0][2] - colors[1][2];
+  scale[0] = scheme.a[0] - scheme.b[0];
+  scale[1] = scheme.a[1] - scheme.b[1];
+  scale[2] = scheme.a[2] - scheme.b[2];
 
-  // scales[1][0] = colors[1][0] - colors[2][0];
-  // scales[1][1] = colors[1][1] - colors[2][1];
-  // scales[1][2] = colors[1][2] - colors[2][2];
 
-  // scales[2][0] = colors[2][0] - colors[3][0];
-  // scales[2][1] = colors[2][1] - colors[3][1];
-  // scales[2][2] = colors[2][2] - colors[3][2];
-
+  // scale[0] = scheme.a[0] - scheme.b[0];
+  // scale[1] = scheme.a[1] - scheme.b[1];
+  // scale[2] = scheme.a[2] - scheme.b[2];
 
   if (Engine_readStrobe(engine, sid)) {
 
     float *buffer = (float*)engine->strobeBuffers[sid]->elements;
     int i = engine->strobeBuffers[sid]->count;
     int cid = 0;
-    GLubyte opacity = 255;
 
-    // float peak = gain * findWavePeak(buffer, i);
-    // strobes[sid].peak = gain * findWavePeak(buffer, i);
-    // strobes[sid].peak = 0.8 * strobes[sid].peak + 0.2 * peak;
+    const GLubyte opacity = 255;
 
-    // if (engine->peak < 0.05) {
-      // opacity = 150 + 105 * gain * strobes[sid].peak;
-      // opacity = 150;
+    // if (engine->config->highlightBands) {
+
+      // float peak = gain * findWavePeak(buffer, i);
+    //   float upper = 3;
+    //   float lower = 0.2;
+
+    //   if (peak > upper) {
+    //     strobes[sid].highlighted = 1;
+    //   }
+    //   else if (strobes[sid].highlighted && peak < lower) {
+    //     strobes[sid].highlighted = 0;
+    //   }
+
+    //   opacity = strobes[sid].highlighted ? 255 : 150;
+
     // }
-// printf("%5.4f        \r", strobes[sid].peak * gain);fflush(stdout);
+
     do {
 
       --i;
 
-      float value = buffer[i];
-
-      // value = value * gain;
-      value = (value * gain + 1.0) * 0.5;
+      float value = buffer[i] * gain * 0.5 + 0.5;
 
       if (value < 0) {
         value = 0.0;
@@ -421,49 +423,35 @@ static inline void refreshStrobeColors(Engine *engine, int sid, float gain) {
         value = 1.0;
       }
 
-      GLubyte color[3];
-      color[0] = (GLubyte) (colors[1][0] + scale[0] * value);
-      color[1] = (GLubyte) (colors[1][1] + scale[1] * value);
-      color[2] = (GLubyte) (colors[1][2] + scale[2] * value);
+      color[0] = (GLubyte) (scheme.b[0] + scale[0] * value);
+      color[1] = (GLubyte) (scheme.b[1] + scale[1] * value);
+      color[2] = (GLubyte) (scheme.b[2] + scale[2] * value);
 
-      // GLfloat color[3];
+      // float hsv[3], rgb[3];
+      // hsv[0] = (scheme.b[0] + scale[0] * value);
+      // hsv[1] = (scheme.b[1] + scale[1] * value);
+      // hsv[2] = (scheme.b[2] + scale[2] * value);
+
       // hsv2rgb(hsv, rgb);
 
-      // if (value > 0.66) {
-      //   color[0] = (GLubyte) (colors[1][0] + scales[0][0] * (value-0.66));
-      //   color[1] = (GLubyte) (colors[1][1] + scales[0][1] * (value-0.66));
-      //   color[2] = (GLubyte) (colors[1][2] + scales[0][2] * (value-0.66));
-      // }
-      // else if (value > 0.33) {
-      //   color[0] = (GLubyte) (colors[2][0] + scales[1][0] * (value-0.33));
-      //   color[1] = (GLubyte) (colors[2][1] + scales[1][1] * (value-0.33));
-      //   color[2] = (GLubyte) (colors[2][2] + scales[1][2] * (value-0.33));
-      // }
-      // else {
-      //   color[0] = (GLubyte) (colors[3][0] + scales[2][0] * value);
-      //   color[1] = (GLubyte) (colors[3][1] + scales[2][1] * value);
-      //   color[2] = (GLubyte) (colors[3][2] + scales[2][2] * value);
-      // }
+      // color[0] = roundf(rgb[0] * 255);
+      // color[1] = roundf(rgb[1] * 255);
+      // color[2] = roundf(rgb[2] * 255);
 
-
-      // color[0] = (GLubyte) (start0 + scale0 * value);
-      // color[1] = (GLubyte) (start1 + scale1 * value);
-      // color[2] = (GLubyte) (start2 + scale2 * value);
 
       // color (RGB)
       strobes[sid].colors[cid++] = color[0];
       strobes[sid].colors[cid++] = color[1];
       strobes[sid].colors[cid++] = color[2];
-      strobes[sid].colors[cid++] = (GLubyte)opacity;
+      strobes[sid].colors[cid++] = opacity;
 
       // color (RGB)
       strobes[sid].colors[cid++] = color[0];
       strobes[sid].colors[cid++] = color[1];
       strobes[sid].colors[cid++] = color[2];
-      strobes[sid].colors[cid++] = (GLubyte)opacity;
+      strobes[sid].colors[cid++] = opacity;
 
-    }
-    while (i > 0);
+    } while (i > 0);
 
   }
 
@@ -489,6 +477,7 @@ void StrobeDisplay_drawScene(Engine *engine) {
 
   // draw strobes
   glUseProgram(sceneShader);
+  glClearColor(0, 0, 0, 1);
 
   for (int i = 0; i < strobeCount; ++i) {
     refreshStrobeColors(engine, i, gain);

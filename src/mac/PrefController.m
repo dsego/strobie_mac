@@ -29,6 +29,19 @@
   [_gainSlider setFloatValue: gainVal];
   [_gainLabel setStringValue: [NSString stringWithFormat: @"%2.0f", gainVal]];
 
+  [_highlightCheckbox setState: engine->config->highlightBands ? NSOnState : NSOffState];
+
+  // add color schemes to pop-up
+  for (int i = 0; i < engine->config->schemeCount; ++i) {
+    NSString *str = [NSString stringWithCString:
+      engine->config->schemes[i].name
+      encoding: NSASCIIStringEncoding
+    ];
+    [_colorSchemePopup addItemWithTitle: str];
+    [[_colorSchemePopup lastItem] setTag: i];
+  }
+  [_colorSchemePopup selectItemWithTag: engine->config->schemeIndex];
+
 }
 
 
@@ -40,7 +53,7 @@
   int deviceCount = Engine_deviceCount();
 
   for (int i = 0; i < deviceCount; ++i) {
-    char name[100];
+    char name[128];
     int isInput;
     int isOutput;
     Engine_deviceName(i, name, &isInput, &isOutput);
@@ -71,13 +84,13 @@
   }
 
   // sample rate
-  [_sampleratePopup addItemWithTitle: @"44100 Hz"];
+  [_sampleratePopup addItemWithTitle: @"44.1 kHz"];
   [[_sampleratePopup lastItem] setTag: 44100];
-  [_sampleratePopup addItemWithTitle: @"48000 Hz"];
+  [_sampleratePopup addItemWithTitle: @"48 kHz"];
   [[_sampleratePopup lastItem] setTag: 48000];
-  [_sampleratePopup addItemWithTitle: @"88200 Hz"];
+  [_sampleratePopup addItemWithTitle: @"88.2 kHz"];
   [[_sampleratePopup lastItem] setTag: 88200];
-  [_sampleratePopup addItemWithTitle: @"96000 Hz"];
+  [_sampleratePopup addItemWithTitle: @"96 kHz"];
   [[_sampleratePopup lastItem] setTag: 96000];
   [_sampleratePopup selectItemWithTag: engine->config->samplerate];
 
@@ -132,6 +145,42 @@
   float gainVal = [sender floatValue];
   engine->config->gain = pow(10.0, gainVal / 20.0);
   [_gainLabel setStringValue: [NSString stringWithFormat: @"%2.0f", gainVal]];
+
+}
+
+
+- (IBAction)highlightChanged: (id)sender {
+
+  engine->config->highlightBands = ([_highlightCheckbox state] == NSOnState) ? 1 : 0;
+
+}
+
+
+- (IBAction)colorSchemeChanged: (id)sender {
+
+  int i = engine->config->schemeIndex = [sender selectedItem].tag;
+
+  // Custom theme -> show color wells
+  if (i == engine->config->schemeCount - 1) {
+    [self.colorWellA setHidden: NO];
+    [self.colorWellB setHidden: NO];
+  }
+  else {
+    [self.colorWellA setHidden: YES];
+    [self.colorWellB setHidden: YES];
+  }
+
+  [self.colorWellA setColor:
+    [NSColor colorWithCalibratedRed: engine->config->schemes[i].a[0] / 255
+      green: engine->config->schemes[i].a[1] / 255
+      blue: engine->config->schemes[i].a[2] / 255
+      alpha: 1]];
+
+  [self.colorWellB setColor:
+    [NSColor colorWithCalibratedRed: engine->config->schemes[i].b[0] / 255
+      green: engine->config->schemes[i].b[1] / 255
+      blue: engine->config->schemes[i].b[2] / 255
+      alpha: 1]];
 
 }
 
@@ -208,6 +257,32 @@
   [[_transposePopup lastItem] setTag: 11];
 
 }
+
+- (IBAction)colorWellChanged: (id)sender {
+
+  // float h, s, v;
+
+  // h = [color1 hueComponent];
+  // s = [color1 saturationComponent];
+  // v = [color1 brightnessComponent];
+
+  int i = engine->config->schemeIndex;
+
+  if ([self.colorWellA isEqual: sender]) {
+    NSColor *color1 = [self.colorWellA color];
+    engine->config->schemes[i].a[0] = 255 * [color1 redComponent];
+    engine->config->schemes[i].a[1] = 255 * [color1 greenComponent];
+    engine->config->schemes[i].a[2] = 255 * [color1 blueComponent];
+  }
+  else if ([self.colorWellB isEqual: sender]) {
+    NSColor *color2 = [self.colorWellB color];
+    engine->config->schemes[i].b[0] = 255 * [color2 redComponent];
+    engine->config->schemes[i].b[1] = 255 * [color2 greenComponent];
+    engine->config->schemes[i].b[2] = 255 * [color2 blueComponent];
+  }
+
+}
+
 
 
 @end

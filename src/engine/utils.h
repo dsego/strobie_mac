@@ -93,53 +93,53 @@ inline static void parabolic(const double a, const double b, const double c, flo
 
 }
 
+// HSV to RGB conversion
+//  http://en.wikipedia.org/wiki/HSV_color_space#Conversion_from_RGB_to_HSL_or_HSV
 
+static inline void hsv2rgb(const float hsv[3], float outRGB[3]) {
 
-// static inline void hsv2rgb(int inHSV[3], unsigned char outRGB[3]) {
+  float c = hsv[1] * hsv[2]; // chroma
+  float hdash = hsv[0] * 6.0;
+  float x = c * (1 - fabs(fmod(hdash, 2) - 1));
 
-//   float h = inHSV[0];
-//   float s = inHSV[1] * 0.01;
-//   float v = inHSV[2] * 0.01;
+  if (hdash < 1) {
+    outRGB[0] = c;
+    outRGB[1] = x;
+    outRGB[2] = 0;
+  }
+  else if (hdash < 2) {
+    outRGB[0] = x;
+    outRGB[1] = c;
+    outRGB[2] = 0;
+  }
+  else if (hdash < 3) {
+    outRGB[0] = 0;
+    outRGB[1] = c;
+    outRGB[2] = x;
+  }
+  else if (hdash < 4) {
+    outRGB[0] = 0;
+    outRGB[1] = x;
+    outRGB[2] = c;
+  }
+  else if (hdash < 5) {
+    outRGB[0] = x;
+    outRGB[1] = 0;
+    outRGB[2] = c;
+  }
+  else {
+    outRGB[0] = c;
+    outRGB[1] = 0;
+    outRGB[2] = x;
+  }
 
-//   float r = 0;
-//   float g = 0;
-//   float b = 0;
+  float m = hsv[2] - c;
 
-//   float c = s * v; // chroma
-//   float x = c * (1.0 - fabs(fmod(h / 60.0, 2.0) - 1.0));
+  outRGB[0] += m;
+  outRGB[1] += m;
+  outRGB[2] += m;
 
-//   if (h < 60) {
-//     r = c;
-//     g = x;
-//   }
-//   else if (h < 120) {
-//     r = x;
-//     g = c;
-//   }
-//   else if (h < 180) {
-//     g = c;
-//     b = x;
-//   }
-//   else if (h < 240) {
-//     g = x;
-//     b = c;
-//   }
-//   else if (h < 300) {
-//     r = x;
-//     b = c;
-//   }
-//   else if (h < 360) {
-//     r = c;
-//     b = x;
-//   }
-
-//   float m = v - c;
-
-//   outRGB[0] = roundf((r + m) * 255);
-//   outRGB[1] = roundf((g + m) * 255);
-//   outRGB[2] = roundf((b + m) * 255);
-
-// }
+}
 
 
 #undef SORT

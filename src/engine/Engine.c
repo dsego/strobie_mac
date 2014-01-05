@@ -376,20 +376,3 @@ int Engine_deviceName(int index, char *outName, int *outIsInput, int *outIsOutpu
   return 1;
 
 }
-
-
-void Engine_setColors(Engine* self, int colors[][3], int count) {
-
-  if (count > CONFIG_MAX_COLORS) {
-    count = CONFIG_MAX_COLORS;
-  }
-
-  for (int i = 0; i < self->strobeCount; ++i) {
-    for (int j = 0; j < count; ++j) {
-      self->config->strobes[i].colors[j][0] = colors[j][0];
-      self->config->strobes[i].colors[j][1] = colors[j][1];
-      self->config->strobes[i].colors[j][2] = colors[j][2];
-    }
-  }
-
-}
