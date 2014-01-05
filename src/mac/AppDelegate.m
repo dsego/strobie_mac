@@ -14,14 +14,14 @@
   NSThread* estimatePitchThread;
   NSTimer *setStrobesTimer;
   NSTimer *strobeDisplayTimer;
+  NSUserDefaults *defaults;
 
 }
 
 
 - (void)savePreferences {
 
-  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-
+  defaults = [NSUserDefaults standardUserDefaults];
   [defaults setInteger: engine->config->inputDevice forKey: @"inputDevice"];
   [defaults setInteger: engine->config->samplerate forKey: @"inputSamplerate"];
   [defaults setInteger: engine->config->inputBufferSize forKey: @"inputBufferSize"];
@@ -37,7 +37,7 @@
 
 - (void)loadPreferences {
 
-  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  defaults = [NSUserDefaults standardUserDefaults];
 
   // register factory defaults
   NSDictionary *factoryValues = @{
@@ -65,39 +65,6 @@
 
   [_prefController loadFromConfig];
 
-  #ifdef TRIAL
-
-    int trialTimestamp = [defaults integerForKey: @"this is not a trial time-stamp"];
-    if (trialTimestamp == 0) {
-      [defaults setInteger: (int)time(NULL) forKey: @"this is not a trial time-stamp"];
-      [defaults synchronize];
-    }
-
-    int duration = time(NULL) - trialTimestamp;
-    int oneWeekTrial = 60 * 60 * 24 * 7;
-
-    if (duration >= oneWeekTrial || duration < 0) {
-
-      // show alert (Buy or Close)
-      if (trialExpiredAlert() == NSAlertDefaultReturn) {
-        [self showStrobieWebsite: nil];
-      }
-      [NSApp terminate: self];
-
-    } else {
-
-      int daysLeft = (int)(double) ceil((double)(oneWeekTrial - duration) / (24.0 * 60.0 * 60.0));
-
-      // n days left (Continue or Buy)
-      if (alertDaysLeft(daysLeft) == NSAlertSecondButtonReturn) {
-        [self showStrobieWebsite: nil];
-        [NSApp terminate: self];
-      }
-
-    }
-
-  #endif
-
 }
 
 
@@ -111,6 +78,63 @@
 
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
+
+  #ifdef TRIAL
+
+    int trialTimestamp = [defaults integerForKey: @"this is not a trial time-stamp"];
+    if (trialTimestamp == 0) {
+
+      [defaults setInteger: (int)time(NULL) forKey: @"this is not a trial time-stamp"];
+      [defaults synchronize];
+
+    }
+    else {
+
+      int duration = time(NULL) - trialTimestamp;
+      int oneWeekTrial = 60 * 60 * 24 * 7;
+
+      if (duration >= oneWeekTrial || duration < 0) {
+        // show alert (Buy or Close)
+        NSAlert *reminder = [NSAlert
+          alertWithMessageText: @"Your trial has ended."
+          defaultButton: @"Buy"
+          alternateButton: @"Close"
+          otherButton: nil
+          informativeTextWithFormat: @"If you would like to continue using Strobie, please buy the full version."
+        ];
+
+        if ([reminder runModal] == NSAlertDefaultReturn) {
+          [self showStrobieWebsite: nil];
+        }
+        [NSApp terminate: self];
+
+      }
+      else {
+        // n days left (Continue or Buy)
+        int days = (int)(double) ceil((double)(oneWeekTrial - duration) / (24.0 * 60.0 * 60.0));
+        NSString *info;
+        if (days <= 1) {
+          info = @"This is the last day of your trial.";
+        }
+        else {
+          info = [NSString stringWithFormat: @"You have %d days of trial left.", days];
+        }
+
+        NSAlert *alert = [[NSAlert alloc] init];
+        alert.messageText = @"Thank you for trying out Strobie!";
+        alert.informativeText = info;
+        [alert addButtonWithTitle: @"Continue Trial"];
+        [alert addButtonWithTitle: @"Buy"];
+        if ([alert runModal] == NSAlertSecondButtonReturn) {
+          [self showStrobieWebsite: nil];
+          [NSApp terminate: self];
+        }
+
+      }
+
+    }
+
+  #endif
 
   int err = Engine_setInputDevice(engine, engine->config->inputDevice, engine->config->samplerate, engine->config->inputBufferSize);
   if (err) {

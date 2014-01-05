@@ -3,5 +3,3 @@
 */
 
 void audioDeviceErrorAlert(void);
-int trialExpiredAlert(void);
-int alertDaysLeft(int days);
