@@ -156,35 +156,6 @@
 }
 
 
-- (IBAction)colorSchemeChanged: (id)sender {
-
-  int i = engine->config->schemeIndex = [sender selectedItem].tag;
-
-  // Custom theme -> show color wells
-  if (i == engine->config->schemeCount - 1) {
-    [self.colorWellA setHidden: NO];
-    [self.colorWellB setHidden: NO];
-  }
-  else {
-    [self.colorWellA setHidden: YES];
-    [self.colorWellB setHidden: YES];
-  }
-
-  [self.colorWellA setColor:
-    [NSColor colorWithCalibratedRed: engine->config->schemes[i].a[0] / 255
-      green: engine->config->schemes[i].a[1] / 255
-      blue: engine->config->schemes[i].a[2] / 255
-      alpha: 1]];
-
-  [self.colorWellB setColor:
-    [NSColor colorWithCalibratedRed: engine->config->schemes[i].b[0] / 255
-      green: engine->config->schemes[i].b[1] / 255
-      blue: engine->config->schemes[i].b[2] / 255
-      alpha: 1]];
-
-}
-
-
 - (void)generateItemsForTransposePopup {
 
   [_transposePopup addItemWithTitle: @"-11 Db"];
@@ -257,6 +228,36 @@
   [[_transposePopup lastItem] setTag: 11];
 
 }
+
+
+- (IBAction)colorSchemeChanged: (id)sender {
+
+  int i = engine->config->schemeIndex = [sender selectedItem].tag;
+
+  // Custom theme -> show color wells
+  if (i == engine->config->schemeCount - 1) {
+    [self.colorWellA setHidden: NO];
+    [self.colorWellB setHidden: NO];
+  }
+  else {
+    [self.colorWellA setHidden: YES];
+    [self.colorWellB setHidden: YES];
+  }
+
+  [self.colorWellA setColor:
+    [NSColor colorWithCalibratedRed: engine->config->schemes[i].a[0] / 255
+      green: engine->config->schemes[i].a[1] / 255
+      blue: engine->config->schemes[i].a[2] / 255
+      alpha: 1]];
+
+  [self.colorWellB setColor:
+    [NSColor colorWithCalibratedRed: engine->config->schemes[i].b[0] / 255
+      green: engine->config->schemes[i].b[1] / 255
+      blue: engine->config->schemes[i].b[2] / 255
+      alpha: 1]];
+
+}
+
 
 - (IBAction)colorWellChanged: (id)sender {
 
