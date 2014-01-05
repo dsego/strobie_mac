@@ -5,6 +5,7 @@
 
 #include <time.h>
 #import "AppDelegate.h"
+#import "stdio.h"
 #import "shared.h"
 #import "alerts.h"
 
@@ -21,6 +22,10 @@
 
 - (void)savePreferences {
 
+  int i = engine->config->schemeCount - 1;
+  float *a = engine->config->schemes[i].a;
+  float *b = engine->config->schemes[i].b;
+
   defaults = [NSUserDefaults standardUserDefaults];
   [defaults setInteger: engine->config->inputDevice forKey: @"inputDevice"];
   [defaults setInteger: engine->config->samplerate forKey: @"inputSamplerate"];
@@ -30,6 +35,10 @@
   [defaults setFloat: engine->config->centsOffset forKey: @"centsOffset"];
   [defaults setFloat: engine->config->freq forKey: @"freq"];
   [defaults setFloat: engine->config->gain forKey: @"gain"];
+  [defaults setInteger: engine->config->schemeIndex forKey: @"schemeIndex"];
+  [defaults setObject: [NSString stringWithFormat: @"%f %f %f", a[0], a[1], a[2]] forKey: @"customColorA"];
+  [defaults setObject: [NSString stringWithFormat: @"%f %f %f", b[0], b[1], b[2]] forKey: @"customColorB"];
+
   [defaults synchronize];
 
 }
@@ -38,6 +47,9 @@
 - (void)loadPreferences {
 
   defaults = [NSUserDefaults standardUserDefaults];
+  int i = engine->config->schemeCount - 1;
+  float *a = engine->config->schemes[i].a;
+  float *b = engine->config->schemes[i].b;
 
   // register factory defaults
   NSDictionary *factoryValues = @{
@@ -48,7 +60,10 @@
     @"pitchStandard": @(engine->config->pitchStandard),
     @"centsOffset": @(engine->config->centsOffset),
     @"freq": @(engine->config->freq),
-    @"gain": @(engine->config->gain)
+    @"gain": @(engine->config->gain),
+    @"schemeIndex": @(engine->config->schemeIndex),
+    @"customColorA": [NSString stringWithFormat: @"%f %f %f", a[0], a[1], a[2]],
+    @"customColorB": [NSString stringWithFormat: @"%f %f %f", b[0], b[1], b[2]]
   };
 
   [defaults registerDefaults:factoryValues];
@@ -62,6 +77,13 @@
   engine->config->centsOffset     = [defaults floatForKey: @"centsOffset"];
   engine->config->freq            = [defaults floatForKey: @"freq"];
   engine->config->gain            = [defaults floatForKey: @"gain"];
+  engine->config->schemeIndex     = [defaults floatForKey: @"schemeIndex"];
+
+  const char *customColorA = [[defaults stringForKey: @"customColorA"] UTF8String];
+  sscanf(customColorA, "%f %f %f", a, a+1, a+2);
+
+  const char* customColorB = [[defaults stringForKey: @"customColorB"] UTF8String];
+  sscanf(customColorB, "%f %f %f", b, b+1, b+2);
 
   [_prefController loadFromConfig];
 
