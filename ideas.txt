@@ -2,10 +2,7 @@
 # future (no particular order)
 
 
-- sync strobes (?)
 - move strobe view to a different octave range (e.g. 0-5, 1-6, 3-8, etc.)
-- color themes
-- support retina
 - octave font color from strobe peak value
 - Vagrant for cross-platform builds?
 - Add descriptions and advice to preferences
@@ -19,9 +16,7 @@
 - add/remove strobe bands
 - change options for each strobe band
 - choose preset ( 7 octaves, 4 harmonic bands, chords? )
-- Strobe color scheme
 - Stretch tables
-- sprinkle const all over the place :D
 - Partials, text box (drop down with combinations?)
 - Mute button
 - Sound output, drop-down box
@@ -38,7 +33,6 @@
 - Instrument selection (chromatic, std. guitar ...), combo box
 - proper hash (associative array) implementation for config
 - handle audio device changes while app is running (https://www.assembla.com/spaces/portaudio/tickets/158)
-- website advice for unplugged electric, touch the desk with the headstock :D
 - hsv to rgb vertex shader (or tone mapping)
 - incremental snac
 - write tech info on precision (sample rate drift)
@@ -55,5 +49,11 @@
 - harmonic product spectrum
 - experiment with differentials, demodulations and PLL, schmitt trigger & crossings
 
+
 http://lists.canonical.org/pipermail/kragen-hacks/2012-February/000534.html
 http://arachnoid.com/phase_locked_loop/
+http://dsp.stackexchange.com/questions/572/harmonic-product-spectrum-limitations-in-pitch-detection
+http://software.intel.com/en-us/blogs/2013/01/06/benign-data-races-what-could-possibly-go-wrong
+http://www.drdobbs.com/cpp/volatile-the-multithreaded-programmers-b/184403766
+http://functionspace.org/articles/22
+http://www.mikeash.com/pyblog/friday-qa-2009-07-10-type-specifiers-in-c-part-3.html
