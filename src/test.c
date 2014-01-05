@@ -24,11 +24,11 @@ static void speedTest(Engine *engine) {
 
   float freq, clarity;
 
-  AudioFeed_read(engine->audioFeed, engine->audioBuffer.elements, engine->audioBuffer.length);
+  AudioFeed_read(engine->audioFeed, engine->audioBuffer->elements, engine->audioBuffer.length);
 
   for (int i=0; i < 10000; ++i) {
     duration = (float)(int)clock() / CLOCKS_PER_SEC;
-    Pitch_estimate(engine->pitch, engine->audioBuffer.elements, &freq, &clarity);
+    Pitch_estimate(engine->pitch, engine->audioBuffer->elements, &freq, &clarity);
     duration = (float)(int)clock() / CLOCKS_PER_SEC - duration;
     if (duration > maxDuration) {
       maxDuration = duration;
@@ -69,7 +69,7 @@ int main() {
   Engine* engine = Engine_create();
 
   // 0 - default input, 2 - sound flower
-  Engine_setInputDevice(engine, 2, 44100);
+  Engine_setInputDevice(engine, 0, 44100, 256);
   float freq = 0.0;
   float clarity = 0.0;
   glEnable(GL_LINE_SMOOTH);
@@ -85,17 +85,18 @@ int main() {
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    AudioFeed_read(engine->audioFeed, engine->audioBuffer.elements, engine->audioBuffer.length);
-    Pitch_estimate(engine->pitch, engine->audioBuffer.elements, &freq, &clarity);
+    AudioFeed_read(engine->audioFeed, engine->audioBuffer->elements, engine->audioBuffer.length);
+    Pitch_estimate(engine->pitch, engine->audioBuffer->elements, &freq, &clarity);
 
-    int length = engine->pitch->nsdf.length / 4;
-    float *nsdf = engine->pitch->nsdf.elements;
-    // int length = engine->pitch->powCepstrum.length;
+    // int length = engine->pitch->nsdf.length / 2 -256;
+    int length = engine->pitch->spectrum.length /2;
+    // float *data = engine->pitch->nsdf.elements;
+    float *data = engine->pitch->spectrum->elements;
     double dx = 2.0 / (double)length;
     double x = -1.0;
 
     // printf("%7.2f     %4.2f   \r", freq, clarity);
-    // fflush(stdout);
+    fflush(stdout);
 
     glColor3ub(20, 190, 250);
     glPointSize(1);
@@ -103,9 +104,7 @@ int main() {
     // glBegin(GL_LINE_STRIP);
 
     for (int i = 0; i < length; ++i) {
-      // glVertex2d(x, 0.05 * engine->pitch->powCepstrum.elements[i]);
-      // glVertex2d(x, 0.05 * engine->pitch->powSpectrum.elements[i]);
-      glVertex2d(x, 0.5 * nsdf[i]);
+      glVertex2d(x, 0.5 * data[i]);
       x += dx;
     }
     glEnd();
