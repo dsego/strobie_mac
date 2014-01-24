@@ -19,14 +19,14 @@ DSP	= ../AudioPlayground/biquad/biquad.c -I../AudioPlayground/biquad \
 			../AudioPlayground/src/Interpolator.c -I../AudioPlayground/src \
 			-I../AudioPlayground/fir
 
-GLFW = -lglfw3
+GLFW     = -lglfw3
 
-LIBS = $(PORTAUDIO) $(DSP) $(FFTS)
+LIBS     = $(PORTAUDIO) $(DSP) $(FFTS)
 MAC_LIBS = $(LIBS) -framework OpenGL -framework Cocoa -framework AppKit -framework QuartzCore
 
 
-WARN			= -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion
-MAC_WARN	= $(WARN) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis -Wno-implicit-atomic-properties -Wno-auto-import
+WARN     = -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion
+MAC_WARN = $(WARN) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis -Wno-implicit-atomic-properties -Wno-auto-import
 
 
 # -Ofast enables -O3, vectorization, strict aliasing, fast math
@@ -66,7 +66,9 @@ mac_trial:
 
 mac_icons:
 	iconutil -c icns src/app.iconset
-	cp src/app.icns Strobie.app/Contents/Resources/app.icns
+	cp src/app.icns full/Strobie.app/Contents/Resources/app.icns
+	cp src/app.icns trial/Strobie.app/Contents/Resources/app.icns
+	rm src/app.icns
 
 
 
