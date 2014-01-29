@@ -39,6 +39,8 @@
   }
   [_colorSchemePopup selectItemWithTag: engine->config->schemeIndex];
 
+  [self toggleColorWells];
+
 }
 
 
@@ -227,12 +229,10 @@
 }
 
 
-- (IBAction)colorSchemeChanged: (id)sender {
-
-  int i = engine->config->schemeIndex = [sender selectedItem].tag;
+-(void)toggleColorWells {
 
   // Custom theme -> show color wells
-  if (i == engine->config->schemeCount - 1) {
+  if ([self.colorSchemePopup selectedItem].tag == engine->config->schemeCount - 1) {
     [self.colorWellA setHidden: NO];
     [self.colorWellB setHidden: NO];
   }
@@ -240,6 +240,15 @@
     [self.colorWellA setHidden: YES];
     [self.colorWellB setHidden: YES];
   }
+
+}
+
+
+- (IBAction)colorSchemeChanged: (id)sender {
+
+  int i = engine->config->schemeIndex = [sender selectedItem].tag;
+
+  [self toggleColorWells];
 
   [self.colorWellA setColor:
     [NSColor colorWithCalibratedRed: engine->config->schemes[i].a[0] / 255
