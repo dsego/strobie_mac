@@ -62,8 +62,8 @@ Config* Config_create() {
 
   }
 
-  self->schemeCount = 5;
   self->schemeIndex = 0;
+  self->schemeCount = 6;
 
   strcpy(self->schemes[0].name, "Default");
   self->schemes[0].a[0] = 181;
@@ -73,7 +73,7 @@ Config* Config_create() {
   self->schemes[0].b[1] = 61;
   self->schemes[0].b[2] = 125;
 
-  strcpy(self->schemes[1].name, "Classic Red");
+  strcpy(self->schemes[1].name, "Red");
   self->schemes[1].a[0] = 255;
   self->schemes[1].a[1] = 98;
   self->schemes[1].a[2] = 80;
@@ -89,21 +89,29 @@ Config* Config_create() {
   self->schemes[2].b[1] = 73;
   self->schemes[2].b[2] = 68;
 
-  strcpy(self->schemes[3].name, "Grayscale");
+  strcpy(self->schemes[3].name, "Copper");
   self->schemes[3].a[0] = 240;
-  self->schemes[3].a[1] = 240;
-  self->schemes[3].a[2] = 240;
-  self->schemes[3].b[0] = 80;
-  self->schemes[3].b[1] = 80;
-  self->schemes[3].b[2] = 80;
+  self->schemes[3].a[1] = 124;
+  self->schemes[3].a[2] = 86;
+  self->schemes[3].b[0] = 112;
+  self->schemes[3].b[1] = 41;
+  self->schemes[3].b[2] = 19;
 
-  strcpy(self->schemes[4].name, "Custom...");
+  strcpy(self->schemes[4].name, "Gray");
   self->schemes[4].a[0] = 240;
   self->schemes[4].a[1] = 240;
   self->schemes[4].a[2] = 240;
   self->schemes[4].b[0] = 80;
   self->schemes[4].b[1] = 80;
   self->schemes[4].b[2] = 80;
+
+  strcpy(self->schemes[5].name, "Custom...");
+  self->schemes[5].a[0] = 240;
+  self->schemes[5].a[1] = 240;
+  self->schemes[5].a[2] = 240;
+  self->schemes[5].b[0] = 80;
+  self->schemes[5].b[1] = 80;
+  self->schemes[5].b[2] = 80;
 
   return self;
 
