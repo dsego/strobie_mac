@@ -54,7 +54,11 @@
   CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
   CVDisplayLinkSetOutputCallback(displayLink, &displayLinkCallback, (__bridge void *)self);
   CGLPixelFormatObj cglPixelFormat = [[self pixelFormat] CGLPixelFormatObj];
-  CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, [context CGLContextObj], cglPixelFormat);
+  CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(
+    displayLink,
+    [context CGLContextObj],
+    cglPixelFormat
+  );
   CVDisplayLinkStart(displayLink);
 
   // Register to be notified when the window closes so we can stop the displaylink
@@ -94,8 +98,13 @@
 
 
 // This is the renderer output callback function
-static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* now, const CVTimeStamp* outputTime,
-CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext) {
+static CVReturn displayLinkCallback(
+  CVDisplayLinkRef displayLink,
+  const CVTimeStamp* now,
+  const CVTimeStamp* outputTime,
+  CVOptionFlags flagsIn,
+  CVOptionFlags* flagsOut,
+  void* displayLinkContext) {
 
   @autoreleasepool {
     [(__bridge StrobeView*)displayLinkContext redraw];

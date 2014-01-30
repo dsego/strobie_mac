@@ -31,7 +31,7 @@
   );
 
   CGContextRef context = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-  CGContextSetTextMatrix(context, CGAffineTransformIdentity);   // why do I need to do this?
+  CGContextSetTextMatrix(context, CGAffineTransformIdentity);
 
   CGColorRef shadowColor = CGColorCreateGenericRGB(0, 0, 0, 1);
   CGContextSetShadowWithColor(context, CGSizeMake(0, 2), 0, shadowColor);
@@ -41,20 +41,33 @@
 
   for (int i = 0; i < engine->config->strobeCount; ++i) {
 
+    CFStringRef formatStr = CFStringCreateWithFormat(
+      kCFAllocatorDefault, NULL, CFSTR("%1.0f"),
+      engine->config->strobes[i].value
+    );
+
     CFAttributedStringRef str = CFAttributedStringCreate(
       kCFAllocatorDefault,
-      CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%1.0f"), engine->config->strobes[i].value),
-      attrs);
+      formatStr,
+      attrs
+    );
 
     CTLineRef line = CTLineCreateWithAttributedString(str);
     CGRect bounds = CTLineGetImageBounds(line, context);
     float width = CTLineGetTypographicBounds(line, NULL, NULL, NULL);
-    CGContextSetTextPosition(context, (rect.size.width - width) * 0.5, y - bounds.size.height * 0.5);
+
+    CGContextSetTextPosition(
+      context,
+      (rect.size.width - width) * 0.5,
+      y - bounds.size.height * 0.5
+    );
+
     CTLineDraw(line, context);
     y += height;
 
     CFRelease(line);
     CFRelease(str);
+    CFRelease(formatStr);
 
   }
 

@@ -16,7 +16,7 @@ Config* Config_create() {
 
   self->inputDevice        = 0;
   self->inputBufferSize    = 0;         // auto-detect
-  self->maxInputBufferSize = 1024;      // max. input buffer size (so that buffers are allocated only once)
+  self->maxInputBufferSize = 1024;      // buffers are allocated only once
   self->outputDevice       = 0;
   self->samplerate         = 44100;
   self->windowSize         = 2048;
@@ -25,8 +25,7 @@ Config* Config_create() {
   self->centsOffset        = 0;
   self->transpose          = 0;
   self->freq               = 82.4;
-  self->peakThreshold      = 0.01;      // not used
-  self->clarityThreshold   = 0.8;       // should this be user-configurable?
+  self->clarityThreshold   = 0.8;
   self->gain               = 100;
   self->highlightBands     = 0;
 

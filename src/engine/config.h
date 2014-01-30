@@ -36,7 +36,6 @@ typedef struct {
 typedef struct {
 
   char name[64];
-  // int colors[CONFIG_MAX_COLORS][3];   // color stops
   float a[3];
   float b[3];
 
@@ -57,16 +56,15 @@ typedef struct {
   int transpose;              // shift notes to another key
   float centsOffset;          // offset in cents
   float freq;
-  float peakThreshold;
   float clarityThreshold;
   float gain;
   float maxGain;              // NOT USED
   int highlightBands;         // highlight strong strobe bands and dim the weaker ones
-  StrobeConfig strobes[CONFIG_MAX_STROBES];
   int strobeCount;
-  ColorScheme schemes[CONFIG_MAX_SCHEMES];
   int schemeIndex;
   int schemeCount;
+  ColorScheme schemes[CONFIG_MAX_SCHEMES];
+  StrobeConfig strobes[CONFIG_MAX_STROBES];
 
 } Config;
 

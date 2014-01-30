@@ -40,8 +40,14 @@
   };
 
 
-  NSMutableAttributedString *titleString = [[NSMutableAttributedString alloc] initWithString: @"auto / manual" attributes: attrs];
-  NSMutableAttributedString *alternateString = [[NSMutableAttributedString alloc] initWithString: @"auto / manual" attributes: attrs];
+  NSMutableAttributedString *titleString =
+    [[NSMutableAttributedString alloc] initWithString: @"auto / manual"
+      attributes: attrs];
+
+  NSMutableAttributedString *alternateString =
+    [[NSMutableAttributedString alloc] initWithString: @"auto / manual"
+      attributes: attrs];
+
   [titleString setAttributes:subAttrs range:NSMakeRange(0,4)];
   [alternateString setAttributes:subAttrs range:NSMakeRange(7,6)];
   [self setAttributedTitle: titleString];

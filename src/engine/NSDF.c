@@ -100,7 +100,8 @@ void NSDF_estimate(NSDF* self, const float* data, float *outFreq, float *outAmp)
   float amp, lag;
   findLag(nsdf, k, 0.9, &lag, &amp);
 
-  *outFreq = (lag > 2.0) ? self->samplerate / lag : 0.0; // anything less than 2 is probably an error
+  // anything less than 2 is probably an error
+  *outFreq = (lag > 2.0) ? self->samplerate / lag : 0.0;
   *outAmp = (amp >= 0.0) ? amp : 0.0;
 
 }

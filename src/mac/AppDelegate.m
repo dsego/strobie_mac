@@ -36,8 +36,16 @@
   [defaults setFloat: engine->config->freq forKey: @"freq"];
   [defaults setFloat: engine->config->gain forKey: @"gain"];
   [defaults setInteger: engine->config->schemeIndex forKey: @"schemeIndex"];
-  [defaults setObject: [NSString stringWithFormat: @"%f %f %f", a[0], a[1], a[2]] forKey: @"customColorA"];
-  [defaults setObject: [NSString stringWithFormat: @"%f %f %f", b[0], b[1], b[2]] forKey: @"customColorB"];
+
+  [defaults setObject: [NSString stringWithFormat:
+    @"%f %f %f",
+    a[0], a[1], a[2]]
+    forKey: @"customColorA"];
+
+  [defaults setObject: [NSString stringWithFormat:
+    @"%f %f %f",
+    b[0], b[1], b[2]]
+    forKey: @"customColorB"];
 
   [defaults synchronize];
 
@@ -93,7 +101,11 @@
 - (void)awakeFromNib {
 
   [self loadPreferences];
-  Note note = Tuning12TET_find(engine->config->freq, engine->config->pitchStandard, engine->config->centsOffset);
+  Note note = Tuning12TET_find(
+    engine->config->freq,
+    engine->config->pitchStandard,
+    engine->config->centsOffset
+  );
   Engine_setStrobes(engine, note, engine->config->samplerate);
 
 }
@@ -122,7 +134,9 @@
           defaultButton: @"Buy"
           alternateButton: @"Close"
           otherButton: nil
-          informativeTextWithFormat: @"If you would like to continue using Strobie, please buy the full version."
+          informativeTextWithFormat:
+            @"If you would like to continue using Strobie, \
+            please buy the full version."
         ];
 
         if ([reminder runModal] == NSAlertDefaultReturn) {
@@ -158,12 +172,21 @@
 
   #endif
 
-  int err = Engine_setInputDevice(engine, engine->config->inputDevice, engine->config->samplerate, engine->config->inputBufferSize);
+  int err = Engine_setInputDevice(
+    engine,
+    engine->config->inputDevice,
+    engine->config->samplerate,
+    engine->config->inputBufferSize
+  );
+
   if (err) {
     audioDeviceErrorAlert();
   }
 
-  estimatePitchThread = [[NSThread alloc] initWithTarget:self selector:@selector(estimatePitch) object:nil ];
+  estimatePitchThread = [[NSThread alloc] initWithTarget:self
+    selector:@selector(estimatePitch)
+    object:nil ];
+
   [estimatePitchThread start];
 
 }
@@ -198,7 +221,9 @@
     if (engine->mode == AUTO) {
       Engine_estimatePitch(engine);
       dispatch_async(dispatch_get_main_queue(),^ {
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"NoteChangeNotification" object:self];
+        [[NSNotificationCenter defaultCenter]
+          postNotificationName:@"NoteChangeNotification"
+          object:self];
       });
     }
 

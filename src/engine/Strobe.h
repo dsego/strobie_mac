@@ -13,14 +13,14 @@
 //  to a multiple of the note's frequency
 typedef struct {
 
-  int samplesPerPeriod;         // number of samples used to describe one sound wave period
+  int samplesPerPeriod;         // number of samples that describe one sound wave period
   float freq;                   // strobing frequency
   int subdivCount;
   int samplerate;
   volatile int freqChanged;
 
-  Vec* filteredBuffer;          // store filtered data to be re-sampled
-  Vec* resampledBuffer;         // stores re-sampled data before writing to the circular buffer
+  Vec* filteredBuffer;          // filtered data to be re-sampled
+  Vec* resampledBuffer;         // holds re-sampled data
   Vec* rbdata;                  // circular buffer data store
   float bufferRatio;            // resampledBuffer.length / filteredBuffer.length
 

@@ -75,7 +75,8 @@
   {
     int i = 0;
     while (engine->config->inputBufferSizes[i] != 0) {
-      [_bufferSizePopup addItemWithTitle: [NSString stringWithFormat: @"%i", engine->config->inputBufferSizes[i]]];
+      [_bufferSizePopup addItemWithTitle:
+        [NSString stringWithFormat: @"%i", engine->config->inputBufferSizes[i]]];
       [[_bufferSizePopup lastItem] setTag: engine->config->inputBufferSizes[i]];
       i++;
     }
@@ -116,7 +117,8 @@
 - (IBAction)transposeChanged: (id)sender {
 
   engine->config->transpose = [sender selectedItem].tag;
-  [[NSNotificationCenter defaultCenter] postNotificationName:@"NoteChangeNotification" object:self];
+  [[NSNotificationCenter defaultCenter]
+    postNotificationName:@"NoteChangeNotification" object:self];
 
 }
 

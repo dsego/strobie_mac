@@ -71,7 +71,12 @@
 
   for (int i = 0; i < 12; ++i) {
 
-    CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, 0, genericRGB, (CGBitmapInfo)kCGImageAlphaPremultipliedLast);
+    CGContextRef context = CGBitmapContextCreate(
+      NULL, width, height,
+      8, 0, genericRGB,
+      (CGBitmapInfo)kCGImageAlphaPremultipliedLast
+    );
+
     CTLineRef line = CTLineCreateWithAttributedString(noteNames[i]);
     float typoWidth = CTLineGetTypographicBounds(line, NULL, NULL, NULL);
     float x = (width - typoWidth) * 0.5; // center horizontally
@@ -125,7 +130,11 @@
 -(void)menuAction:(id)sender  {
 
   int noteIndex = [sender tag];
-  Note note = Tuning12TET_noteFromIndex(noteIndex, 0, engine->config->pitchStandard, engine->config->centsOffset);
+  Note note = Tuning12TET_noteFromIndex(
+    noteIndex, 0,
+    engine->config->pitchStandard,
+    engine->config->centsOffset
+  );
   Engine_setStrobes(engine, note, engine->config->samplerate);
   [self setNeedsDisplay: YES];
 
@@ -141,7 +150,8 @@
 
 - (void)drawRect:(NSRect)rect {
 
-  CGContextRef context = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+  CGContextRef context =
+    (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
 
   Note note;
 
@@ -164,7 +174,7 @@
 
     NSPoint location = [self convertPoint:[theEvent locationInWindow] fromView:nil];
     [noteMenu popUpMenuPositioningItem: [noteMenu itemWithTag: engine->currentNote.index]
-      atLocation:NSMakePoint(0, location.y + 10) // dirty hack
+      atLocation:NSMakePoint(0, location.y + 10)
       inView:self
     ];
 
@@ -180,49 +190,6 @@
   }
 
 }
-
-
-
-// static CGImageRef maskFromCTLine(CTLineRef line, float x, float y, int w, int h) {
-
-//   CGColorSpaceRef grayscale = CGColorSpaceCreateDeviceGray();
-//   CGContextRef context = CGBitmapContextCreate(NULL, w, h, 8, 0, grayscale, (CGBitmapInfo)kCGImageAlphaOnly);
-//   CGContextSetShouldAntialias(context, YES);
-//   CGContextSetShouldSmoothFonts(context, YES);
-//   CGContextSetShouldSubpixelQuantizeFonts(context, YES);
-
-//   CGContextSetTextPosition(context, x, y);
-//   CTLineDraw(line, context);
-//   CGImageRef mask = CGBitmapContextCreateImage(context);
-
-//   CGColorSpaceRelease(grayscale);
-//   CFRelease(line);
-//   CGContextRelease(context);
-
-//   return mask;
-
-// }
-
-
-// static CGImageRef invertedMaskFromMask(CGImageRef mask, CGColorSpaceRef space) {
-
-//   int width = CGImageGetWidth(mask);
-//   int height = CGImageGetHeight(mask);
-
-//   CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, 0, space, (CGBitmapInfo)kCGImageAlphaPremultipliedLast);
-//   CGContextSetShouldAntialias(context, YES);
-
-//   CGRect rect = CGRectMake(0, 0, width, height);
-//   CGContextSetRGBFillColor(context, 0, 0, 0, 1);
-//   CGContextFillRect(context, rect);
-//   CGContextClipToMask(context, rect, mask);
-//   CGContextClearRect(context, rect);
-//   CGImageRef inverted = CGBitmapContextCreateImage(context);
-//   CGContextRelease(context);
-
-//   return inverted;
-
-// }
 
 
 @end

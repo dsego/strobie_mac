@@ -12,7 +12,9 @@ FFTS = -I/usr/local/include/ffts /usr/local/lib/libffts.a
 #
 # 	CFLAGS="-w -arch x86_64" ./configure  --enable-mac-universal=NO && make
 #
-PORTAUDIO = ../portaudio/trunk/src/common/pa_ringbuffer.c -I../portaudio/trunk/include -I../portaudio/trunk/src/common \
+PORTAUDIO = ../portaudio/trunk/src/common/pa_ringbuffer.c \
+					-I../portaudio/trunk/include \
+					-I../portaudio/trunk/src/common \
 						../portaudio/trunk/lib/.libs/libportaudio.dylib
 
 DSP	= ../AudioPlayground/biquad/biquad.c -I../AudioPlayground/biquad \
@@ -26,7 +28,8 @@ MAC_LIBS = $(LIBS) -framework OpenGL -framework Cocoa -framework AppKit -framewo
 
 
 WARN     = -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion
-MAC_WARN = $(WARN) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis -Wno-implicit-atomic-properties -Wno-auto-import
+MAC_WARN = $(WARN) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis \
+					-Wno-implicit-atomic-properties -Wno-auto-import
 
 
 # -Ofast enables -O3, vectorization, strict aliasing, fast math
@@ -51,13 +54,15 @@ engine:
 	rm *.o
 
 mac:
-	$(CC) $(MAC_WARN) $(MAC_OPTIONS) $(MAC_LIBS) engine.a src/mac/*.m src/mac/*.c -o full/Strobie.app/Contents/MacOS/Strobie
+	$(CC) $(MAC_WARN) $(MAC_OPTIONS) $(MAC_LIBS) \
+		engine.a src/mac/*.m src/mac/*.c -o full/Strobie.app/Contents/MacOS/Strobie
 		ibtool --compile full/Strobie.app/Contents/Resources/Application.nib src/mac/Application.xib
 		cp src/mac/Info.plist full/Strobie.app/Contents/Info.plist
 		cp src/mac/Credits.rtf full/Strobie.app/Contents/Resources/Credits.rtf
 
 mac_trial:
-	$(CC) -DTRIAL $(MAC_WARN) $(MAC_OPTIONS) $(MAC_LIBS) engine.a src/mac/*.m src/mac/*.c -o trial/Strobie.app/Contents/MacOS/Strobie
+	$(CC) -DTRIAL $(MAC_WARN) $(MAC_OPTIONS) $(MAC_LIBS) \
+		engine.a src/mac/*.m src/mac/*.c -o trial/Strobie.app/Contents/MacOS/Strobie
 		ibtool --compile trial/Strobie.app/Contents/Resources/Application.nib src/mac/Application.xib
 		cp src/mac/Info.plist trial/Strobie.app/Contents/Info.plist
 		cp src/mac/Credits.rtf trial/Strobie.app/Contents/Resources/Credits.rtf
@@ -77,7 +82,8 @@ mac_icons:
 .PHONY: test biquad
 test:
 	make engine
-	cc $(OPTIONS) $(WARN) -Isrc/engine $(GL) $(GLFW) $(FFTS) $(PORTAUDIO) $(DSP) src/test.c engine.a -o test
+	cc $(OPTIONS) $(WARN) -Isrc/engine $(GL) $(GLFW) $(FFTS) $(PORTAUDIO) $(DSP) \
+	src/test.c engine.a -o test
 
 experiment:
 	cc $(OPTIONS) $(WARN) $(FFTS) $(PORTAUDIO) src/experiment.c -o experiment

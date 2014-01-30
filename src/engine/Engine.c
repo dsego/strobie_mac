@@ -22,7 +22,12 @@ Engine* Engine_create() {
   assert(self != NULL);
 
   Config* config = self->config = Config_create();
-  self->currentNote = Tuning12TET_find(self->config->freq, self->config->pitchStandard, self->config->centsOffset);
+
+  self->currentNote = Tuning12TET_find(
+    self->config->freq,
+    self->config->pitchStandard,
+    self->config->centsOffset
+  );
 
   self->freqMedian = Median_create(9);
   self->clarityMedian = Median_create(9);
@@ -108,7 +113,11 @@ void Engine_setCentsOffset(Engine* self, float cents) {
 
   if (cents >= -50 && cents <= 50) {
     self->config->centsOffset = cents;
-    self->currentNote = Tuning12TET_centsToNote(self->currentNote.cents, self->config->pitchStandard, self->config->centsOffset);
+    self->currentNote = Tuning12TET_centsToNote(
+      self->currentNote.cents,
+      self->config->pitchStandard,
+      self->config->centsOffset
+    );
     Engine_setStrobes(self, self->currentNote, self->config->samplerate);
   }
 
@@ -119,7 +128,11 @@ void Engine_setPitchStandard(Engine* self, float freq) {
 
   if (freq >= 100 && freq <= 1000) {
     self->config->pitchStandard = freq;
-    self->currentNote = Tuning12TET_centsToNote(self->currentNote.cents, self->config->pitchStandard, self->config->centsOffset);
+    self->currentNote = Tuning12TET_centsToNote(
+      self->currentNote.cents,
+      self->config->pitchStandard,
+      self->config->centsOffset
+    );
     Engine_setStrobes(self, self->currentNote, self->config->samplerate);
   }
 
@@ -147,7 +160,10 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate) {
   for (int i = 0; i < self->strobeCount; ++i) {
 
     if (self->config->strobes[i].mode == OCTAVE) {
-      Note movedNote = Tuning12TET_moveToOctave(self->currentNote, self->config->strobes[i].value);
+      Note movedNote = Tuning12TET_moveToOctave(
+        self->currentNote,
+        self->config->strobes[i].value
+      );
       Strobe_setFreq(self->strobes[i], movedNote.frequency, self->config->samplerate);
     }
     else if (self->config->strobes[i].mode == PARTIAL) {
@@ -159,7 +175,8 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate) {
     }
 
     // number of samples displayed
-    self->strobeBuffers[i]->count = self->config->strobes[i].periodsPerFrame * self->config->strobes[i].samplesPerPeriod;
+    self->strobeBuffers[i]->count = self->config->strobes[i].periodsPerFrame *
+      self->config->strobes[i].samplesPerPeriod;
 
   }
 
@@ -169,7 +186,11 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate) {
 // return 0 if there is no new data
 int Engine_readStrobe(Engine* self, int index) {
 
-  int hasData = Strobe_read(self->strobes[index], self->strobeBuffers[index]->elements, self->strobeBuffers[index]->count);
+  int hasData = Strobe_read(
+    self->strobes[index],
+    self->strobeBuffers[index]->elements,
+    self->strobeBuffers[index]->count
+  );
   return hasData;
 
 }
@@ -179,7 +200,11 @@ int Engine_readStrobes(Engine* self) {
 
   int fresh = 0;
   for (int i = 0; i < self->strobeCount; ++i) {
-    fresh += Strobe_read(self->strobes[i], self->strobeBuffers[i]->elements, self->strobeBuffers[i]->count);
+    fresh += Strobe_read(
+      self->strobes[i],
+      self->strobeBuffers[i]->elements,
+      self->strobeBuffers[i]->count
+    );
   }
   return fresh; // there is new data
 
@@ -258,7 +283,11 @@ static inline int Engine_streamCallback(
 void Engine_estimatePitch(Engine* self) {
 
   // read in new data from the ring buffer
-  AudioFeed_read(self->audioFeed, (float*)self->audioBuffer->elements, self->audioBuffer->count);
+  AudioFeed_read(
+    self->audioFeed,
+    (float*)self->audioBuffer->elements,
+    self->audioBuffer->count
+  );
 
   float freq, clarity;
   Pitch_estimate(self->pitch, (float*)self->audioBuffer->elements, &freq, &clarity);
@@ -271,11 +300,17 @@ void Engine_estimatePitch(Engine* self) {
   // totally not arbitrary
   const float maxFreq = 12345;
 
-  if (self->mode == AUTO) {
-    if (freq > 0.0 && freq < maxFreq && clarity > self->config->clarityThreshold) {
-      self->currentNote = Tuning12TET_find(freq, self->config->pitchStandard, self->config->centsOffset);
-      Engine_setStrobes(self, self->currentNote, self->config->samplerate);
-    }
+  if (self->mode == AUTO &&
+      freq > 0.0 && freq < maxFreq &&
+      clarity > self->config->clarityThreshold) {
+
+    self->currentNote = Tuning12TET_find(
+      freq,
+      self->config->pitchStandard,
+      self->config->centsOffset
+    );
+    Engine_setStrobes(self, self->currentNote, self->config->samplerate);
+
   }
 
 

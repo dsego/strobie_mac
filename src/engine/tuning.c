@@ -39,7 +39,11 @@ Note Tuning12TET_moveBySemitones(Note note, int semitones) {
 
 Note Tuning12TET_moveByCents(Note note, float cents) {
 
-  return Tuning12TET_centsToNote(note.cents + cents, note.pitchStandard, note.centsOffset);
+  return Tuning12TET_centsToNote(
+    note.cents + cents,
+    note.pitchStandard,
+    note.centsOffset
+  );
 
 }
 
@@ -77,10 +81,14 @@ Note Tuning12TET_centsToNote(float cents, float pitchStandard, float centsOffset
 
   Note note;
   note.pitchStandard = pitchStandard;
-  note.octave        = octave;
   note.centsOffset   = centsOffset;
   note.cents         = nearest * 100;
-  note.frequency     = Tuning12TET_centsToFreq(note.cents + note.centsOffset, note.pitchStandard);
+  note.octave        = octave;
+
+  note.frequency = Tuning12TET_centsToFreq(
+    note.cents + note.centsOffset,
+    note.pitchStandard
+  );
 
   int index = (nearest % 12) + 9;  // C = 0
 
