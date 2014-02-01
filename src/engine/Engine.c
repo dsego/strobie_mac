@@ -183,34 +183,6 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate) {
 }
 
 
-// return 0 if there is no new data
-int Engine_readStrobe(Engine* self, int index) {
-
-  int hasData = Strobe_read(
-    self->strobes[index],
-    self->strobeBuffers[index]->elements,
-    self->strobeBuffers[index]->count
-  );
-  return hasData;
-
-}
-
-
-int Engine_readStrobes(Engine* self) {
-
-  int fresh = 0;
-  for (int i = 0; i < self->strobeCount; ++i) {
-    fresh += Strobe_read(
-      self->strobes[i],
-      self->strobeBuffers[i]->elements,
-      self->strobeBuffers[i]->count
-    );
-  }
-  return fresh; // there is new data
-
-}
-
-
 float Engine_gain(Engine* self) {
 
   if (self->config->gain <= 0) {

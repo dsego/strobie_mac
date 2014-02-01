@@ -58,6 +58,7 @@ static const char* texFragmentSource =
 typedef struct {
 
   GLuint vao;
+  Vec *dataBuffer;
   GLuint posBuffer;
   GLuint colorBuffer;
   GLfloat *positions;
@@ -66,11 +67,10 @@ typedef struct {
   int highlighted;
   int count;
 
-} StrobeDisplay;
+} StrobeBand;
 
 
-static StrobeDisplay strobes[MAX_STROBE_COUNT];
-static int strobeCount = 0;
+static StrobeBand bands[MAX_STROBE_COUNT];
 
 static GLuint shadowElements[] = {
   0, 1, 2, 1, 2, 3,       // top shadow
@@ -140,12 +140,6 @@ static inline GLuint createShaderProgram(const char* vertexSource, const char* f
 
 static inline void genObjects() {
 
-  for (int i = 0; i < MAX_STROBE_COUNT; ++i) {
-    glGenVertexArrays(1, &strobes[i].vao);
-    glGenBuffers(1, &(strobes[i].posBuffer));
-    glGenBuffers(1, &(strobes[i].colorBuffer));
-  }
-
   glGenVertexArrays(1, &shadowVao);
   glGenBuffers(1, &shadowVbo);
   glGenBuffers(1, &shadowEbo);
@@ -157,9 +151,9 @@ static inline void genObjects() {
 static inline void deleteObjects() {
 
   for (int i = 0; i < MAX_STROBE_COUNT; ++i) {
-    glDeleteVertexArrays(1, &strobes[i].vao);
-    glDeleteBuffers(1, &(strobes[i].posBuffer));
-    glDeleteBuffers(1, &(strobes[i].colorBuffer));
+    glDeleteVertexArrays(1, &bands[i].vao);
+    glDeleteBuffers(1, &(bands[i].posBuffer));
+    glDeleteBuffers(1, &(bands[i].colorBuffer));
   }
 
   glDeleteVertexArrays(1, &shadowVao);
@@ -170,35 +164,35 @@ static inline void deleteObjects() {
 }
 
 
-static inline void initStrobeBuffers(Engine *engine) {
+static inline void initStrobeBuffer(Vec *buffer, StrobeBand *band) {
 
-  strobeCount = engine->strobeCount;
+  glGenVertexArrays(1, &band->vao);
+  glGenBuffers(1, &band->posBuffer);
+  glGenBuffers(1, &band->colorBuffer);
+  glBindVertexArray(band->vao);
 
-  for (int sid = 0; sid < strobeCount; ++sid) {
+  // 2 vertices per sample
+  int count = band->count = buffer->count * 2;
+  band->dataBuffer = buffer;
 
-    glBindVertexArray(strobes[sid].vao);
+  // Static position data
+  glBindBuffer(GL_ARRAY_BUFFER, band->posBuffer);
+  glBufferData(GL_ARRAY_BUFFER, 2 * count * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
+  band->positions = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 
-    int count = strobes[sid].count = engine->strobeBuffers[sid]->count * 2;
+  GLint posAttrib = glGetAttribLocation(sceneShader, "position");
+  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(posAttrib);
 
-    // Static position data
-    glBindBuffer(GL_ARRAY_BUFFER, strobes[sid].posBuffer);
-    glBufferData(GL_ARRAY_BUFFER, 2 * count * sizeof(GLfloat), NULL, GL_STATIC_DRAW);
-    strobes[sid].positions = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+  // Dynamic color data
+  glBindBuffer(GL_ARRAY_BUFFER, band->colorBuffer);
+  glBufferData(GL_ARRAY_BUFFER, 4 * count * sizeof(GLubyte), NULL, GL_DYNAMIC_DRAW);
+  band->colors = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 
-    GLint posAttrib = glGetAttribLocation(sceneShader, "position");
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(posAttrib);
+  GLint colAttrib = glGetAttribLocation(sceneShader, "color");
+  glVertexAttribPointer(colAttrib, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
+  glEnableVertexAttribArray(colAttrib);
 
-    // Dynamic color data
-    glBindBuffer(GL_ARRAY_BUFFER, strobes[sid].colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, 4 * count * sizeof(GLubyte), NULL, GL_DYNAMIC_DRAW);
-    strobes[sid].colors = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-
-    GLint colAttrib = glGetAttribLocation(sceneShader, "color");
-    glVertexAttribPointer(colAttrib, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
-    glEnableVertexAttribArray(colAttrib);
-
-  }
 
 }
 
@@ -287,7 +281,10 @@ void StrobeDisplay_setup(Engine *engine) {
   textureShader = createShaderProgram(texVertexSource, texFragmentSource);
 
   genObjects();
-  initStrobeBuffers(engine);
+
+  for (int i = 0; i < engine->strobeCount; ++i) {
+    initStrobeBuffer(engine->strobeBuffers[i], &bands[i]);
+  }
 
 }
 
@@ -299,38 +296,6 @@ void StrobeDisplay_cleanup() {
   glDeleteProgram(textureShader);
 
 }
-
-// #define PI  3.14159265358979323846264338327950288419716939937510582097494459230
-
-
-// static inline void refreshStrobePositions(Engine *engine, int w, int h) {
-
-//   float baseRadius = 0.1;
-//   float padding = 2.0f * 2.0f / (float)h; // circa 2px
-//   float height = 0.22f;
-//   float r = baseRadius;
-
-//   float ratio = (float)h / (float)w;
-
-//   for (int sid = 0; sid < strobeCount; ++sid) {
-
-//     float t = 0.0;
-//     float length = PI;
-//     float dt = length / (engine->strobeLengths[sid] - 1);
-
-//     for (int i = 0; i < 2 * strobes[sid]->count; ) {
-//       strobes[sid].positions[i++] = (r + height) * cos(t) * ratio;
-//       strobes[sid].positions[i++] = (r + height) * sin(t) - 1;
-//       strobes[sid].positions[i++] = r * cos(t) * ratio;
-//       strobes[sid].positions[i++] = r * sin(t) - 1;
-//       t += dt;
-//     }
-
-//     r += height + padding;
-//   }
-
-// }
-
 
 
 static inline void refreshStrobePositions(Engine *engine, int w, int h) {
@@ -346,20 +311,20 @@ static inline void refreshStrobePositions(Engine *engine, int w, int h) {
   //
 
   float padding = 2.0f * 2.0f / (float)h; // circa 2px
-  float height = ((2.0f + padding) / strobeCount) - padding;
+  float height = ((2.0f + padding) / engine->strobeCount) - padding;
   float y = -1.0f;
 
-  for (int sid = 0; sid < strobeCount; ++sid) {
+  for (int sid = 0; sid < engine->strobeCount; ++sid) {
 
     // generate vertex positions
     float x = -1.0f;
     float dx = 2.0f / (engine->strobeBuffers[sid]->count - 1);
 
-    for (int i = 0; i < 2 * strobes[sid].count; ) {
-      strobes[sid].positions[i++] = x;
-      strobes[sid].positions[i++] = y + height;
-      strobes[sid].positions[i++] = x;
-      strobes[sid].positions[i++] = y;
+    for (int i = 0; i < 2 * bands[sid].count; ) {
+      bands[sid].positions[i++] = x;
+      bands[sid].positions[i++] = y + height;
+      bands[sid].positions[i++] = x;
+      bands[sid].positions[i++] = y;
       x += dx;
     }
 
@@ -369,52 +334,32 @@ static inline void refreshStrobePositions(Engine *engine, int w, int h) {
 }
 
 
-static inline void refreshStrobeColors(Engine *engine, int sid, float gain) {
-
-  ColorScheme scheme = engine->config->schemes[engine->config->schemeIndex];
-
-  GLubyte color[3];
-  float scale[3];
-
-  scale[0] = scheme.a[0] - scheme.b[0];
-  scale[1] = scheme.a[1] - scheme.b[1];
-  scale[2] = scheme.a[2] - scheme.b[2];
+static inline void refreshStrobeColors(
+  Strobe* strobe,
+  StrobeBand* band,
+  ColorScheme scheme,
+  float gain) {
 
 
-  // scale[0] = scheme.a[0] - scheme.b[0];
-  // scale[1] = scheme.a[1] - scheme.b[1];
-  // scale[2] = scheme.a[2] - scheme.b[2];
+  float dr = scheme.a[0] - scheme.b[0];
+  float dg = scheme.a[1] - scheme.b[1];
+  float db = scheme.a[2] - scheme.b[2];
 
-  if (Engine_readStrobe(engine, sid)) {
+  float *buffer = (float*) band->dataBuffer->elements;
+  int n = band->dataBuffer->count;
 
-    float *buffer = (float*)engine->strobeBuffers[sid]->elements;
-    int i = engine->strobeBuffers[sid]->count;
-    int cid = 0;
+  if (Strobe_read(strobe, buffer, n)) {
 
-    const GLubyte opacity = 255;
+    int i = 0;
 
-    // if (engine->config->highlightBands) {
-
-      // float peak = gain * findWavePeak(buffer, i);
-    //   float upper = 3;
-    //   float lower = 0.2;
-
-    //   if (peak > upper) {
-    //     strobes[sid].highlighted = 1;
-    //   }
-    //   else if (strobes[sid].highlighted && peak < lower) {
-    //     strobes[sid].highlighted = 0;
-    //   }
-
-    //   opacity = strobes[sid].highlighted ? 255 : 150;
-
-    // }
+    // highlight bands in the future?
+    const GLubyte a = 255;
 
     do {
 
-      --i;
+      --n;
 
-      float value = buffer[i] * gain * 0.5 + 0.5;
+      float value = buffer[n] * gain * 0.5 + 0.5;
 
       if (value < 0) {
         value = 0.0;
@@ -423,35 +368,23 @@ static inline void refreshStrobeColors(Engine *engine, int sid, float gain) {
         value = 1.0;
       }
 
-      color[0] = (GLubyte) (scheme.b[0] + scale[0] * value);
-      color[1] = (GLubyte) (scheme.b[1] + scale[1] * value);
-      color[2] = (GLubyte) (scheme.b[2] + scale[2] * value);
-
-      // float hsv[3], rgb[3];
-      // hsv[0] = (scheme.b[0] + scale[0] * value);
-      // hsv[1] = (scheme.b[1] + scale[1] * value);
-      // hsv[2] = (scheme.b[2] + scale[2] * value);
-
-      // hsv2rgb(hsv, rgb);
-
-      // color[0] = roundf(rgb[0] * 255);
-      // color[1] = roundf(rgb[1] * 255);
-      // color[2] = roundf(rgb[2] * 255);
-
+      GLubyte r = (GLubyte) (scheme.b[0] + dr * value);
+      GLubyte g = (GLubyte) (scheme.b[1] + dg * value);
+      GLubyte b = (GLubyte) (scheme.b[2] + db * value);
 
       // color (RGB)
-      strobes[sid].colors[cid++] = color[0];
-      strobes[sid].colors[cid++] = color[1];
-      strobes[sid].colors[cid++] = color[2];
-      strobes[sid].colors[cid++] = opacity;
+      band->colors[i++] = r;
+      band->colors[i++] = g;
+      band->colors[i++] = b;
+      band->colors[i++] = a;
 
       // color (RGB)
-      strobes[sid].colors[cid++] = color[0];
-      strobes[sid].colors[cid++] = color[1];
-      strobes[sid].colors[cid++] = color[2];
-      strobes[sid].colors[cid++] = opacity;
+      band->colors[i++] = r;
+      band->colors[i++] = g;
+      band->colors[i++] = b;
+      band->colors[i++] = a;
 
-    } while (i > 0);
+    } while (n > 0);
 
   }
 
@@ -479,10 +412,12 @@ void StrobeDisplay_drawScene(Engine *engine) {
   glUseProgram(sceneShader);
   glClearColor(0, 0, 0, 1);
 
-  for (int i = 0; i < strobeCount; ++i) {
-    refreshStrobeColors(engine, i, gain);
-    glBindVertexArray(strobes[i].vao);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, strobes[i].count);
+  ColorScheme scheme = engine->config->schemes[engine->config->schemeIndex];
+
+  for (int i = 0; i < engine->strobeCount; ++i) {
+    refreshStrobeColors(engine->strobes[i], &bands[i], scheme, gain);
+    glBindVertexArray(bands[i].vao);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, bands[i].count);
   }
 
   // draw inner shadow
