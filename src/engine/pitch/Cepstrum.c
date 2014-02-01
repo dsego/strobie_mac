@@ -7,8 +7,8 @@
 #include <math.h>
 #include <assert.h>
 #include "Cepstrum.h"
-#include "utils.h"
 #include "ffts.h"
+#include "utils.h"
 #include "findLag.h"
 
 

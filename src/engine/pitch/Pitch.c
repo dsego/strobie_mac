@@ -6,7 +6,7 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
-#include "Pitch.h"
+#include "pitch/Pitch.h"
 
 
 

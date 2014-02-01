@@ -11,7 +11,7 @@
 #include "portaudio.h"
 #include "Tuning.h"
 #include "Config.h"
-#include "Pitch.h"
+#include "pitch/Pitch.h"
 #include "AudioFeed.h"
 #include "Median.h"
 #include "Vec.h"
