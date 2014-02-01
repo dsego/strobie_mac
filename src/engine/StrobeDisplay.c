@@ -58,7 +58,7 @@ static const char* texFragmentSource =
 typedef struct {
 
   GLuint vao;
-  Vec *dataBuffer;
+  const Vec *dataBuffer;
   GLuint posBuffer;
   GLuint colorBuffer;
   GLfloat *positions;
@@ -138,7 +138,7 @@ static inline GLuint createShaderProgram(const char* vertexSource, const char* f
 }
 
 
-static inline void genObjects() {
+static inline void initShadow() {
 
   glGenVertexArrays(1, &shadowVao);
   glGenBuffers(1, &shadowVbo);
@@ -148,13 +148,7 @@ static inline void genObjects() {
 }
 
 
-static inline void deleteObjects() {
-
-  for (int i = 0; i < MAX_STROBE_COUNT; ++i) {
-    glDeleteVertexArrays(1, &bands[i].vao);
-    glDeleteBuffers(1, &(bands[i].posBuffer));
-    glDeleteBuffers(1, &(bands[i].colorBuffer));
-  }
+static inline void deleteShadow() {
 
   glDeleteVertexArrays(1, &shadowVao);
   glDeleteBuffers(1, &shadowVbo);
@@ -164,7 +158,7 @@ static inline void deleteObjects() {
 }
 
 
-static inline void initStrobeBuffer(Vec *buffer, StrobeBand *band) {
+static inline void initBandBuffers(Vec *buffer, StrobeBand *band) {
 
   glGenVertexArrays(1, &band->vao);
   glGenBuffers(1, &band->posBuffer);
@@ -193,11 +187,19 @@ static inline void initStrobeBuffer(Vec *buffer, StrobeBand *band) {
   glVertexAttribPointer(colAttrib, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
   glEnableVertexAttribArray(colAttrib);
 
+}
+
+
+static inline void deleteBandBuffers(StrobeBand *band) {
+
+  glDeleteVertexArrays(1, &bands->vao);
+  glDeleteBuffers(1, &bands->posBuffer);
+  glDeleteBuffers(1, &bands->colorBuffer);
 
 }
 
 
-static inline void refreshShadowPositions(int screenWidth, int screenHeight) {
+static inline void refreshShadow(int screenWidth, int screenHeight) {
 
   // 9px shadow
   float x = 1.f - 10.f * 2.f / (float)screenWidth;
@@ -280,18 +282,21 @@ void StrobeDisplay_setup(Engine *engine) {
   sceneShader = createShaderProgram(sceneVertexSource, sceneFragmentSource);
   textureShader = createShaderProgram(texVertexSource, texFragmentSource);
 
-  genObjects();
+  initShadow();
 
   for (int i = 0; i < engine->strobeCount; ++i) {
-    initStrobeBuffer(engine->strobeBuffers[i], &bands[i]);
+    initBandBuffers(engine->strobeBuffers[i], &bands[i]);
   }
 
 }
 
 
-void StrobeDisplay_cleanup() {
+void StrobeDisplay_cleanup(Engine *engine) {
 
-  deleteObjects();
+  for (int i = 0; i < engine->strobeCount; ++i) {
+    deleteBandBuffers(&bands[i]);
+  }
+  deleteShadow();
   glDeleteProgram(sceneShader);
   glDeleteProgram(textureShader);
 
@@ -394,7 +399,7 @@ static inline void refreshStrobeColors(
 void StrobeDisplay_initScene(Engine *engine, int w, int h) {
 
   glViewport(0, 0, w, h);
-  refreshShadowPositions(w, h);
+  refreshShadow(w, h);
   refreshStrobePositions(engine, w, h);
   glClearColor(0, 0, 0, 1);   // TODO - move to configuration
   glClear(GL_COLOR_BUFFER_BIT);

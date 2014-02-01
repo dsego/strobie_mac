@@ -171,7 +171,7 @@ static CVReturn displayLinkCallback(
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   CVDisplayLinkStop(displayLink);
   CVDisplayLinkRelease(displayLink);
-  StrobeDisplay_cleanup();
+  StrobeDisplay_cleanup(engine);
 
 }
 
