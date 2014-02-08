@@ -1,7 +1,7 @@
 
 # future (no particular order)
 
-
+- save input name
 - move strobe view to a different octave range (e.g. 0-5, 1-6, 3-8, etc.)
 - octave font color from strobe peak value
 - Vagrant for cross-platform builds?
