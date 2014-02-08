@@ -51,21 +51,25 @@
   // audio input device
   int deviceCount = Engine_deviceCount();
 
-  for (int i = 0; i < deviceCount; ++i) {
-    char name[128];
-    int isInput;
-    int isOutput;
-    Engine_deviceName(i, name, &isInput, &isOutput);
-    if (isInput) {
-      [_inputDevicePopup addItemWithTitle: @(name)];
-      [[_inputDevicePopup lastItem] setTag: i];
-    }
-  }
+  if (deviceCount > 0) {
 
-  // selected device isn't in the list anymore
-  bool success = [_inputDevicePopup selectItemWithTag: engine->config->inputDevice];
-  if (success == NO) {
-    [_inputDevicePopup selectItemWithTag: Engine_getDefaultInputDevice()];
+    for (int i = 0; i < deviceCount; ++i) {
+      char name[128];
+      int isInput;
+      int isOutput;
+      Engine_deviceName(i, name, &isInput, &isOutput);
+      if (isInput) {
+        [_inputDevicePopup addItemWithTitle: @(name)];
+        [[_inputDevicePopup lastItem] setTag: i];
+      }
+    }
+
+    // selected device isn't in the list anymore
+    bool success = [_inputDevicePopup selectItemWithTag: engine->config->inputDevice];
+    if (success == NO) {
+      [_inputDevicePopup selectItemWithTag: Engine_getDefaultInputDevice()];
+    }
+
   }
 
   [_bufferSizePopup addItemWithTitle: @"Auto"];
