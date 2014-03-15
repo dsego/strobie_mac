@@ -1,18 +1,15 @@
-/*
-    Copyright (c) 2013 Davorin Šego. All rights reserved.
- */
+// Copyright (c) Davorin Šego. All rights reserved.
 
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
 #include "Strobe.h"
-#include "utils.h"
 #include "resonator.h"
 #include "atomic.h"
 
 
 #define STROBE_RB_LENGTH 16384
-#define STROBE_FILTER_BW 12     // filter bandwidth in Hz
+#define STROBE_FILTER_BW 12.0     // filter bandwidth in Hz
 // #define STROBE_FILTER_Q 100
 
 
@@ -25,10 +22,10 @@ Strobe* Strobe_create(int bufferLength, int resampledLength, int samplesPerPerio
   self->subdivCount       = subdivCount;
   self->samplerate        = -1;  // invalid value
   self->bandpass          = Biquad_create(3);
-  self->src               = Interpolator_create(1, 1);
-  self->filteredBuffer    = Vec_create(bufferLength, sizeof(float));
-  self->resampledBuffer   = Vec_create(resampledLength, sizeof(float));
-  self->rbdata            = Vec_create(STROBE_RB_LENGTH, sizeof(float));
+  self->src               = Intp_create(1);
+  self->filteredBuffer    = Buffer_create(bufferLength, sizeof(float));
+  self->resampledBuffer   = Buffer_create(resampledLength, sizeof(float));
+  self->rbdata            = Buffer_create(STROBE_RB_LENGTH, sizeof(float));
   self->freqChanged = 0;
 
   self->bufferRatio = resampledLength / (float)bufferLength;
@@ -38,7 +35,7 @@ Strobe* Strobe_create(int bufferLength, int resampledLength, int samplesPerPerio
     self->ringbuffer,
     sizeof(float),
     STROBE_RB_LENGTH,
-    self->rbdata->elements
+    self->rbdata->data
   );
 
   return self;
@@ -49,10 +46,10 @@ Strobe* Strobe_create(int bufferLength, int resampledLength, int samplesPerPerio
 void Strobe_destroy(Strobe* self) {
 
   Biquad_destroy(self->bandpass);
-  Interpolator_destroy(self->src);
-  Vec_destroy(self->filteredBuffer);
-  Vec_destroy(self->resampledBuffer);
-  Vec_destroy(self->rbdata);
+  Intp_destroy(self->src);
+  Buffer_destroy(self->filteredBuffer);
+  Buffer_destroy(self->resampledBuffer);
+  Buffer_destroy(self->rbdata);
   free(self->ringbuffer);
   free(self);
   self = NULL;
@@ -93,7 +90,7 @@ int Strobe_read(Strobe* self, float* output, int length) {
 
 void Strobe_setFreq(Strobe* self, float freq, int samplerate) {
 
-  if (freq < 1.0 || samplerate < 1.0) return;
+  if (freq < 1 || samplerate < 1) return;
   if (self->samplerate == samplerate && fabs(freq - self->freq) < 0.001) return;
 
   self->samplerate = samplerate;
@@ -113,34 +110,31 @@ void Strobe_setFreq(Strobe* self, float freq, int samplerate) {
   // CASB(self->freqChanged, 1, &self->freqChanged);
   self->freqChanged = 1;
 
-  Interpolator_setRatio(self->src, newRate, samplerate);
-  Interpolator_reset(self->src);
+  Intp_setRatio(self->src, newRate/samplerate);
+  Intp_reset(self->src);
 
-  double a[3], b[3];
-  // double bw = freq * exp2(25.0/1200.0) - freq;
-  // resonator(freq, bw, samplerate, a, b);
-  resonator(freq, STROBE_FILTER_BW, samplerate, a, b);
+  double a0, a1, a2, b1, b2;
+  resonator(freq/samplerate, STROBE_FILTER_BW/samplerate, &a0, &a1, &a2, &b1, &b2);
   Biquad_reset(self->bandpass);
-  Biquad_setCoefficients(self->bandpass, a[0], a[1], a[2], b[1], b[2]);
-  // Biquad_bandpass(self->bandpass, freq, samplerate, STROBE_FILTER_Q);
+  Biquad_setCoefficients(self->bandpass, a0, a1, a2, b1, b2);
 
 }
 
 
 void Strobe_process(Strobe* self, const float* input, int length) {
 
-  Biquad_filter(self->bandpass, input, self->filteredBuffer->elements, length);
+  Biquad_filter(self->bandpass, input, self->filteredBuffer->data, length);
 
   // filteredBuffer.length might be larger than length
-  int count = Interpolator_linearConvert(
+  int count = Intp_linear(
     self->src,
-    self->filteredBuffer->elements,
+    self->filteredBuffer->data,
     length,
-    self->resampledBuffer->elements,
+    self->resampledBuffer->data,
     self->resampledBuffer->count
   );
 
-  PaUtil_WriteRingBuffer(self->ringbuffer, self->resampledBuffer->elements, count);
+  PaUtil_WriteRingBuffer(self->ringbuffer, self->resampledBuffer->data, count);
 
 }
 

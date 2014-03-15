@@ -66,12 +66,6 @@
                                     <action selector="orderFrontStandardAboutPanel:" target="-2" id="142"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Website" id="SHY-Zb-1sP">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="showStrobieWebsite:" target="1895" id="7c8-Jb-T5b"/>
-                                </connections>
-                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="236"/>
                             <menuItem title="Preferences…" keyEquivalent="," id="129">
                                 <connections>
@@ -142,6 +136,12 @@
                             <menuItem title="Help" keyEquivalent="?" id="111">
                                 <connections>
                                     <action selector="showHelp:" target="1895" id="2503"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Website" id="SHY-Zb-1sP">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showStrobieWebsite:" target="1895" id="7c8-Jb-T5b"/>
                                 </connections>
                             </menuItem>
                         </items>

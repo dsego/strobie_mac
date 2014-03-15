@@ -9,5 +9,5 @@
   NSPrincipalClass = "NSApplication";
   NSSupportsAutomaticGraphicsSwitching = YES;
   LSMinimumSystemVersion = "10.9";
-  NSHumanReadableCopyright = "Copyright © 2013 Davorin Šego. All rights reserved.";
+  NSHumanReadableCopyright = "Copyright © 2014 Davorin Šego. All rights reserved.";
 }

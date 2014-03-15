@@ -1,6 +1,4 @@
-/*
-    Copyright (c) 2013 Davorin Šego. All rights reserved.
- */
+// Copyright (c) Davorin Šego. All rights reserved.
 
 
 
@@ -24,11 +22,11 @@ static void speedTest(Engine *engine) {
 
   float freq, clarity;
 
-  AudioFeed_read(engine->audioFeed, engine->audioBuffer->elements, engine->audioBuffer.length);
+  AudioFeed_read(engine->audioFeed, engine->audioBuffer->data, engine->audioBuffer.length);
 
   for (int i=0; i < 10000; ++i) {
     duration = (float)(int)clock() / CLOCKS_PER_SEC;
-    Pitch_estimate(engine->pitch, engine->audioBuffer->elements, &freq, &clarity);
+    Pitch_estimate(engine->pitch, engine->audioBuffer->data, &freq, &clarity);
     duration = (float)(int)clock() / CLOCKS_PER_SEC - duration;
     if (duration > maxDuration) {
       maxDuration = duration;
@@ -85,13 +83,13 @@ int main() {
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    AudioFeed_read(engine->audioFeed, engine->audioBuffer->elements, engine->audioBuffer.length);
-    Pitch_estimate(engine->pitch, engine->audioBuffer->elements, &freq, &clarity);
+    AudioFeed_read(engine->audioFeed, engine->audioBuffer->data, engine->audioBuffer.length);
+    Pitch_estimate(engine->pitch, engine->audioBuffer->data, &freq, &clarity);
 
     // int length = engine->pitch->nsdf.length / 2 -256;
     int length = engine->pitch->spectrum.length /2;
     // float *data = engine->pitch->nsdf.elements;
-    float *data = engine->pitch->spectrum->elements;
+    float *data = engine->pitch->spectrum->data;
     double dx = 2.0 / (double)length;
     double x = -1.0;
 

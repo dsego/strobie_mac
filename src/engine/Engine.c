@@ -1,19 +1,13 @@
-/*
-    Copyright (c) 2013 Davorin Šego. All rights reserved.
- */
+// Copyright (c) Davorin Šego. All rights reserved.
 
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include "Engine.h"
-#include "utils.h"
 
 
 #define ENGINE_STR_BUFFER_LENGTH 4096
-
-
-
-
+#define min(a,b) ((a) < (b) ? (a) : (b))
 
 
 Engine* Engine_create() {
@@ -23,7 +17,7 @@ Engine* Engine_create() {
 
   Config* config = self->config = Config_create();
 
-  self->currentNote = Tuning12TET_find(
+  self->currentNote = EqualTemp_findNearest(
     self->config->freq,
     self->config->pitchStandard,
     self->config->centsOffset
@@ -49,18 +43,17 @@ Engine* Engine_create() {
     );
 
     // allocate enough space for any strobe size (see Engine_readStrobes)
-    self->strobeBuffers[i] = Vec_create(ENGINE_STR_BUFFER_LENGTH, sizeof(float));
+    self->strobeBuffers[i] = Buffer_create(ENGINE_STR_BUFFER_LENGTH, sizeof(float));
     self->strobeBuffers[i]->count = 0;
 
   }
 
-  self->pitch = Pitch_create(NSDF_METHOD, config->samplerate, config->windowSize);
-  self->audioBuffer = Vec_create(self->config->windowSize, sizeof(float));
+  self->pitch = NSDF_create(config->samplerate, config->windowSize);
+  self->audioBuffer = Buffer_create(self->config->windowSize, sizeof(float));
   self->peakSampleCount = 0;
   self->peakWindowSize = 4096; // circa 100ms
   self->tempPeak = 0;
   self->peak = 0;
-  self->clarity = 0;
   self->stream = NULL;
   self->paInitFailed = 0;
 
@@ -95,14 +88,14 @@ void Engine_destroy(Engine* self) {
   Median_destroy(self->freqMedian);
   Median_destroy(self->clarityMedian);
   AudioFeed_destroy(self->audioFeed);
-  Pitch_destroy(self->pitch);
+  NSDF_destroy(self->pitch);
 
   for (int i = 0; i < self->strobeCount; ++i) {
     Strobe_destroy(self->strobes[i]);
-    Vec_destroy(self->strobeBuffers[i]);
+    Buffer_destroy(self->strobeBuffers[i]);
   }
 
-  Vec_destroy(self->audioBuffer);
+  Buffer_destroy(self->audioBuffer);
   free(self);
   self = NULL;
 
@@ -113,7 +106,7 @@ void Engine_setCentsOffset(Engine* self, float cents) {
 
   if (cents >= -50 && cents <= 50) {
     self->config->centsOffset = cents;
-    self->currentNote = Tuning12TET_centsToNote(
+    self->currentNote = EqualTemp_centsToNote(
       self->currentNote.cents,
       self->config->pitchStandard,
       self->config->centsOffset
@@ -128,7 +121,7 @@ void Engine_setPitchStandard(Engine* self, float freq) {
 
   if (freq >= 100 && freq <= 1000) {
     self->config->pitchStandard = freq;
-    self->currentNote = Tuning12TET_centsToNote(
+    self->currentNote = EqualTemp_centsToNote(
       self->currentNote.cents,
       self->config->pitchStandard,
       self->config->centsOffset
@@ -145,10 +138,10 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate) {
 
   // reset octave
   if (note.octave > 8) {
-    self->currentNote = Tuning12TET_moveToOctave(note, 0);
+    self->currentNote = EqualTemp_moveToOctave(note, 0);
   }
   else if (note.octave < 0) {
-    self->currentNote = Tuning12TET_moveToOctave(note, 8);
+    self->currentNote = EqualTemp_moveToOctave(note, 8);
   }
   else {
     self->currentNote = note;
@@ -160,7 +153,7 @@ void Engine_setStrobes(Engine* self, Note note, int samplerate) {
   for (int i = 0; i < self->strobeCount; ++i) {
 
     if (self->config->strobes[i].mode == OCTAVE) {
-      Note movedNote = Tuning12TET_moveToOctave(
+      Note movedNote = EqualTemp_moveToOctave(
         self->currentNote,
         self->config->strobes[i].value
       );
@@ -210,6 +203,23 @@ float Engine_gain(Engine* self) {
 // }
 
 
+
+
+static inline float findWavePeak(const float* buffer, int bufferLength) {
+
+  float peak = 0;
+
+  for (int i = 0; i < bufferLength; ++i) {
+    float pk = fabs(buffer[i]);
+    if (pk > peak) {
+      peak = pk;
+    }
+  }
+
+  return peak;
+
+}
+
 // fetch audio data from the sound card and process
 
 static inline int Engine_streamCallback(
@@ -257,12 +267,12 @@ void Engine_estimatePitch(Engine* self) {
   // read in new data from the ring buffer
   AudioFeed_read(
     self->audioFeed,
-    (float*)self->audioBuffer->elements,
+    (float*)self->audioBuffer->data,
     self->audioBuffer->count
   );
 
   float freq, clarity;
-  Pitch_estimate(self->pitch, (float*)self->audioBuffer->elements, &freq, &clarity);
+  NSDF_estimate(self->pitch, (float*)self->audioBuffer->data, &freq, &clarity);
 
   Median_push(self->freqMedian, freq);
   Median_push(self->clarityMedian, clarity);
@@ -276,7 +286,7 @@ void Engine_estimatePitch(Engine* self) {
       freq > 0.0 && freq < maxFreq &&
       clarity > self->config->clarityThreshold) {
 
-    self->currentNote = Tuning12TET_find(
+    self->currentNote = EqualTemp_findNearest(
       freq,
       self->config->pitchStandard,
       self->config->centsOffset

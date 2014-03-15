@@ -1,64 +1,19 @@
-/*
-    Copyright (c) 2013 Davorin Šego. All rights reserved.
- */
+// Copyright (c) Davorin Šego. All rights reserved.
 
 
 #include <math.h>
 #include <string.h>
 #include <OpenGL/gl3.h>
-#include "utils.h"
 #include "StrobeDisplay.h"
-// #include "glDebug.h"
+#include "shader.h"
+#include "sources.h"
 
 #define MAX_STROBE_COUNT 10
 
 
-
-static const char* sceneVertexSource =
-  "#version 150 core\n"
-  "in vec2 position;"
-  "in vec4 color;"
-  "out vec4 Color;"
-  "void main() {"
-  "   Color = color;"
-  "   gl_Position = vec4(position, 0.0, 1.0);"
-  "}";
-
-static const char* sceneFragmentSource =
-  "#version 150 core\n"
-  "out vec4 outColor;"
-  "in vec4 Color;"
-  "void main() {"
-  "   outColor = Color;"
-  "}";
-
-static const char* texVertexSource =
-  "#version 150 core\n"
-  "in vec2 position;"
-  "in vec2 texcoord;"
-  "out vec2 Texcoord;"
-  "void main() {"
-  "  Texcoord = texcoord;"
-  "  gl_Position = vec4(position, 0.0, 1.0);"
-  "}";
-
-static const char* texFragmentSource =
-  "#version 150 core\n"
-  "in vec2 Texcoord;"
-  "out vec4 outColor;"
-  "uniform sampler2D tex;"
-  "void main() {"
-  "   outColor = texture(tex, Texcoord);"
-  "}";
-
-
-
-
-
 typedef struct {
-
   GLuint vao;
-  const Vec *dataBuffer;
+  const Buffer *dataBuffer;
   GLuint posBuffer;
   GLuint colorBuffer;
   GLfloat *positions;
@@ -66,7 +21,6 @@ typedef struct {
   float peak;
   int highlighted;
   int count;
-
 } StrobeBand;
 
 
@@ -81,7 +35,6 @@ static GLuint shadowElements[] = {
 
 static GLuint sceneShader;
 static GLuint textureShader;
-
 static GLuint shadowVao;
 static GLuint shadowEbo;
 static GLuint shadowVbo;
@@ -89,76 +42,23 @@ static GLuint shadowTexture;
 
 
 
-
-
-static inline GLuint createShaderProgram(const char* vertexSource, const char* fragmentSource) {
-
-  GLint status;
-
-  // Create and compile the vertex shader
-  GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertexShader, 1, (const GLchar *const *) &vertexSource, NULL);
-  glCompileShader(vertexShader);
-  glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
-  if (status != GL_TRUE) {
-    char infoLog[512];
-    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-    printf("%s\n", infoLog);
-  }
-
-  // Create and compile the fragment shader
-  GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShader, 1,(const GLchar *const *) &fragmentSource, NULL);
-  glCompileShader(fragmentShader);
-  glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
-  if (status != GL_TRUE) {
-    char infoLog[512];
-    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-    printf("%s\n", infoLog);
-  }
-
-  // Link the vertex and fragment shader into a shader program
-  GLuint program = glCreateProgram();
-  glAttachShader(program, vertexShader);
-  glAttachShader(program, fragmentShader);
-  glBindFragDataLocation(program, 0, "outColor");
-  glLinkProgram(program);
-  glGetProgramiv(program, GL_LINK_STATUS, &status);
-  if (status != GL_TRUE) {
-    char infoLog[512];
-    glGetProgramInfoLog(program, 512, NULL, infoLog);
-    printf("%s\n", infoLog);
-  }
-
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
-
-  return program;
-
-}
-
-
 static inline void initShadow() {
-
   glGenVertexArrays(1, &shadowVao);
   glGenBuffers(1, &shadowVbo);
   glGenBuffers(1, &shadowEbo);
   glGenTextures(1, &shadowTexture);
-
 }
 
 
 static inline void deleteShadow() {
-
   glDeleteVertexArrays(1, &shadowVao);
   glDeleteBuffers(1, &shadowVbo);
   glDeleteBuffers(1, &shadowEbo);
   glDeleteTextures(1, &shadowTexture);
-
 }
 
 
-static inline void initBandBuffers(Vec *buffer, StrobeBand *band) {
+static inline void initBandBuffers(Buffer *buffer, StrobeBand *band) {
 
   glGenVertexArrays(1, &band->vao);
   glGenBuffers(1, &band->posBuffer);
@@ -191,11 +91,9 @@ static inline void initBandBuffers(Vec *buffer, StrobeBand *band) {
 
 
 static inline void deleteBandBuffers(StrobeBand *band) {
-
   glDeleteVertexArrays(1, &bands->vao);
   glDeleteBuffers(1, &bands->posBuffer);
   glDeleteBuffers(1, &bands->colorBuffer);
-
 }
 
 
@@ -271,35 +169,28 @@ static inline void refreshShadow(int screenWidth, int screenHeight) {
 
 
 void StrobeDisplay_setup(Engine *engine) {
-
   glDisable(GL_DITHER);
   glDisable(GL_STENCIL_TEST);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_TEXTURE_2D);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
   sceneShader = createShaderProgram(sceneVertexSource, sceneFragmentSource);
   textureShader = createShaderProgram(texVertexSource, texFragmentSource);
-
   initShadow();
-
   for (int i = 0; i < engine->strobeCount; ++i) {
     initBandBuffers(engine->strobeBuffers[i], &bands[i]);
   }
-
 }
 
 
 void StrobeDisplay_cleanup(Engine *engine) {
-
   for (int i = 0; i < engine->strobeCount; ++i) {
     deleteBandBuffers(&bands[i]);
   }
   deleteShadow();
   glDeleteProgram(sceneShader);
   glDeleteProgram(textureShader);
-
 }
 
 
@@ -339,33 +230,21 @@ static inline void refreshStrobePositions(Engine *engine, int w, int h) {
 }
 
 
-static inline void refreshStrobeColors(
-  Strobe* strobe,
-  StrobeBand* band,
-  ColorScheme scheme,
-  float gain) {
-
+static inline void refreshStrobeColors(Strobe* strobe, StrobeBand* band, ColorScheme scheme, float gain) {
 
   float dr = scheme.a[0] - scheme.b[0];
   float dg = scheme.a[1] - scheme.b[1];
   float db = scheme.a[2] - scheme.b[2];
-
-  float *buffer = (float*) band->dataBuffer->elements;
+  float *buffer = (float*) band->dataBuffer->data;
   int n = band->dataBuffer->count;
 
   if (Strobe_read(strobe, buffer, n)) {
-
     int i = 0;
-
-    // highlight bands in the future?
     const GLubyte a = 255;
-
     do {
-
       --n;
 
       float value = buffer[n] * gain * 0.5 + 0.5;
-
       if (value < 0) {
         value = 0.0;
       }
@@ -373,63 +252,48 @@ static inline void refreshStrobeColors(
         value = 1.0;
       }
 
-      GLubyte r = (GLubyte) (scheme.b[0] + dr * value);
-      GLubyte g = (GLubyte) (scheme.b[1] + dg * value);
-      GLubyte b = (GLubyte) (scheme.b[2] + db * value);
+      GLubyte r = (GLubyte)(scheme.b[0] + dr * value);
+      GLubyte g = (GLubyte)(scheme.b[1] + dg * value);
+      GLubyte b = (GLubyte)(scheme.b[2] + db * value);
 
-      // color (RGB)
       band->colors[i++] = r;
       band->colors[i++] = g;
       band->colors[i++] = b;
       band->colors[i++] = a;
 
-      // color (RGB)
       band->colors[i++] = r;
       band->colors[i++] = g;
       band->colors[i++] = b;
       band->colors[i++] = a;
 
     } while (n > 0);
-
   }
 
 }
 
 
 void StrobeDisplay_initScene(Engine *engine, int w, int h) {
-
   glViewport(0, 0, w, h);
   refreshShadow(w, h);
   refreshStrobePositions(engine, w, h);
   glClearColor(0, 0, 0, 1);   // TODO - move to configuration
   glClear(GL_COLOR_BUFFER_BIT);
-
 }
 
 
 void StrobeDisplay_drawScene(Engine *engine) {
-
   float gain = Engine_gain(engine);
-
   glClear(GL_COLOR_BUFFER_BIT);
-
-  // draw strobes
   glUseProgram(sceneShader);
   glClearColor(0, 0, 0, 1);
-
   ColorScheme scheme = engine->config->schemes[engine->config->schemeIndex];
-
   for (int i = 0; i < engine->strobeCount; ++i) {
     refreshStrobeColors(engine->strobes[i], &bands[i], scheme, gain);
     glBindVertexArray(bands[i].vao);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, bands[i].count);
   }
-
-  // draw inner shadow
   glBindVertexArray(shadowVao);
-  // glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, shadowTexture);
   glUseProgram(textureShader);
   glDrawElements(GL_TRIANGLES, sizeof(shadowElements) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
-
 }

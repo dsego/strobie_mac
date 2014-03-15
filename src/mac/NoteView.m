@@ -1,6 +1,4 @@
-/*
-    Copyright (c) 2013 Davorin Šego. All rights reserved.
- */
+// Copyright (c) Davorin Šego. All rights reserved.
 
 
 #import "NoteView.h"
@@ -130,7 +128,7 @@
 -(void)menuAction:(id)sender  {
 
   int noteIndex = [sender tag];
-  Note note = Tuning12TET_noteFromIndex(
+  Note note = EqualTemp_noteFromIndex(
     noteIndex, 0,
     engine->config->pitchStandard,
     engine->config->centsOffset
@@ -159,7 +157,7 @@
     note = engine->currentNote;
   }
   else {
-    note = Tuning12TET_transpose(engine->currentNote, engine->config->transpose);
+    note = EqualTemp_transpose(engine->currentNote, engine->config->transpose);
   }
 
   CGContextSetShouldAntialias(context, NO);

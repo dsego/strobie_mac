@@ -1,6 +1,4 @@
-/*
-    Copyright (c) 2013 Davorin Šego. All rights reserved.
- */
+// Copyright (c) Davorin Šego. All rights reserved.
 
 
 static inline void printError() {
@@ -56,20 +54,6 @@ static inline void printFramebufferStatus(GLenum target) {
     case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
       printf("GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS\n");
       break;
-  }
-
-}
-
-
-static inline void printShaderInfo(GLint shaderProgram) {
-
-  GLint status;
-  glValidateProgram(shaderProgram);
-  glGetProgramiv(shaderProgram, GL_VALIDATE_STATUS, &status);
-  if (status != GL_TRUE) {
-    char infoLog[512];
-    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-    printf("%s\n", infoLog);
   }
 
 }

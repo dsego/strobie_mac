@@ -1,6 +1,4 @@
-/*
-    Copyright (c) 2013 Davorin Šego. All rights reserved.
- */
+// Copyright (c) Davorin Šego. All rights reserved.
 
 #import <Cocoa/Cocoa.h>
 #import "MainController.h"
@@ -42,25 +40,25 @@
 
     case 123: // LEFT  semitone lower
       engine->mode = MANUAL; // automatically go to manual mode
-      engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, -1);
+      engine->currentNote = EqualTemp_moveBySemitones(engine->currentNote, -1);
       Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
       break;
 
     case 124: // RIGHT  semitone higher
       engine->mode = MANUAL; // automatically go to manual mode
-      engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, 1);
+      engine->currentNote = EqualTemp_moveBySemitones(engine->currentNote, 1);
       Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
       break;
 
     case 125: // DOWN   fourth lower (fifth higher)
       engine->mode = MANUAL; // automatically go to manual mode
-      engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, 7);
+      engine->currentNote = EqualTemp_moveBySemitones(engine->currentNote, 7);
       Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
       break;
 
     case 126: // UP   fourth higher (fifth lower)
       engine->mode = MANUAL; // automatically go to manual mode
-      engine->currentNote = Tuning12TET_moveBySemitones(engine->currentNote, -7);
+      engine->currentNote = EqualTemp_moveBySemitones(engine->currentNote, -7);
       Engine_setStrobes(engine, engine->currentNote, engine->config->samplerate);
       break;
 

@@ -1,29 +1,21 @@
-#
-# Copyright (C) 2013 Davorin Šego
-#
+# Copyright (C) Davorin Šego
 
-
-KISS = -I../kiss_fft130/tools -I../kiss_fft130 ../kiss_fft130/kiss_fft.c \
-						../kiss_fft130/tools/kiss_fftr.c
 FFTS = -I/usr/local/include/ffts /usr/local/lib/libffts.a
 
-#
-# to build PortAudio:
-#
-# 	CFLAGS="-w -arch x86_64" ./configure  --enable-mac-universal=NO && make
-#
+# to build PortAudio: CFLAGS="-w -arch x86_64" ./configure  --enable-mac-universal=NO && make
 PORTAUDIO = ../portaudio/trunk/src/common/pa_ringbuffer.c \
 					-I../portaudio/trunk/include \
 					-I../portaudio/trunk/src/common \
 						../portaudio/trunk/lib/.libs/libportaudio.dylib
 
-DSP	= ../AudioPlayground/biquad/biquad.c -I../AudioPlayground/biquad \
-			../AudioPlayground/src/Interpolator.c -I../AudioPlayground/src \
-			-I../AudioPlayground/fir
-
+DSP      = ../Biquad/src/biquad.c -I../Biquad/src	../Interpolator/src/Intp.c -I../Interpolator/src
+VEC      = ../Buffer/src/Buffer.c -I../Buffer/src
+PITCH    = ../Pitch/src/NSDF.c -I../Pitch/src
+TUNING   = ../Tuning/src/EqualTemp.c -I../Tuning/src
+SHADER   = ../shader/src/shader.c -I../shader/src
+MEDIAN   = ../median/src/Median.c -I../median/src
 GLFW     = -lglfw3
-
-LIBS     = $(PORTAUDIO) $(DSP) $(FFTS)
+LIBS     = $(PORTAUDIO) $(DSP) $(FFTS) $(PITCH) $(VEC) $(SHADER) $(TUNING) $(MEDIAN)
 MAC_LIBS = $(LIBS) -framework OpenGL -framework Cocoa -framework AppKit -framework QuartzCore
 
 
@@ -35,12 +27,8 @@ MAC_WARN = $(WARN) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis 
 # -Ofast enables -O3, vectorization, strict aliasing, fast math
 # -flto  is a link-time optimizer
 # -ffast-math (?)
-#  -fvectorize should be enabled by default for -O3
-#  -O4 should be -O3 -flto
-#
-# MAC_OPTIONS = -fobjc-arc -O2 -std=c11 -g  -fsanitize=address -fPIE -pie -arch x86_64
-MAC_OPTIONS = -fmodules -fobjc-arc -arch x86_64 -O4 -std=c11 -mmacosx-version-min=10.7
-# CC = ~/Development/build/Debug+Asserts/bin/clang
+# -fvectorize should be enabled by default for -O3
+MAC_OPTIONS = -fmodules -fobjc-arc -arch x86_64 -O3 -flto -std=c11 -mmacosx-version-min=10.7
 CC = cc
 
 
@@ -49,11 +37,9 @@ all:
 	make mac_full
 	make mac_trial
 
-
-
 engine:
 	$(CC) -c $(WARN) $(MAC_OPTIONS) $(LIBS) \
-	src/engine/*.c src/engine/*/*.c -Isrc/engine
+	src/engine/*.c -Isrc/engine
 	ar rcs engine.a *.o
 	rm *.o
 

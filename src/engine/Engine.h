@@ -1,6 +1,4 @@
-/*
-    Copyright (c) 2013 Davorin Šego. All rights reserved.
- */
+// Copyright (c) Davorin Šego. All rights reserved.
 
 
 #ifndef ENGINE_H
@@ -9,12 +7,12 @@
 
 #include <pthread.h>
 #include "portaudio.h"
-#include "Tuning.h"
+#include "EqualTemp.h"
 #include "Config.h"
-#include "pitch/Pitch.h"
+#include "NSDF.h"
 #include "AudioFeed.h"
 #include "Median.h"
-#include "Vec.h"
+#include "Buffer.h"
 #include "Strobe.h"
 
 
@@ -22,7 +20,10 @@
 #define MAX_STROBES CONFIG_MAX_STROBES
 
 
-typedef enum { AUTO, MANUAL } DetectionMode;
+typedef enum {
+  AUTO,
+  MANUAL
+} DetectionMode;
 
 
 typedef struct {
@@ -31,24 +32,23 @@ typedef struct {
   PaStream* stream;           // PortAudio stream, provides access to audio hardware
   int paInitFailed;           // if Pa_Initialize() returns an error Pa_Terminate() should NOT be called
   AudioFeed* audioFeed;
-  Pitch* pitch;               // pitch recognition
+  NSDF* pitch;                // pitch recognition
 
   Median *clarityMedian;
   Median *freqMedian;
 
-  Vec *audioBuffer;
+  Buffer *audioBuffer;
   int peakSampleCount;
   int peakWindowSize;
   float peak;                 // audio peak - highest peak in peakWindowSize
   float tempPeak;             // temp peak for each audio frame (in audio callback)
-  float clarity; // not used
 
   DetectionMode mode;
   Note currentNote;
 
   int strobeCount;
   Strobe* strobes[MAX_STROBES];
-  Vec *strobeBuffers[MAX_STROBES];
+  Buffer *strobeBuffers[MAX_STROBES];
 
 } Engine;
 

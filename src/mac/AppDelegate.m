@@ -1,6 +1,4 @@
-/*
-    Copyright (c) 2013 Davorin Šego. All rights reserved.
- */
+// Copyright (c) Davorin Šego. All rights reserved.
 
 
 #include <time.h>
@@ -101,7 +99,7 @@
 - (void)awakeFromNib {
 
   [self loadPreferences];
-  Note note = Tuning12TET_find(
+  Note note = EqualTemp_findNearest(
     engine->config->freq,
     engine->config->pitchStandard,
     engine->config->centsOffset
@@ -125,9 +123,9 @@
     else {
 
       int duration = time(NULL) - trialTimestamp;
-      int oneWeekTrial = 60 * 60 * 24 * 7;
+      int fifteenDayTrial = 60 * 60 * 24 * 15;
 
-      if (duration >= oneWeekTrial || duration < 0) {
+      if (duration >= fifteenDayTrial || duration < 0) {
         // show alert (Buy or Close)
         NSAlert *reminder = [NSAlert
           alertWithMessageText: @"Your trial has ended."
@@ -147,20 +145,20 @@
       }
       else {
         // n days left (Continue or Buy)
-        int days = (int)(double) ceil((double)(oneWeekTrial - duration) / (24.0 * 60.0 * 60.0));
+        int days = (int)(double) ceil((double)(fifteenDayTrial - duration) / (24.0 * 60.0 * 60.0));
         NSString *info;
         if (days <= 1) {
           info = @"This is the last day of your trial.";
         }
         else {
-          info = [NSString stringWithFormat: @"You have %d days of trial left.", days];
+          info = [NSString stringWithFormat: @"%d days left.", days];
         }
 
         NSAlert *alert = [[NSAlert alloc] init];
         alert.messageText = @"Thank you for trying out Strobie!";
         alert.informativeText = info;
-        [alert addButtonWithTitle: @"Continue Trial"];
-        [alert addButtonWithTitle: @"Buy"];
+        [alert addButtonWithTitle: @"OK"];
+        [alert addButtonWithTitle: @"Buy a license"];
         if ([alert runModal] == NSAlertSecondButtonReturn) {
           [self showStrobieWebsite: nil];
           [NSApp terminate: self];

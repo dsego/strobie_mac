@@ -1,12 +1,10 @@
-/*
-    Copyright (c) 2013 Davorin Šego. All rights reserved.
- */
+// Copyright (c) Davorin Šego. All rights reserved.
 
 #include "portaudio.h"
 #include "pa_ringbuffer.h"
 #include "Biquad.h"
-#include "Interpolator.h"
-#include "Vec.h"
+#include "Intp.h"
+#include "Buffer.h"
 
 
 // creates a strobe effect by re-sampling the signal
@@ -19,13 +17,13 @@ typedef struct {
   int samplerate;
   volatile int freqChanged;
 
-  Vec* filteredBuffer;          // filtered data to be re-sampled
-  Vec* resampledBuffer;         // holds re-sampled data
-  Vec* rbdata;                  // circular buffer data store
+  Buffer* filteredBuffer;          // filtered data to be re-sampled
+  Buffer* resampledBuffer;         // holds re-sampled data
+  Buffer* rbdata;                  // circular buffer data store
   float bufferRatio;            // resampledBuffer.length / filteredBuffer.length
 
   Biquad* bandpass;             // band pass filter
-  Interpolator* src;            // sample rate converter
+  Intp* src;                    // sample rate converter
   PaUtilRingBuffer* ringbuffer; // circular buffer
 
 } Strobe;

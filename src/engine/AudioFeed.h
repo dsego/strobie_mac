@@ -4,14 +4,14 @@
 
 #include "portaudio.h"
 #include "pa_ringbuffer.h"
-#include "Vec.h"
+#include "Buffer.h"
 
 
 
 typedef struct {
 
   PaUtilRingBuffer* ringbuffer;
-  Vec* rbdata;
+  Buffer* rbdata;
 
 } AudioFeed;
 
