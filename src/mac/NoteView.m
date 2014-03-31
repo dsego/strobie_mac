@@ -32,7 +32,7 @@
 
   CFTypeRef values[] = {
     CTFontCreateWithName(CFSTR("HelveticaNeue"), 72, NULL),
-    CGColorCreateGenericRGB(0.7, 0.7, 0.7, 1)
+    CGColorCreateGenericRGB(0.8, 0.8, 0.8, 1)
   };
 
   CFDictionaryRef attrs = CFDictionaryCreate(
