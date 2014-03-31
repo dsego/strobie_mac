@@ -44,6 +44,10 @@ engine:
 	rm *.o
 
 mac_full:
+	rm -rfd full
+	mkdir -p full/Strobie.app/Contents/Resources
+	mkdir -p full/Strobie.app/Contents/MacOS
+	cp src/app.icns full/Strobie.app/Contents/Resources/app.icns
 	$(CC) $(MAC_WARN) $(MAC_OPTIONS) $(MAC_LIBS) \
 		engine.a src/mac/*.m src/mac/*.c -Isrc/engine \
 		-o full/Strobie.app/Contents/MacOS/Strobie
@@ -52,6 +56,10 @@ mac_full:
 		cp src/mac/Credits.rtf full/Strobie.app/Contents/Resources/Credits.rtf
 
 mac_trial:
+	rm -rfd trial
+	mkdir -p trial/Strobie.app/Contents/Resources
+	mkdir -p trial/Strobie.app/Contents/MacOS
+	cp src/app.icns trial/Strobie.app/Contents/Resources/app.icns
 	$(CC) -DTRIAL $(MAC_WARN) $(MAC_OPTIONS) $(MAC_LIBS) \
 		engine.a src/mac/*.m src/mac/*.c -Isrc/engine \
 		-o trial/Strobie.app/Contents/MacOS/Strobie
@@ -61,10 +69,7 @@ mac_trial:
 
 mac_icons:
 	iconutil -c icns src/app.iconset
-	cp src/app.icns full/Strobie.app/Contents/Resources/app.icns
-	cp src/app.icns trial/Strobie.app/Contents/Resources/app.icns
-	rm src/app.icns
-
+	# rm src/app.icns
 
 
 ###########
