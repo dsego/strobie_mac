@@ -2,7 +2,7 @@
 
 
 #import "StrobeView.h"
-#import "../engine/StrobeDisplay.h"
+#import "../engine/strobe-display.h"
 #import "shared.h"
 
 

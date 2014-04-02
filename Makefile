@@ -8,12 +8,12 @@ PORTAUDIO = ../portaudio/trunk/src/common/pa_ringbuffer.c \
 					-I../portaudio/trunk/src/common \
 						../portaudio/trunk/lib/.libs/libportaudio.dylib
 
-DSP      = ../Biquad/src/biquad.c -I../Biquad/src	../Interpolator/src/Intp.c -I../Interpolator/src
-VEC      = ../Buffer/src/Buffer.c -I../Buffer/src
-PITCH    = ../Pitch/src/NSDF.c -I../Pitch/src
-TUNING   = ../Tuning/src/EqualTemp.c -I../Tuning/src
+DSP      = ../biquad/src/biquad.c -I../biquad/src	../interpolator/src/intp.c -I../interpolator/src
+VEC      = ../buffer/src/buffer.c -I../buffer/src
+PITCH    = ../pitch/src/nsdf.c -I../pitch/src
+TUNING   = ../tuning/src/equal-temp.c -I../tuning/src
 SHADER   = ../shader/src/shader.c -I../shader/src
-MEDIAN   = ../median/src/Median.c -I../median/src
+MEDIAN   = ../median/src/median.c -I../median/src
 GLFW     = -lglfw3
 LIBS     = $(PORTAUDIO) $(DSP) $(FFTS) $(PITCH) $(VEC) $(SHADER) $(TUNING) $(MEDIAN)
 MAC_LIBS = $(LIBS) -framework OpenGL -framework Cocoa -framework AppKit -framework QuartzCore

@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include "EqualTemp.h"
+#include "equal-temp.h"
 
 
 

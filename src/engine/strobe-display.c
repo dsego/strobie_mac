@@ -4,7 +4,7 @@
 #include <math.h>
 #include <string.h>
 #include <OpenGL/gl3.h>
-#include "StrobeDisplay.h"
+#include "strobe-display.h"
 #include "shader.h"
 #include "sources.h"
 

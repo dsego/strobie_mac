@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include "AudioFeed.h"
+#include "audio-feed.h"
 
 
 #define RB_LENGTH 16384
