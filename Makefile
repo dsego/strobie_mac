@@ -16,10 +16,12 @@ SHADER   = ../shader/src/shader.c -I../shader/src
 MEDIAN   = ../median/src/median.c -I../median/src
 GLFW     = -lglfw3
 LIBS     = $(PORTAUDIO) $(DSP) $(FFTS) $(PITCH) $(VEC) $(SHADER) $(TUNING) $(MEDIAN)
-MAC_LIBS = $(LIBS) -framework OpenGL -framework Cocoa -framework AppKit -framework QuartzCore
+MAC_LIBS = $(LIBS) -framework OpenGL -framework Cocoa -framework AppKit -framework QuartzCore \
+		../read-url/read-url.c -I ../read-url -lcurl \
+		../NSWindowButtons/NSWindowButtons/NSWindow+AccessoryView.m -I../NSWindowButtons/NSWindowButtons
 
 
-WARN     = -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion
+WARN     = -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion -Wno-disabled-macro-expansion
 MAC_WARN = $(WARN) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis \
 					-Wno-implicit-atomic-properties -Wno-auto-import
 
@@ -34,8 +36,7 @@ CC = cc
 
 all:
 	make engine
-	make mac_full
-	make mac_trial
+	make mac
 
 engine:
 	$(CC) -c $(WARN) $(MAC_OPTIONS) $(LIBS) \
@@ -43,32 +44,19 @@ engine:
 	ar rcs engine.a *.o
 	rm *.o
 
-mac_full:
-	rm -rfd full
-	mkdir -p full/Strobie.app/Contents/Resources
-	mkdir -p full/Strobie.app/Contents/MacOS
-	cp src/app.icns full/Strobie.app/Contents/Resources/app.icns
+mac:
+	rm -rfd Strobie.app
+	mkdir -p Strobie.app/Contents/Resources
+	mkdir -p Strobie.app/Contents/MacOS
+	cp src/mac/resources/* Strobie.app/Contents/Resources
 	$(CC) $(MAC_WARN) $(MAC_OPTIONS) $(MAC_LIBS) \
 		engine.a src/mac/*.m src/mac/*.c -Isrc/engine \
-		-o full/Strobie.app/Contents/MacOS/Strobie
-		ibtool --compile full/Strobie.app/Contents/Resources/Application.nib src/mac/Application.xib
-		cp src/mac/Info.plist full/Strobie.app/Contents/Info.plist
-		cp src/mac/Credits.rtf full/Strobie.app/Contents/Resources/Credits.rtf
+		-o Strobie.app/Contents/MacOS/Strobie
+		ibtool --compile Strobie.app/Contents/Resources/Application.nib src/mac/Application.xib
+		cp src/mac/Info.plist Strobie.app/Contents/Info.plist
 
-mac_trial:
-	rm -rfd trial
-	mkdir -p trial/Strobie.app/Contents/Resources
-	mkdir -p trial/Strobie.app/Contents/MacOS
-	cp src/app.icns trial/Strobie.app/Contents/Resources/app.icns
-	$(CC) -DTRIAL $(MAC_WARN) $(MAC_OPTIONS) $(MAC_LIBS) \
-		engine.a src/mac/*.m src/mac/*.c -Isrc/engine \
-		-o trial/Strobie.app/Contents/MacOS/Strobie
-		ibtool --compile trial/Strobie.app/Contents/Resources/Application.nib src/mac/Application.xib
-		cp src/mac/Info.plist trial/Strobie.app/Contents/Info.plist
-		cp src/mac/Credits.rtf trial/Strobie.app/Contents/Resources/Credits.rtf
-
-mac_icons:
-	iconutil -c icns src/app.iconset
+mac-icons:
+	iconutil -c icns src/app.iconset --output src/mac/resources/app.icns
 	# rm src/app.icns
 
 

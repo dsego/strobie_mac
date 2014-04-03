@@ -3,16 +3,15 @@
 
 #include <time.h>
 #import "AppDelegate.h"
-#import "stdio.h"
+#import "read-url.h"
 #import "shared.h"
-#import "alerts.h"
+#import "misc.h"
+#import "version.h"
 
 
 @implementation AppDelegate {
 
   NSThread* estimatePitchThread;
-  NSTimer *setStrobesTimer;
-  NSTimer *strobeDisplayTimer;
   NSUserDefaults *defaults;
 
 }
@@ -108,67 +107,15 @@
 
 }
 
-
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
 
-  #ifdef TRIAL
-
-    int trialTimestamp = [defaults integerForKey: @"this is not a trial time-stamp"];
-    if (trialTimestamp == 0) {
-
-      [defaults setInteger: (int)time(NULL) forKey: @"this is not a trial time-stamp"];
-      [defaults synchronize];
-
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    char data[256];
+    int err = readURL("http://strobie-app.com/version", data, 256);
+    if (!err && compareVersion(data)) {
+      [[NSNotificationCenter defaultCenter] postNotificationName:@"NewVersionAvailable" object:self];
     }
-    else {
-
-      int duration = time(NULL) - trialTimestamp;
-      int fifteenDayTrial = 60 * 60 * 24 * 15;
-
-      if (duration >= fifteenDayTrial || duration < 0) {
-        // show alert (Buy or Close)
-        NSAlert *reminder = [NSAlert
-          alertWithMessageText: @"Your trial has ended."
-          defaultButton: @"Buy"
-          alternateButton: @"Close"
-          otherButton: nil
-          informativeTextWithFormat:
-            @"If you would like to continue using Strobie, \
-            please buy the full version."
-        ];
-
-        if ([reminder runModal] == NSAlertDefaultReturn) {
-          [self showStrobieWebsite: nil];
-        }
-        [NSApp terminate: self];
-
-      }
-      else {
-        // n days left (Continue or Buy)
-        int days = (int)(double) ceil((double)(fifteenDayTrial - duration) / (24.0 * 60.0 * 60.0));
-        NSString *info;
-        if (days <= 1) {
-          info = @"This is the last day of your trial.";
-        }
-        else {
-          info = [NSString stringWithFormat: @"%d days left.", days];
-        }
-
-        NSAlert *alert = [[NSAlert alloc] init];
-        alert.messageText = @"Thank you for trying out Strobie!";
-        alert.informativeText = info;
-        [alert addButtonWithTitle: @"OK"];
-        [alert addButtonWithTitle: @"Buy a license"];
-        if ([alert runModal] == NSAlertSecondButtonReturn) {
-          [self showStrobieWebsite: nil];
-          [NSApp terminate: self];
-        }
-
-      }
-
-    }
-
-  #endif
+  });
 
   int err = Engine_setInputDevice(
     engine,
@@ -259,23 +206,17 @@
 
 -(IBAction)showStrobieWebsite:(id)sender {
 
-  [self openWebsite: @"http://www.strobie-app.com"];
+  openWebsiteInBrowser(@"http://strobie-app.com");
 
 }
 
 
 -(IBAction)showHelp:(id)sender {
 
-  [self openWebsite: @"http://www.strobie-app.com/help"];
+  // [self openWebsite: @"http://www.strobie-app.com/help"];
 
 }
 
-
--(void) openWebsite:(NSString*)url {
-
-  [[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString: url]];
-
-}
 
 
 @end

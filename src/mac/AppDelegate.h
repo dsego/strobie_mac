@@ -8,8 +8,9 @@
 
   @property (strong) IBOutlet MainController *mainController;
   @property (strong) IBOutlet PrefController *prefController;
+  @property (strong) IBOutlet NSWindow *mainWindow;
 
-  -(IBAction) showHelp:(id)sender;
+  // -(IBAction) showHelp:(id)sender;
   -(IBAction) showStrobieWebsite:(id)sender;
 
 @end

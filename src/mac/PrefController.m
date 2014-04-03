@@ -3,7 +3,7 @@
 #import <Cocoa/Cocoa.h>
 #import "AppDelegate.h"
 #import "PrefController.h"
-#import "alerts.h"
+#import "misc.h"
 #import "shared.h"
 
 

@@ -2,7 +2,7 @@
 
 
 #import <Cocoa/Cocoa.h>
-#import "alerts.h"
+#import "misc.h"
 
 
 void audioDeviceErrorAlert(void) {
@@ -13,5 +13,12 @@ void audioDeviceErrorAlert(void) {
                           "Please try a different sample rate and buffer size, "
                           "or choose a different audio device.";
   [alert runModal];
+
+}
+
+
+void openWebsiteInBrowser(NSString* url) {
+
+  [[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString: url]];
 
 }
