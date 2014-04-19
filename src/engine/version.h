@@ -2,7 +2,7 @@
 
 static int strobieVersion[2] = { 1, 0 };
 
-static int compareVersion(char* string) {
+static int newVersionAvailable(char* string) {
   int minor;
   int major;
   sscanf(string, "v%d.%d", &major, &minor);
