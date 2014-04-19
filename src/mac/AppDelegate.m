@@ -1,12 +1,12 @@
 // Copyright (c) Davorin Šego. All rights reserved.
 
 
-#include <time.h>
 #import "AppDelegate.h"
 #import "read-url.h"
 #import "shared.h"
 #import "misc.h"
 #import "version.h"
+#import "trial.h"
 
 
 @implementation AppDelegate {
@@ -109,10 +109,12 @@
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
 
+  [self checkTrial];
+
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     char data[256];
     int err = readURL("http://strobie-app.com/version", data, 256);
-    if (!err && compareVersion(data)) {
+    if (!err && newVersionAvailable(data)) {
       [[NSNotificationCenter defaultCenter] postNotificationName:@"NewVersionAvailable" object:self];
     }
   });
@@ -217,6 +219,54 @@
 
 }
 
+-(void)checkTrial {
 
+  int then = [defaults integerForKey: @"then"];
+
+  if (then == 0) {
+    [defaults setInteger: (int)time(NULL) forKey: @"then"];
+    [defaults synchronize];
+    return;
+  }
+
+  int now = genTimestamp();
+  int daysLeft = checkTrialExpiry(then, now, 15);
+
+  if (daysLeft > 0) {
+    NSString *info;
+    if (daysLeft <= 1) {
+      info = @"This is the last day of your trial.";
+    }
+    else {
+      info = [NSString stringWithFormat: @"%d days left.", daysLeft];
+    }
+
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.messageText = @"Thank you for trying out Strobie!";
+    alert.informativeText = info;
+    [alert addButtonWithTitle: @"Continue"];
+    [alert addButtonWithTitle: @"Purchase"];
+    if ([alert runModal] == NSAlertSecondButtonReturn) {
+      [self showStrobieWebsite: nil];
+      [NSApp terminate: self];
+    }
+  }
+  else {
+    NSAlert *reminder = [NSAlert
+      alertWithMessageText: @"Your trial has ended."
+      defaultButton: @"Purchase"
+      alternateButton: @"Close"
+      otherButton: nil
+      informativeTextWithFormat: @"If you would like to continue using Strobie, \
+        please purchase the full version."
+    ];
+
+    if ([reminder runModal] == NSAlertDefaultReturn) {
+      [self showStrobieWebsite: nil];
+    }
+    [NSApp terminate: self];
+  }
+
+}
 
 @end
