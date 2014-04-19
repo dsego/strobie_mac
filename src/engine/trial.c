@@ -2,7 +2,7 @@
 
 #include <math.h>
 #include <time.h>
-
+#include "trial.h"
 
 
 int checkTrialExpiry(int then, int now, int trialDays) {
