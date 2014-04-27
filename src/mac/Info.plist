@@ -2,12 +2,11 @@
   CFBundleName = "Strobie";
   CFBundleExecutable = "Strobie";
   CFBundleIconFile = "app.icns";
-  CFBundleIdentifier = "com.strobie-app.strobie";
   CFBundlePackageType = APPL;
-  CFBundleShortVersionString = "1.0.0";
+  CFBundleShortVersionString = "1.0";
   NSMainNibFile = "Application";
   NSPrincipalClass = "NSApplication";
   NSSupportsAutomaticGraphicsSwitching = YES;
-  LSMinimumSystemVersion = "10.9";
-  NSHumanReadableCopyright = "Copyright © 2014 Davorin Šego. All rights reserved.";
+  LSMinimumSystemVersion = "10.7";
+  NSHumanReadableCopyright = "Copyright © Davorin Šego. All rights reserved.";
 }
