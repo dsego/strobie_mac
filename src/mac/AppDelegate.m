@@ -2,7 +2,6 @@
 
 
 #import "AppDelegate.h"
-#import "read-url.h"
 #import "shared.h"
 #import "misc.h"
 #import "version.h"
@@ -109,15 +108,9 @@
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
 
+  #ifdef TRIAL_VERSION
   [self checkTrial];
-
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    char data[256];
-    int err = readURL("http://strobie-app.com/version", data, 256);
-    if (!err && newVersionAvailable(data)) {
-      [[NSNotificationCenter defaultCenter] postNotificationName:@"NewVersionAvailable" object:self];
-    }
-  });
+  #endif
 
   int err = Engine_setInputDevice(
     engine,
@@ -139,18 +132,13 @@
 }
 
 
-- (void)applicationDidChangeOcclusionState:(NSNotification *)notification {
-
-  if ([(NSApplication *) NSApp occlusionState] & NSApplicationOcclusionStateVisible) {
-    // Visible
-
-  } else {
-    // Occluded
-
-
-  }
-
-}
+// - (void)applicationDidChangeOcclusionState:(NSNotification *)notification {
+//   if ([(NSApplication *) NSApp occlusionState] & NSApplicationOcclusionStateVisible) {
+//     // Visible
+//   } else {
+//     // Occluded
+//   }
+// }
 
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -181,22 +169,17 @@
 }
 
 
-- (void)applicationWillUnhide:(NSNotification *)aNotification {
-
-  // engine start ?
-  // PaError Pa_StartStream  ( PaStream *  stream  )
-  //
-
-
-}
+// - (void)applicationWillUnhide:(NSNotification *)aNotification {
+//   // engine start ?
+//   // PaError Pa_StartStream  ( PaStream *  stream  )
+//   //
+// }
 
 
-- (void)applicationWillHide:(NSNotification *)aNotification {
-
-  // engine stop ?
-  // PaError Pa_StopStream  ( PaStream *  stream  )
-
-}
+// - (void)applicationWillHide:(NSNotification *)aNotification {
+//   // engine stop ?
+//   // PaError Pa_StopStream  ( PaStream *  stream  )
+// }
 
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
@@ -219,6 +202,7 @@
 
 }
 
+
 -(void)checkTrial {
 
   int then = [defaults integerForKey: @"then"];
@@ -231,42 +215,45 @@
 
   int now = genTimestamp();
   int daysLeft = checkTrialExpiry(then, now, 15);
+  NSAlert *reminder;
 
   if (daysLeft > 0) {
-    NSString *info;
-    if (daysLeft <= 1) {
-      info = @"This is the last day of your trial.";
-    }
-    else {
-      info = [NSString stringWithFormat: @"%d days left.", daysLeft];
-    }
+    NSString *msgDaysLeft = (daysLeft <= 1)
+      ? @"This is the last day of your trial."
+      : [NSString stringWithFormat: @"%d days left!", daysLeft];
 
-    NSAlert *alert = [[NSAlert alloc] init];
-    alert.messageText = @"Thank you for trying out Strobie!";
-    alert.informativeText = info;
-    [alert addButtonWithTitle: @"Continue"];
-    [alert addButtonWithTitle: @"Purchase"];
-    if ([alert runModal] == NSAlertSecondButtonReturn) {
-      [self showStrobieWebsite: nil];
-      [NSApp terminate: self];
-    }
+    reminder = [NSAlert
+      alertWithMessageText: msgDaysLeft
+      defaultButton: @"Continue"
+      alternateButton: @"Purchase"
+      otherButton: nil
+      informativeTextWithFormat: @"Thank you for trying out Strobie."
+    ];
   }
   else {
-    NSAlert *reminder = [NSAlert
+    reminder = [NSAlert
       alertWithMessageText: @"Your trial has ended."
-      defaultButton: @"Purchase"
-      alternateButton: @"Close"
+      defaultButton: @"Close"
+      alternateButton: @"Purchase"
       otherButton: nil
-      informativeTextWithFormat: @"If you would like to continue using Strobie, \
-        please purchase the full version."
+      informativeTextWithFormat: @"If you would like to continue using Strobie, please purchase the full version."
     ];
+  }
 
-    if ([reminder runModal] == NSAlertDefaultReturn) {
-      [self showStrobieWebsite: nil];
-    }
+  int button = [reminder runModal];
+
+  // Close
+  if (button == NSAlertDefaultReturn && daysLeft <= 0) {
+    [NSApp terminate: self];
+  }
+
+  // Purchase
+  else if (button == NSAlertAlternateReturn) {
+    [self showStrobieWebsite: nil];
     [NSApp terminate: self];
   }
 
 }
+
 
 @end
