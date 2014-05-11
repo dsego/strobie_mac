@@ -31,6 +31,7 @@
   NSOpenGLContext *context = [[NSOpenGLContext alloc] initWithFormat:format shareContext: nil];
   [self setPixelFormat: format];
   [self setOpenGLContext: context];
+  [self setWantsBestResolutionOpenGLSurface: YES];
 
 }
 
@@ -46,8 +47,16 @@
   GLint swapInt = 1;
   [context setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
 
+  // support retina
+  NSRect backingBounds = [self convertRectToBacking:[self bounds]];
+  CGFloat scaleFactor = [self convertSizeToBacking:CGSizeMake(1,1)].width;
   StrobeDisplay_setup(engine);
-  StrobeDisplay_initScene(engine, _bounds.size.width, _bounds.size.height);
+  StrobeDisplay_initScene(
+    engine,
+    backingBounds.size.width,
+    backingBounds.size.height,
+    scaleFactor
+  );
 
   CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
   CVDisplayLinkSetOutputCallback(displayLink, &displayLinkCallback, (__bridge void *)self);
@@ -151,7 +160,17 @@ static CVReturn displayLinkCallback(
   NSOpenGLContext* context = [self openGLContext];
   [context makeCurrentContext];
   CGLLockContext([context CGLContextObj]);
-  StrobeDisplay_initScene(engine, _bounds.size.width, _bounds.size.height);
+
+  // support retina
+  NSRect backingBounds = [self convertRectToBacking:[self bounds]];
+  CGFloat scaleFactor = [self convertSizeToBacking:CGSizeMake(1,1)].width;
+  StrobeDisplay_setup(engine);
+  StrobeDisplay_initScene(
+    engine,
+    backingBounds.size.width,
+    backingBounds.size.height,
+    scaleFactor
+  );
   CGLUnlockContext([context CGLContextObj]);
 
 }

@@ -164,7 +164,7 @@
                         <rect key="frame" x="20" y="90" width="420" height="300"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </customView>
-                    <customView wantsLayer="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ogN-jV-Pqt" customClass="NoteView">
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="ogN-jV-Pqt" customClass="NoteView">
                         <rect key="frame" x="180" y="5" width="100" height="80"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <constraints>

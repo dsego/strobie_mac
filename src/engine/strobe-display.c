@@ -39,7 +39,7 @@ static GLuint shadowVao;
 static GLuint shadowEbo;
 static GLuint shadowVbo;
 static GLuint shadowTexture;
-
+static GLfloat pxScaleFactor = 1.0f;
 
 
 static inline void initShadow() {
@@ -100,8 +100,8 @@ static inline void deleteBandBuffers(StrobeBand *band) {
 static inline void refreshShadow(int screenWidth, int screenHeight) {
 
   // 9px shadow
-  float x = 1.f - 10.f * 2.f / (float)screenWidth;
-  float y = 1.f - 10.f * 2.f / (float)screenHeight;
+  float x = 1.f - pxScaleFactor * 10.f * 2.f / (float)screenWidth;
+  float y = 1.f - pxScaleFactor * 10.f * 2.f / (float)screenHeight;
 
   glBindVertexArray(shadowVao);
 
@@ -206,7 +206,7 @@ static inline void refreshStrobePositions(Engine *engine, int w, int h) {
   //      1  3
   //
 
-  float padding = 2.0f * 2.0f / (float)h; // circa 2px
+  float padding = (pxScaleFactor * 2.0f) * (2.0f / (float)h); // 2px on a non-retina screen
   float height = ((2.0f + padding) / engine->strobeCount) - padding;
   float y = -1.0f;
 
@@ -271,11 +271,12 @@ static inline void refreshStrobeColors(Strobe* strobe, StrobeBand* band, ColorSc
 
 }
 
-
-void StrobeDisplay_initScene(Engine *engine, int w, int h) {
-  glViewport(0, 0, w, h);
-  refreshShadow(w, h);
-  refreshStrobePositions(engine, w, h);
+// rw & rh are dimensions in real pixels (to support retina screens)
+void StrobeDisplay_initScene(Engine *engine, int width, int height, float scaleFactor) {
+  pxScaleFactor = scaleFactor;
+  glViewport(0, 0, width, height);
+  refreshShadow(width, height);
+  refreshStrobePositions(engine, width, height);
   glClearColor(0, 0, 0, 1);   // TODO - move to configuration
   glClear(GL_COLOR_BUFFER_BIT);
 }

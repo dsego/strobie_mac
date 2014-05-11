@@ -61,9 +61,12 @@
   CFRelease(values[0]);
   CFRelease(values[1]);
 
+  // support retina
+  NSRect bounds = [self convertRectToBacking:[self bounds]];
+  CGFloat scaleFactor = [self convertSizeToBacking:CGSizeMake(1,1)].width;
+  int width  = bounds.size.width;
+  int height = bounds.size.height;
 
-  int width  = _bounds.size.width;
-  int height = _bounds.size.height;
   CGColorSpaceRef genericRGB = CGColorSpaceCreateDeviceRGB();
   CGColorRef shadowColor = CGColorCreateGenericRGB(0, 0, 0, 1);
 
@@ -76,8 +79,10 @@
     );
 
     CTLineRef line = CTLineCreateWithAttributedString(noteNames[i]);
-    float typoWidth = CTLineGetTypographicBounds(line, NULL, NULL, NULL);
-    float x = (width - typoWidth) * 0.5; // center horizontally
+    float typoWidth = CTLineGetTypographicBounds(line, NULL, NULL, NULL) * scaleFactor;
+    float x = (width - typoWidth) * 0.5 / scaleFactor; // center horizontally
+
+    CGContextScaleCTM(context, scaleFactor, scaleFactor);
     CGContextSetTextPosition(context, x, 14);
     CGContextSetShadowWithColor(context, CGSizeMake(0, 1), 2, shadowColor);
     CTLineDraw(line, context);
