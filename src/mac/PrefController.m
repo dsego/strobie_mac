@@ -120,7 +120,7 @@
 
   engine->config->transpose = [sender selectedItem].tag;
   [[NSNotificationCenter defaultCenter]
-    postNotificationName:@"NoteChangeNotification" object:self];
+    postNotificationName:@"NOTE_CHANGE_NOTIFICATION" object:self];
 
 }
 

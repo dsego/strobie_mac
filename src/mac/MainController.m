@@ -24,7 +24,7 @@
   [[NSNotificationCenter defaultCenter]
     addObserver:self
     selector:@selector(refreshDisplay)
-    name:@"NoteChangeNotification"
+    name:@"NOTE_CHANGE_NOTIFICATION"
     object:nil
   ];
 

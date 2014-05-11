@@ -157,7 +157,7 @@
       Engine_estimatePitch(engine);
       dispatch_async(dispatch_get_main_queue(),^ {
         [[NSNotificationCenter defaultCenter]
-          postNotificationName:@"NoteChangeNotification"
+          postNotificationName:@"NOTE_CHANGE_NOTIFICATION"
           object:self];
       });
     }
