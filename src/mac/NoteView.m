@@ -173,15 +173,13 @@
 
 - (void)mouseDown:(NSEvent *)theEvent {
 
-  if (engine->mode == MANUAL) {
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"MANUAL_MODE" object:self];
 
-    NSPoint location = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-    [noteMenu popUpMenuPositioningItem: [noteMenu itemWithTag: engine->currentNote.index]
-      atLocation:NSMakePoint(0, location.y + 10)
-      inView:self
-    ];
-
-  }
+  NSPoint location = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+  [noteMenu popUpMenuPositioningItem: [noteMenu itemWithTag: engine->currentNote.index]
+    atLocation:NSMakePoint(0, location.y + 10)
+    inView:self
+  ];
 
 }
 

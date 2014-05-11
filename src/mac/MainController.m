@@ -12,6 +12,14 @@
 
 -(void)awakeFromNib {
 
+  // Register to be notified when mode changes
+  [[NSNotificationCenter defaultCenter]
+    addObserver:self
+    selector:@selector(manualMode)
+    name:@"MANUAL_MODE"
+    object:nil
+  ];
+
   // Register to be notified when the note changed so we can update the UI
   [[NSNotificationCenter defaultCenter]
     addObserver:self
@@ -79,6 +87,16 @@
 
 -(IBAction)modeButtonOnClick: (id)sender {
   engine->mode = (engine->mode == AUTO) ? MANUAL : AUTO;
+}
+
+
+-(void)manualMode {
+
+  if (engine->mode == AUTO) {
+    engine->mode = MANUAL;
+    [self modeButton].state = NSOnState;
+  }
+
 }
 
 
