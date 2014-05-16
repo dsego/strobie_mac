@@ -1,0 +1,7 @@
+{
+  com.apple.application-identifier = "Strobie";
+  com.apple.security.app-sandbox = YES;
+  com.apple.security.device.microphone = YES;
+  com.apple.security.device.firewire = YES;
+  com.apple.security.device.usb = YES;
+}
