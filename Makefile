@@ -6,8 +6,7 @@ FFTS := -I/usr/local/include/ffts /usr/local/lib/libffts.a
 PORTAUDIO := ../portaudio/trunk/src/common/pa_ringbuffer.c \
 							-I../portaudio/trunk/include \
 							-I../portaudio/trunk/src/common \
-							../portaudio/trunk/lib/.libs/libportaudio.dylib
-
+							../portaudio/trunk/lib/.libs/libportaudio.a
 DSP			:= ../biquad/src/biquad.c -I../biquad/src	../interpolator/src/intp.c -I../interpolator/src
 VEC			:= ../buffer/src/buffer.c -I../buffer/src
 PITCH		:= ../pitch/src/nsdf.c -I../pitch/src
@@ -18,11 +17,13 @@ GLFW		:= -lglfw3
 LIBS 		:= $(PORTAUDIO) $(DSP) $(FFTS) $(PITCH) $(VEC) $(SHADER) $(TUNING) $(MEDIAN)
 
 
-MAC_LIBS := $(LIBS) -framework OpenGL -framework Cocoa -framework AppKit -framework QuartzCore
+
+MAC_LIBS := -framework AudioToolbox -framework CoreAudio -framework AudioUnit \
+						-framework OpenGL -framework Cocoa -framework AppKit -framework QuartzCore
 
 
 WARN := -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion \
-				-Wno-disabled-macro-expansion  -Wno-deprecated-declarations
+				-Wno-disabled-macro-expansion -Wno-deprecated-declarations
 
 
 MAC_WARN := $(WARN) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis \
@@ -41,40 +42,44 @@ all:
 	$(MAKE) mac BUNDLE="StrobieFull.app"
 	$(MAKE) mac BUNDLE="StrobieTrial.app" TRIAL_VERSION="-DTRIAL_VERSION"
 
-mac: engine
+mac: engine src/mac/*.m src/mac/*.c src/mac/Info.plist src/mac/Application.xib
 	rm -rfd $(BUNDLE)
 	mkdir -p $(BUNDLE)/Contents/Resources
 	mkdir -p $(BUNDLE)/Contents/MacOS
 	cp src/mac/resources/* $(BUNDLE)/Contents/Resources
 	cp src/mac/Info.plist $(BUNDLE)/Contents/Info.plist
+	cp src/mac/Entitlements.entitlements $(BUNDLE)/Contents/Entitlements.entitlements
+	$(CC) $(MAC_WARN) $(MAC_OPTIONS) $(MAC_LIBS) $(LIBS) $(TRIAL_VERSION) \
+		engine.a src/mac/*.m src/mac/*.c -Isrc/engine -o $(BUNDLE)/Contents/MacOS/Strobie
 	ibtool --compile $(BUNDLE)/Contents/Resources/Application.nib src/mac/Application.xib
-	$(CC) $(MAC_WARN) $(MAC_OPTIONS) $(MAC_LIBS) $(TRIAL_VERSION) \
-	engine.a src/mac/*.m src/mac/*.c -Isrc/engine -o $(BUNDLE)/Contents/MacOS/Strobie
 
-mac_icons:
+mac_icons: src/app.iconset
 	iconutil -c icns src/app.iconset --output src/mac/resources/app.icns
 
-engine:
+engine: src/engine/*.c
 	$(CC) -c $(WARN) $(MAC_OPTIONS) $(LIBS) src/engine/*.c -Isrc/engine
 	ar rcs engine.a *.o
 	rm *.o
 
-
-
-
-
-
+mac_pkg:
+	cp -r StrobieFull.app/ Strobie.app/
+	codesign --deep --sign  "3rd Party Mac Developer Application: Davorin Sego" Strobie.app
+	productbuild \
+		--component Strobie.app /Applications \
+		--sign "3rd Party Mac Developer Installer: Davorin Sego" \
+		--product Strobie.app/Contents/Info.plist Strobie.pkg
+	rm -rfd Strobie.app
 
 
 ###########
 
-.PHONY: test biquad
-test: engine
-	cc $(OPTIONS) $(WARN) -Isrc/engine $(GL) $(GLFW) $(FFTS) $(PORTAUDIO) $(DSP) \
-	src/test.c engine.a -o test
+# .PHONY: test biquad
+# test: engine
+# 	cc $(OPTIONS) $(WARN) -Isrc/engine $(GL) $(GLFW) $(FFTS) $(PORTAUDIO) $(DSP) \
+# 	src/test.c engine.a -o test
 
-experiment:
-	cc $(OPTIONS) $(WARN) $(FFTS) $(PORTAUDIO) src/experiment.c -o experiment
+# experiment:
+# 	cc $(OPTIONS) $(WARN) $(FFTS) $(PORTAUDIO) src/experiment.c -o experiment
 
-biquad:
-	cc src/biquad.c $(DSP)  -o biquad
+# biquad:
+# 	cc src/biquad.c $(DSP)  -o biquad
