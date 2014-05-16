@@ -1,4 +1,5 @@
 {
+  CFBundleIdentifier = "Strobie";
   CFBundleName = "Strobie";
   CFBundleExecutable = "Strobie";
   CFBundleIconFile = "app.icns";
@@ -9,4 +10,6 @@
   NSSupportsAutomaticGraphicsSwitching = YES;
   LSMinimumSystemVersion = "10.7";
   NSHumanReadableCopyright = "Copyright © Davorin Šego. All rights reserved.";
+  NSPrincipalClass = "NSApplication";
+  LSApplicationCategoryType = "public.app-category.music";
 }
