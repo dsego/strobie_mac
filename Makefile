@@ -17,7 +17,6 @@ GLFW		:= -lglfw3
 LIBS 		:= $(PORTAUDIO) $(DSP) $(FFTS) $(PITCH) $(VEC) $(SHADER) $(TUNING) $(MEDIAN)
 
 
-
 MAC_LIBS := -framework AudioToolbox -framework CoreAudio -framework AudioUnit \
 						-framework OpenGL -framework Cocoa -framework AppKit -framework QuartzCore
 
@@ -39,16 +38,19 @@ CC := cc
 
 
 all:
-	$(MAKE) mac BUNDLE="StrobieFull.app"
-	$(MAKE) mac BUNDLE="StrobieTrial.app" TRIAL_VERSION="-DTRIAL_VERSION"
+	$(MAKE) mac
 
-mac: engine src/mac/*.m src/mac/*.c src/mac/Info.plist src/mac/Application.xib
+mac:
+	$(MAKE) mac_bundle BUNDLE="StrobieFull.app"
+	$(MAKE) mac_bundle BUNDLE="StrobieTrial.app" TRIAL_VERSION="-DTRIAL_VERSION"
+
+mac_bundle: engine src/mac/*.m src/mac/*.c src/mac/Info.plist src/mac/Application.xib
 	rm -rfd $(BUNDLE)
 	mkdir -p $(BUNDLE)/Contents/Resources
 	mkdir -p $(BUNDLE)/Contents/MacOS
 	cp src/mac/resources/* $(BUNDLE)/Contents/Resources
 	cp src/mac/Info.plist $(BUNDLE)/Contents/Info.plist
-	cp src/mac/Entitlements.entitlements $(BUNDLE)/Contents/Entitlements.entitlements
+	cp src/mac/Strobie.entitlements $(BUNDLE)/Contents/Strobie.entitlements
 	$(CC) $(MAC_WARN) $(MAC_OPTIONS) $(MAC_LIBS) $(LIBS) $(TRIAL_VERSION) \
 		engine.a src/mac/*.m src/mac/*.c -Isrc/engine -o $(BUNDLE)/Contents/MacOS/Strobie
 	ibtool --compile $(BUNDLE)/Contents/Resources/Application.nib src/mac/Application.xib
@@ -63,11 +65,14 @@ engine: src/engine/*.c
 
 mac_pkg:
 	cp -r StrobieFull.app/ Strobie.app/
-	codesign --deep --sign  "3rd Party Mac Developer Application: Davorin Sego" Strobie.app
+	codesign \
+		--force --deep --sign  "3rd Party Mac Developer Application: Davorin Sego" \
+		--entitlements src/mac/Strobie.entitlements \
+		Strobie.app
 	productbuild \
 		--component Strobie.app /Applications \
 		--sign "3rd Party Mac Developer Installer: Davorin Sego" \
-		--product Strobie.app/Contents/Info.plist Strobie.pkg
+		--product src/mac/Info.plist Strobie.pkg
 	rm -rfd Strobie.app
 
 
