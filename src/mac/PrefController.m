@@ -52,7 +52,7 @@
   if (deviceCount > 0) {
 
     for (int i = 0; i < deviceCount; ++i) {
-      char name[128];
+      char name[256] = "";
       int isInput;
       int isOutput;
       Engine_deviceName(i, name, &isInput, &isOutput);
