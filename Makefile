@@ -21,8 +21,10 @@ MAC_LIBS := -framework AudioToolbox -framework CoreAudio -framework AudioUnit \
 						-framework OpenGL -framework Cocoa -framework AppKit -framework QuartzCore
 
 
-WARN := -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion \
-				-Wno-disabled-macro-expansion -Wno-deprecated-declarations
+WARN := -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion
+# -fsanitize=undefined-trap -fsanitize-undefined-trap-on-error
+
+# -Wno-disabled-macro-expansion -Wno-deprecated-declarations
 
 
 MAC_WARN := $(WARN) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis \
@@ -37,16 +39,13 @@ MAC_OPTIONS := -fmodules -fobjc-arc -arch x86_64 -O3 -flto -std=c11 -mmacosx-ver
 CC := cc
 
 
-all:
-	$(MAKE) mac
-
 mac_full:
 	$(MAKE) mac_bundle BUNDLE="StrobieFull.app"
 
 mac_trial:
 	$(MAKE) mac_bundle BUNDLE="StrobieTrial.app" TRIAL_VERSION="-DTRIAL_VERSION"
 
-mac_bundle: engine
+mac_bundle: engine.a
 	rm -rfd $(BUNDLE)
 	mkdir -p $(BUNDLE)/Contents/Resources
 	mkdir -p $(BUNDLE)/Contents/MacOS
@@ -60,7 +59,7 @@ mac_bundle: engine
 mac_icons: src/app.iconset
 	iconutil -c icns src/app.iconset --output src/mac/resources/app.icns
 
-engine: src/engine/*.c
+engine.a: src/engine/*.c
 	$(CC) -c $(WARN) $(MAC_OPTIONS) $(LIBS) src/engine/*.c -Isrc/engine
 	ar rcs engine.a *.o
 	rm *.o
