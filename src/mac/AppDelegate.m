@@ -97,20 +97,18 @@
 - (void)awakeFromNib {
 
   [self loadPreferences];
+
+  #ifdef TRIAL_VERSION
+  [self checkTrial];
+  #endif
+
   Note note = EqualTemp_findNearest(
     engine->config->freq,
     engine->config->pitchStandard,
     engine->config->centsOffset
   );
+
   Engine_setStrobes(engine, note, engine->config->samplerate);
-
-}
-
-- (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
-
-  #ifdef TRIAL_VERSION
-  [self checkTrial];
-  #endif
 
   int err = Engine_setInputDevice(
     engine,
@@ -125,12 +123,11 @@
 
   estimatePitchThread = [[NSThread alloc] initWithTarget:self
     selector:@selector(estimatePitch)
-    object:nil ];
+    object:nil];
 
   [estimatePitchThread start];
 
 }
-
 
 // - (void)applicationDidChangeOcclusionState:(NSNotification *)notification {
 //   if ([(NSApplication *) NSApp occlusionState] & NSApplicationOcclusionStateVisible) {
