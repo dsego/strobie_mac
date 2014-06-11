@@ -12,7 +12,7 @@ Config* Config_create() {
   Config* self = malloc(sizeof(Config));
   assert(self != NULL);
 
-  self->inputDevice        = 0;
+  self->inputDevice        = -1;        // invalid input, should fall back to default
   self->inputBufferSize    = 0;         // auto-detect
   self->maxInputBufferSize = 1024;      // buffers are allocated only once
   self->outputDevice       = 0;
