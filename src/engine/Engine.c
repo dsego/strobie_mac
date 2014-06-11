@@ -9,6 +9,10 @@
 #define ENGINE_STR_BUFFER_LENGTH 4096
 #define min(a,b) ((a) < (b) ? (a) : (b))
 
+static void printPaError(PaError err) {
+  fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
+}
+
 
 Engine* Engine_create() {
 
@@ -62,6 +66,8 @@ Engine* Engine_create() {
 
   PaError err = Pa_Initialize();
   if (err != paNoError) {
+    // TODO: how to handle error?
+    printPaError(err);
     self->paInitFailed = 1;
   }
 
@@ -320,6 +326,9 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate, int bufferSi
   // if device index doesn't exist, use default device
   if (device < 0 || device >= Pa_GetDeviceCount()) {
     device = Pa_GetDefaultInputDevice();
+    if (device == paNoDevice) {
+      return 1;
+    }
   }
 
   self->config->inputDevice = currentDevice = device;
@@ -329,8 +338,8 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate, int bufferSi
   PaError err;
 
   if (self->stream != NULL) {
-    err = Pa_AbortStream(self->stream);
-    err = Pa_CloseStream(self->stream);
+    Pa_AbortStream(self->stream);
+    Pa_CloseStream(self->stream);
   }
 
   PaStreamParameters params;
@@ -356,11 +365,17 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate, int bufferSi
     self
   );
 
-  if (err != paNoError) return 1;
+  if (err != paNoError) {
+    printPaError(err);
+    return 1;
+  }
 
   err = Pa_StartStream(self->stream);
 
-  if (err != paNoError) return 1;
+  if (err != paNoError) {
+    printPaError(err);
+    return 1;
+  }
 
   return 0;
 
