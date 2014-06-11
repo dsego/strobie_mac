@@ -40,11 +40,13 @@ CC := cc
 all:
 	$(MAKE) mac
 
-mac:
+mac_full:
 	$(MAKE) mac_bundle BUNDLE="StrobieFull.app"
+
+mac_trial:
 	$(MAKE) mac_bundle BUNDLE="StrobieTrial.app" TRIAL_VERSION="-DTRIAL_VERSION"
 
-mac_bundle: engine src/mac/*.m src/mac/*.c src/mac/Info.plist src/mac/Application.xib
+mac_bundle: engine
 	rm -rfd $(BUNDLE)
 	mkdir -p $(BUNDLE)/Contents/Resources
 	mkdir -p $(BUNDLE)/Contents/MacOS
