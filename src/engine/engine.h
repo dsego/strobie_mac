@@ -19,6 +19,8 @@
 
 #define MAX_STROBES CONFIG_MAX_STROBES
 
+typedef PaDeviceInfo DeviceInfo;
+
 
 typedef enum {
   AUTO,
@@ -73,7 +75,7 @@ void Engine_setColors(Engine* self, int colors[][3], int count);
 void Engine_getSamplerates(int device, int outSamplerates[11]);
 int Engine_getDefaultInputDevice(void);
 int Engine_deviceCount(void);
-int Engine_deviceName(int index, char *outName, int *outIsInput, int *outIsOutput);
+const DeviceInfo* Engine_deviceInfo(int index);
 
 
 #endif

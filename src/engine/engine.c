@@ -396,15 +396,8 @@ int Engine_deviceCount() {
 }
 
 
-int Engine_deviceName(int index, char *outName, int *outIsInput, int *outIsOutput) {
+const DeviceInfo* Engine_deviceInfo(int index) {
 
-  const PaDeviceInfo* info = Pa_GetDeviceInfo(index);
-
-  if (info == NULL) { return 0; }
-
-  strcpy(outName, info->name);
-  *outIsInput = (info->maxInputChannels > 0) ? 1 : 0;
-  *outIsOutput = (info->maxOutputChannels > 0) ? 1 : 0;
-  return 1;
+  return Pa_GetDeviceInfo(index);
 
 }

@@ -52,12 +52,9 @@
   if (deviceCount > 0) {
 
     for (int i = 0; i < deviceCount; ++i) {
-      char name[256] = "";
-      int isInput;
-      int isOutput;
-      Engine_deviceName(i, name, &isInput, &isOutput);
-      if (isInput) {
-        [_inputDevicePopup addItemWithTitle: @(name)];
+      const DeviceInfo *info = Engine_deviceInfo(i);
+      if (info->maxInputChannels > 0) {
+        [_inputDevicePopup addItemWithTitle: @(info->name)];
         [[_inputDevicePopup lastItem] setTag: i];
       }
     }
