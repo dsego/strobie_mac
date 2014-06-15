@@ -18,12 +18,14 @@
 
 - (void)savePreferences {
 
-  int i = engine->config->schemeCount - 1;
-  float *a = engine->config->schemes[i].a;
-  float *b = engine->config->schemes[i].b;
-
   defaults = [NSUserDefaults standardUserDefaults];
-  [defaults setInteger: engine->config->inputDevice forKey: @"inputDevice"];
+
+  const DeviceInfo *info = Engine_deviceInfo(engine->config->inputDevice);
+  if (info != NULL) {
+    NSString *inputDeviceName  = @(info->name);
+    [defaults setObject: inputDeviceName forKey: @"inputDeviceName"];
+  }
+
   [defaults setInteger: engine->config->samplerate forKey: @"inputSamplerate"];
   [defaults setInteger: engine->config->inputBufferSize forKey: @"inputBufferSize"];
   [defaults setInteger: engine->config->transpose forKey: @"transpose"];
@@ -33,14 +35,17 @@
   [defaults setFloat: engine->config->gain forKey: @"gain"];
   [defaults setInteger: engine->config->schemeIndex forKey: @"schemeIndex"];
 
+
+  ColorScheme custom = engine->config->schemes[engine->config->schemeCount-1];
+
   [defaults setObject: [NSString stringWithFormat:
     @"%f %f %f",
-    a[0], a[1], a[2]]
+    custom.a[0], custom.a[1], custom.a[2]]
     forKey: @"customColorA"];
 
   [defaults setObject: [NSString stringWithFormat:
     @"%f %f %f",
-    b[0], b[1], b[2]]
+    custom.b[0], custom.b[1], custom.b[2]]
     forKey: @"customColorB"];
 
   [defaults synchronize];
@@ -51,13 +56,11 @@
 - (void)loadPreferences {
 
   defaults = [NSUserDefaults standardUserDefaults];
-  int i = engine->config->schemeCount - 1;
-  float *a = engine->config->schemes[i].a;
-  float *b = engine->config->schemes[i].b;
+  ColorScheme custom = engine->config->schemes[engine->config->schemeCount-1];
 
   // register factory defaults
   NSDictionary *factoryValues = @{
-    @"inputDevice": @(engine->config->inputDevice),
+    @"inputDeviceName": @"",
     @"inputSamplerate": @(engine->config->samplerate),
     @"inputBufferSize": @(engine->config->inputBufferSize),
     @"transpose": @(engine->config->transpose),
@@ -66,14 +69,25 @@
     @"freq": @(engine->config->freq),
     @"gain": @(engine->config->gain),
     @"schemeIndex": @(engine->config->schemeIndex),
-    @"customColorA": [NSString stringWithFormat: @"%f %f %f", a[0], a[1], a[2]],
-    @"customColorB": [NSString stringWithFormat: @"%f %f %f", b[0], b[1], b[2]]
+    @"customColorA": [NSString stringWithFormat: @"%f %f %f", custom.a[0], custom.a[1], custom.a[2]],
+    @"customColorB": [NSString stringWithFormat: @"%f %f %f", custom.b[0], custom.b[1], custom.b[2]]
   };
 
   [defaults registerDefaults:factoryValues];
 
   // read saved values
-  engine->config->inputDevice     = [defaults integerForKey: @"inputDevice"];
+
+  NSString *inputDeviceName = [defaults stringForKey: @"inputDeviceName"];
+
+  int count = Engine_deviceCount();
+  for (int i = 0; i < count; ++i) {
+    const DeviceInfo *info = Engine_deviceInfo(i);
+    if ([inputDeviceName isEqualToString: @(info->name)]) {
+      engine->config->inputDevice = i;
+      break;
+    }
+  }
+
   engine->config->samplerate      = [defaults integerForKey: @"inputSamplerate"];
   engine->config->inputBufferSize = [defaults integerForKey: @"inputBufferSize"];
   engine->config->transpose       = [defaults integerForKey: @"transpose"];
@@ -84,10 +98,10 @@
   engine->config->schemeIndex     = [defaults floatForKey: @"schemeIndex"];
 
   const char *customColorA = [[defaults stringForKey: @"customColorA"] UTF8String];
-  sscanf(customColorA, "%f %f %f", a, a+1, a+2);
+  sscanf(customColorA, "%f %f %f", custom.a, custom.a+1, custom.a+2);
 
   const char* customColorB = [[defaults stringForKey: @"customColorB"] UTF8String];
-  sscanf(customColorB, "%f %f %f", b, b+1, b+2);
+  sscanf(customColorB, "%f %f %f", custom.b, custom.b+1, custom.b+2);
 
   [_prefController loadFromConfig];
 

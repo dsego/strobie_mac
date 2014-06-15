@@ -331,9 +331,9 @@ int Engine_setInputDevice(Engine *self, int device, int samplerate, int bufferSi
     }
   }
 
-  self->config->inputDevice = currentDevice = device;
-  self->config->inputBufferSize = currentBufferSize = bufferSize;
-  self->config->samplerate = currentSamplerate = samplerate;
+  currentDevice = device;
+  currentBufferSize = bufferSize;
+  currentSamplerate = samplerate;
 
   PaError err;
 

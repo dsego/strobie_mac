@@ -98,13 +98,19 @@
 
 - (IBAction)inputDeviceChanged: (id)sender {
 
-  int device = [_inputDevicePopup selectedItem].tag;
-  int bufferSize = [_bufferSizePopup selectedItem].tag;
+  engine->config->inputDevice = [_inputDevicePopup selectedItem].tag;
+  engine->config->inputBufferSize = [_bufferSizePopup selectedItem].tag;
   int samplerate = [_sampleratePopup selectedItem].tag;
   if (samplerate != engine->config->samplerate) {
+    engine->config->samplerate = samplerate;
     Engine_setStrobes(engine, engine->currentNote, samplerate);
   }
-  int err = Engine_setInputDevice(engine, device, samplerate, bufferSize);
+  int err = Engine_setInputDevice(
+    engine,
+    engine->config->inputDevice,
+    engine->config->samplerate,
+    engine->config->inputBufferSize
+  );
   if (err) {
     audioDeviceErrorAlert();
   }
