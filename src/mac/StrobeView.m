@@ -40,6 +40,14 @@
 
   [super prepareOpenGL];
 
+  // Register to be notified when the window closes so we can stop the displaylink
+  [[NSNotificationCenter defaultCenter]
+    addObserver:self
+    selector:@selector(windowWillClose:)
+    name:NSWindowWillCloseNotification
+    object:self.window
+  ];
+
   NSOpenGLContext* context = [self openGLContext];
   [context makeCurrentContext];
 
@@ -67,14 +75,6 @@
     cglPixelFormat
   );
   CVDisplayLinkStart(displayLink);
-
-  // Register to be notified when the window closes so we can stop the displaylink
-  [[NSNotificationCenter defaultCenter]
-    addObserver:self
-    selector:@selector(windowWillClose:)
-    name:NSWindowWillCloseNotification
-    object:self.window
-  ];
 
 }
 
@@ -124,14 +124,13 @@ static CVReturn displayLinkCallback(
 - (void)redraw {
 
   NSOpenGLContext* context = [self openGLContext];
-  [context makeCurrentContext];
-
   CGLContextObj cglContext = [context CGLContextObj];
+  [context makeCurrentContext];
   CGLLockContext(cglContext);
 
   StrobeDisplay_drawScene(engine);
 
-  CGLFlushDrawable(cglContext);
+  [context flushBuffer];
   CGLUnlockContext(cglContext);
 
 }
@@ -144,34 +143,31 @@ static CVReturn displayLinkCallback(
 }
 
 
-- (void)update {
+// - (void)update {
 
-  NSOpenGLContext* context = [self openGLContext];
-  [context makeCurrentContext];
-  CGLLockContext([context CGLContextObj]);
-  [context update];
-  CGLUnlockContext([context CGLContextObj]);
+//   NSOpenGLContext* context = [self openGLContext];
+//   CGLContextObj cglContext = [context CGLContextObj];
+//   [context makeCurrentContext];
+//   CGLLockContext(cglContext);
+//   [context update];
+//   CGLUnlockContext(cglContext);
 
-}
+// }
 
 
 -(void)reshape {
 
   NSOpenGLContext* context = [self openGLContext];
+  CGLContextObj cglContext = [context CGLContextObj];
   [context makeCurrentContext];
-  CGLLockContext([context CGLContextObj]);
+  CGLLockContext(cglContext);
 
   // support retina
-  NSRect backingBounds = [self convertRectToBacking:[self bounds]];
+  NSRect backing = [self convertRectToBacking:[self bounds]];
   CGFloat scaleFactor = [self convertSizeToBacking:CGSizeMake(1,1)].width;
-  StrobeDisplay_setup(engine);
-  StrobeDisplay_initScene(
-    engine,
-    backingBounds.size.width,
-    backingBounds.size.height,
-    scaleFactor
-  );
-  CGLUnlockContext([context CGLContextObj]);
+
+  StrobeDisplay_initScene(engine, backing.size.width, backing.size.height, scaleFactor);
+  CGLUnlockContext(cglContext);
 
 }
 
