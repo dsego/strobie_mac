@@ -20,7 +20,6 @@
   NSOpenGLPixelFormatAttribute attributes[] = {
     NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,   // Core Profile !
     NSOpenGLPFADoubleBuffer,
-    NSOpenGLPFAAccelerated,
     NSOpenGLPFAColorSize, 24,
     NSOpenGLPFAAlphaSize, 8,
     NSOpenGLPFAAllowOfflineRenderers,
@@ -49,31 +48,27 @@
   ];
 
   NSOpenGLContext* context = [self openGLContext];
+  CGLContextObj cglContext = [context CGLContextObj];
   [context makeCurrentContext];
 
   // Synchronize buffer swaps with vertical refresh rate
   GLint swapInt = 1;
   [context setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
 
+  CGLLockContext(cglContext);
+
   // support retina
-  NSRect backingBounds = [self convertRectToBacking:[self bounds]];
-  CGFloat scaleFactor = [self convertSizeToBacking:CGSizeMake(1,1)].width;
+  NSRect backing = [self convertRectToBacking:[self bounds]];
+  CGFloat scale = [self convertSizeToBacking:CGSizeMake(1,1)].width;
   StrobeDisplay_setup(engine);
-  StrobeDisplay_initScene(
-    engine,
-    backingBounds.size.width,
-    backingBounds.size.height,
-    scaleFactor
-  );
+  StrobeDisplay_initScene(engine, backing.size.width, backing.size.height, scale);
+
+  CGLUnlockContext(cglContext);
 
   CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
   CVDisplayLinkSetOutputCallback(displayLink, &displayLinkCallback, (__bridge void *)self);
   CGLPixelFormatObj cglPixelFormat = [[self pixelFormat] CGLPixelFormatObj];
-  CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(
-    displayLink,
-    [context CGLContextObj],
-    cglPixelFormat
-  );
+  CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, cglContext, cglPixelFormat);
   CVDisplayLinkStart(displayLink);
 
 }
@@ -143,16 +138,16 @@ static CVReturn displayLinkCallback(
 }
 
 
-// - (void)update {
+- (void)update {
 
-//   NSOpenGLContext* context = [self openGLContext];
-//   CGLContextObj cglContext = [context CGLContextObj];
-//   [context makeCurrentContext];
-//   CGLLockContext(cglContext);
-//   [context update];
-//   CGLUnlockContext(cglContext);
+  NSOpenGLContext* context = [self openGLContext];
+  CGLContextObj cglContext = [context CGLContextObj];
+  [context makeCurrentContext];
+  CGLLockContext(cglContext);
+  [context update];
+  CGLUnlockContext(cglContext);
 
-// }
+}
 
 
 -(void)reshape {
@@ -164,9 +159,9 @@ static CVReturn displayLinkCallback(
 
   // support retina
   NSRect backing = [self convertRectToBacking:[self bounds]];
-  CGFloat scaleFactor = [self convertSizeToBacking:CGSizeMake(1,1)].width;
+  CGFloat scale = [self convertSizeToBacking:CGSizeMake(1,1)].width;
 
-  StrobeDisplay_initScene(engine, backing.size.width, backing.size.height, scaleFactor);
+  StrobeDisplay_initScene(engine, backing.size.width, backing.size.height, scale);
   CGLUnlockContext(cglContext);
 
 }
