@@ -1,5 +1,7 @@
 # Copyright (C) Davorin Šego
 
+
+# ./configure --enable-sse --enable-single --prefix=/usr/local
 FFTS := -I/usr/local/include/ffts /usr/local/lib/libffts.a
 
 # to build PortAudio: CFLAGS="-w -arch x86_64" ./configure  --enable-mac-universal=NO && make
