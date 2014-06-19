@@ -28,6 +28,8 @@
     object:nil
   ];
 
+  [self.window.contentView setWantsLayer: NO];
+
 }
 
 

@@ -6,6 +6,18 @@
 #import "shared.h"
 
 
+// @implementation StrobeLayer
+
+// - (void) drawInCGLContext:(CGLContextObj)glContext
+//           pixelFormat:(CGLPixelFormatObj)pixelFormat
+//           forLayerTime:(CFTimeInterval)timeInterval
+//           displayTime:(const CVTimeStamp *)timeStamp {
+// }
+
+// @end
+
+
+
 
 
 @implementation StrobeView {
@@ -31,6 +43,13 @@
   [self setPixelFormat: format];
   [self setOpenGLContext: context];
   [self setWantsBestResolutionOpenGLSurface: YES];
+  [self setWantsLayer: NO];
+
+  // [self setWantsLayer: YES];
+
+  // NSOpenGLLayer *layer = [StrobeLayer layer];
+  // [layer setOpenGLPixelFormat: format];
+  // [self setLayer: layer];
 
 }
 

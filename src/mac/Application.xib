@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13D65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
     </dependencies>
@@ -15,7 +15,6 @@
             <connections>
                 <outlet property="modeButton" destination="i45-ea-1SF" id="kHq-dm-3TY"/>
                 <outlet property="noteView" destination="ogN-jV-Pqt" id="E5z-p5-cxi"/>
-                <outlet property="strobeView" destination="ILa-eD-b18" id="MWf-to-Fdl"/>
                 <outlet property="window" destination="367" id="2506"/>
             </connections>
         </customObject>
@@ -160,10 +159,6 @@
                 <rect key="frame" x="0.0" y="0.0" width="460" height="400"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <customView autoresizesSubviews="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ILa-eD-b18" customClass="StrobeView">
-                        <rect key="frame" x="20" y="90" width="420" height="300"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    </customView>
                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="ogN-jV-Pqt" customClass="NoteView">
                         <rect key="frame" x="180" y="5" width="100" height="80"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -200,21 +195,25 @@ IA
                             <action selector="modeButtonOnClick:" target="1960" id="G3s-zh-USZ"/>
                         </connections>
                     </button>
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="DAv-w3-0ix" customClass="StrobeView">
+                        <rect key="frame" x="20" y="90" width="420" height="300"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </customView>
                 </subviews>
                 <constraints>
                     <constraint firstAttribute="centerX" secondItem="ogN-jV-Pqt" secondAttribute="centerX" id="2VZ-NR-xbA"/>
-                    <constraint firstItem="ILa-eD-b18" firstAttribute="bottom" secondItem="Esd-lZ-YSm" secondAttribute="bottom" id="3Q0-OG-hlp"/>
-                    <constraint firstAttribute="trailing" secondItem="ILa-eD-b18" secondAttribute="trailing" constant="20" id="5kV-rd-Z7v"/>
-                    <constraint firstItem="ILa-eD-b18" firstAttribute="leading" secondItem="368" secondAttribute="leading" constant="20" id="73a-Sf-H0k"/>
-                    <constraint firstItem="Esd-lZ-YSm" firstAttribute="leading" secondItem="ILa-eD-b18" secondAttribute="trailing" id="A2t-Wx-nwW"/>
-                    <constraint firstItem="ILa-eD-b18" firstAttribute="top" secondItem="Esd-lZ-YSm" secondAttribute="top" id="Hjl-d5-ChY"/>
-                    <constraint firstItem="ILa-eD-b18" firstAttribute="leading" secondItem="XaM-70-RHD" secondAttribute="trailing" id="S8A-Cz-cAa"/>
+                    <constraint firstItem="Esd-lZ-YSm" firstAttribute="trailing" secondItem="368" secondAttribute="trailing" id="D37-ZF-H4o"/>
+                    <constraint firstItem="DAv-w3-0ix" firstAttribute="leading" secondItem="368" secondAttribute="leading" constant="20" id="EDG-am-2yV"/>
+                    <constraint firstAttribute="trailing" secondItem="DAv-w3-0ix" secondAttribute="trailing" constant="20" id="IaT-eQ-JgO"/>
+                    <constraint firstItem="XaM-70-RHD" firstAttribute="top" secondItem="368" secondAttribute="top" constant="10" id="JgS-Uk-5xQ"/>
+                    <constraint firstItem="Esd-lZ-YSm" firstAttribute="top" secondItem="368" secondAttribute="top" constant="10" id="P6J-yb-Nq5"/>
+                    <constraint firstItem="XaM-70-RHD" firstAttribute="leading" secondItem="368" secondAttribute="leading" id="YK9-X2-cwl"/>
                     <constraint firstAttribute="bottom" secondItem="i45-ea-1SF" secondAttribute="bottom" constant="60" id="cdf-F3-91c"/>
                     <constraint firstAttribute="bottom" secondItem="ogN-jV-Pqt" secondAttribute="bottom" constant="5" id="h0l-y8-Xjq"/>
-                    <constraint firstItem="ILa-eD-b18" firstAttribute="top" secondItem="368" secondAttribute="top" constant="10" id="kfW-Y3-sTh"/>
-                    <constraint firstAttribute="bottom" secondItem="ILa-eD-b18" secondAttribute="bottom" constant="90" id="mtX-3O-led"/>
-                    <constraint firstItem="ILa-eD-b18" firstAttribute="top" secondItem="XaM-70-RHD" secondAttribute="top" id="oMS-QG-KF7"/>
-                    <constraint firstItem="ILa-eD-b18" firstAttribute="bottom" secondItem="XaM-70-RHD" secondAttribute="bottom" id="usc-TT-uJ1"/>
+                    <constraint firstAttribute="bottom" secondItem="XaM-70-RHD" secondAttribute="bottom" constant="90" id="h8z-Cg-lt6"/>
+                    <constraint firstItem="DAv-w3-0ix" firstAttribute="top" secondItem="368" secondAttribute="top" constant="10" id="lzy-4Z-vBW"/>
+                    <constraint firstAttribute="bottom" secondItem="DAv-w3-0ix" secondAttribute="bottom" constant="90" id="oyb-ec-jdw"/>
+                    <constraint firstAttribute="bottom" secondItem="Esd-lZ-YSm" secondAttribute="bottom" constant="90" id="sCZ-Ln-E1F"/>
                     <constraint firstAttribute="trailing" secondItem="i45-ea-1SF" secondAttribute="trailing" constant="28" id="yiR-vo-eMG"/>
                 </constraints>
             </view>
