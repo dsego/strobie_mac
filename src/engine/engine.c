@@ -27,8 +27,8 @@ Engine* Engine_create() {
     self->config->centsOffset
   );
 
-  self->freqMedian = Median_create(9);
-  self->clarityMedian = Median_create(9);
+  self->freqMedian = Median_create(5);
+  self->clarityMedian = Median_create(5);
 
   // TODO: this should probably be in Config, maybe?
   self->mode = AUTO;

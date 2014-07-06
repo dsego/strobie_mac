@@ -7,6 +7,8 @@
 #import "version.h"
 #import "trial.h"
 
+#define PITCH_ESTIMATE_INTERVAL 0.06
+
 
 @implementation AppDelegate {
 
@@ -172,8 +174,7 @@
           object:self];
       });
     }
-
-    [NSThread sleepForTimeInterval:0.04];
+    [NSThread sleepForTimeInterval:PITCH_ESTIMATE_INTERVAL];
 
   }
 
