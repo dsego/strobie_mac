@@ -32,12 +32,13 @@ WARN := -Weverything -Wno-padded -Wno-unused-parameter -Wno-conversion
 MAC_WARN := $(WARN) -Wno-direct-ivar-access -Wno-objc-missing-property-synthesis \
 						-Wno-implicit-atomic-properties -Wno-auto-import
 
-
+MAC_SDK := /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
 # -Ofast enables -O3, vectorization, strict aliasing, fast math
 # -flto  is a link-time optimizer
 # -ffast-math (?)
 # -fvectorize should be enabled by default for -O3
-MAC_OPTIONS := -fmodules -fobjc-arc -arch x86_64 -O3 -flto -std=c11 -mmacosx-version-min=10.7
+# MAC_OPTIONS := -g -fmodules -fobjc-arc -arch x86_64 -flto -std=c11 -mmacosx-version-min=10.9 -isysroot $(MAC_SDK)
+MAC_OPTIONS := -fmodules -fobjc-arc -arch x86_64 -O3 -flto -std=c11 -mmacosx-version-min=10.9 -isysroot $(MAC_SDK)
 CC := cc
 
 
