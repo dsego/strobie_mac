@@ -6,19 +6,6 @@
 #import "shared.h"
 
 
-// @implementation StrobeLayer
-
-// - (void) drawInCGLContext:(CGLContextObj)glContext
-//           pixelFormat:(CGLPixelFormatObj)pixelFormat
-//           forLayerTime:(CFTimeInterval)timeInterval
-//           displayTime:(const CVTimeStamp *)timeStamp {
-// }
-
-// @end
-
-
-
-
 
 @implementation StrobeView {
 
@@ -32,9 +19,6 @@
   NSOpenGLPixelFormatAttribute attributes[] = {
     NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,   // Core Profile !
     NSOpenGLPFADoubleBuffer,
-    NSOpenGLPFAColorSize, 24,
-    NSOpenGLPFAAlphaSize, 8,
-    NSOpenGLPFAAllowOfflineRenderers,
     0
   };
 
@@ -43,22 +27,13 @@
   [self setPixelFormat: format];
   [self setOpenGLContext: context];
   [self setWantsBestResolutionOpenGLSurface: YES];
-  [self setWantsLayer: NO];
-
-  // [self setWantsLayer: YES];
-
-  // NSOpenGLLayer *layer = [StrobeLayer layer];
-  // [layer setOpenGLPixelFormat: format];
-  // [self setLayer: layer];
 
 }
 
 
 - (void)prepareOpenGL {
 
-  [super prepareOpenGL];
-
-  // Register to be notified when the window closes so we can stop the displaylink
+  // Register to be notified when the window closes so we can stop the display link
   [[NSNotificationCenter defaultCenter]
     addObserver:self
     selector:@selector(windowWillClose:)
@@ -97,7 +72,7 @@
 
   // Stop the display link when the window is closing because default
   // OpenGL render buffers will be destroyed.  If display link continues to
-  // fire without renderbuffers, OpenGL draw calls will set errors.
+  // fire without render buffers, OpenGL draw calls will set errors.
   CVDisplayLinkStop(displayLink);
 
 }
@@ -112,7 +87,6 @@
   // OpenGL content, which could cause flickering.  (non-OpenGL content
   // includes the title bar and drawing done by the app with other APIs)
   [[self window] disableScreenUpdatesUntilFlush];
-
   [super renewGState];
 
 }
@@ -157,16 +131,16 @@ static CVReturn displayLinkCallback(
 }
 
 
-- (void)update {
+// - (void)update {
 
-  NSOpenGLContext* context = [self openGLContext];
-  CGLContextObj cglContext = [context CGLContextObj];
-  [context makeCurrentContext];
-  CGLLockContext(cglContext);
-  [context update];
-  CGLUnlockContext(cglContext);
+//   NSOpenGLContext* context = [self openGLContext];
+//   CGLContextObj cglContext = [context CGLContextObj];
+//   [context makeCurrentContext];
+//   CGLLockContext(cglContext);
+//   [context update];
+//   CGLUnlockContext(cglContext);
 
-}
+// }
 
 
 -(void)reshape {
@@ -181,6 +155,7 @@ static CVReturn displayLinkCallback(
   CGFloat scale = [self convertSizeToBacking:CGSizeMake(1,1)].width;
 
   StrobeDisplay_initScene(engine, backing.size.width, backing.size.height, scale);
+
   CGLUnlockContext(cglContext);
 
 }

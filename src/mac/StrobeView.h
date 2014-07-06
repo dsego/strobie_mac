@@ -5,9 +5,3 @@
 @interface StrobeView : NSOpenGLView
 
 @end
-
-
-
-// @interface StrobeLayer : NSOpenGLLayer
-
-// @end
