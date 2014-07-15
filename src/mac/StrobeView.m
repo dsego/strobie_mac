@@ -9,39 +9,70 @@
 
 @implementation StrobeView {
 
-  CVDisplayLinkRef displayLink;
+  CVDisplayLinkRef     displayLink;
+  NSOpenGLContext*     context;
+  NSOpenGLPixelFormat* pixelFormat;
 
 }
 
 
-- (void)awakeFromNib {
+- (id)initWithFrame:(NSRect)frameRect {
 
-  NSOpenGLPixelFormatAttribute attributes[] = {
-    NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,   // Core Profile !
-    NSOpenGLPFADoubleBuffer,
-    0
-  };
+  self = [self initWithFrame:frameRect shareContext:nil];
+  return self;
 
-  NSOpenGLPixelFormat *format = [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
-  NSOpenGLContext *context = [[NSOpenGLContext alloc] initWithFormat:format shareContext: nil];
-  [self setPixelFormat: format];
-  [self setOpenGLContext: context];
-  [self setWantsBestResolutionOpenGLSurface: YES];
+}
+
+
+- (id) initWithFrame:(NSRect)frameRect shareContext:(NSOpenGLContext*)aContext {
+
+  self = [super initWithFrame:frameRect];
+
+  if (self) {
+// - (void)awakeFromNib {
+
+    NSOpenGLPixelFormatAttribute attributes[] = {
+      NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,   // Core Profile !
+      NSOpenGLPFADoubleBuffer,
+      0
+    };
+
+    pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
+    context = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext: nil];
+    [self prepareOpenGL];
+
+    // Register to be notified when the window closes so we can stop the display link
+    [[NSNotificationCenter defaultCenter] addObserver:self
+      selector:@selector(windowWillClose:)
+      name:NSWindowWillCloseNotification
+      object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+      selector:@selector(reshape)
+      name:NSViewGlobalFrameDidChangeNotification
+      object:self];
+
+    [self setWantsBestResolutionOpenGLSurface: YES];
+
+  }
+
+  // [self setPixelFormat: pixelFormat];
+  // [self setOpenGLContext: context];
+  return self;
+
+}
+
+
+- (BOOL)isOpaque {
+
+  return YES;
 
 }
 
 
 - (void)prepareOpenGL {
 
-  // Register to be notified when the window closes so we can stop the display link
-  [[NSNotificationCenter defaultCenter]
-    addObserver:self
-    selector:@selector(windowWillClose:)
-    name:NSWindowWillCloseNotification
-    object:self.window
-  ];
 
-  NSOpenGLContext* context = [self openGLContext];
   CGLContextObj cglContext = [context CGLContextObj];
   [context makeCurrentContext];
 
@@ -54,42 +85,64 @@
   // support retina
   NSRect backing = [self convertRectToBacking:[self bounds]];
   CGFloat scale = [self convertSizeToBacking:CGSizeMake(1,1)].width;
+  [self setupCVDisplayLink];
   StrobeDisplay_setup(engine);
   StrobeDisplay_initScene(engine, backing.size.width, backing.size.height, scale);
 
   CGLUnlockContext(cglContext);
 
+}
+
+
+- (void)setupCVDisplayLink {
+
+  CGLContextObj cglContext = [context CGLContextObj];
   CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
   CVDisplayLinkSetOutputCallback(displayLink, &displayLinkCallback, (__bridge void *)self);
-  CGLPixelFormatObj cglPixelFormat = [[self pixelFormat] CGLPixelFormatObj];
+  CGLPixelFormatObj cglPixelFormat = [pixelFormat CGLPixelFormatObj];
   CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, cglContext, cglPixelFormat);
-  CVDisplayLinkStart(displayLink);
 
 }
 
 
-- (void) windowWillClose:(NSNotification*)notification {
+// - (void)update {
 
-  // Stop the display link when the window is closing because default
-  // OpenGL render buffers will be destroyed.  If display link continues to
-  // fire without render buffers, OpenGL draw calls will set errors.
-  CVDisplayLinkStop(displayLink);
+//   CGLContextObj cglContext = [context CGLContextObj];
+//   [context makeCurrentContext];
+//   CGLLockContext(cglContext);
+//   [context update];
+//   CGLUnlockContext(cglContext);
+
+// }
+
+
+- (void) windowWillClose:(NSWindow*)window {
+
+  // The notification object is the NSWindow object that is about to close.
+  if (window == self.window) {
+
+    // Stop the display link when the window is closing because default
+    // OpenGL render buffers will be destroyed.  If display link continues to
+    // fire without render buffers, OpenGL draw calls will set errors.
+    CVDisplayLinkStop(displayLink);
+  }
 
 }
 
-- (void)renewGState {
 
-  // Called whenever graphics state updated (such as window resize)
+// - (void)renewGState {
 
-  // OpenGL rendering is not synchronous with other rendering on the OSX.
-  // Therefore, call disableScreenUpdatesUntilFlush so the window server
-  // doesn't render non-OpenGL content in the window asynchronously from
-  // OpenGL content, which could cause flickering.  (non-OpenGL content
-  // includes the title bar and drawing done by the app with other APIs)
-  [[self window] disableScreenUpdatesUntilFlush];
-  [super renewGState];
+//   // Called whenever graphics state updated (such as window resize)
 
-}
+//   // OpenGL rendering is not synchronous with other rendering on the OSX.
+//   // Therefore, call disableScreenUpdatesUntilFlush so the window server
+//   // doesn't render non-OpenGL content in the window asynchronously from
+//   // OpenGL content, which could cause flickering.  (non-OpenGL content
+//   // includes the title bar and drawing done by the app with other APIs)
+//   [[self window] disableScreenUpdatesUntilFlush];
+//   [super renewGState];
+
+// }
 
 
 // This is the renderer output callback function
@@ -111,7 +164,6 @@ static CVReturn displayLinkCallback(
 
 - (void)redraw {
 
-  NSOpenGLContext* context = [self openGLContext];
   CGLContextObj cglContext = [context CGLContextObj];
   [context makeCurrentContext];
   CGLLockContext(cglContext);
@@ -124,41 +176,63 @@ static CVReturn displayLinkCallback(
 }
 
 
--(void)drawRect:(NSRect)bounds {
+- (void)drawRect:(NSRect)bounds {
 
-  [self redraw];
+  if (context.view != self) {
+    [context setView: self];
+  }
+  // [self redraw];
 
 }
 
+- (void)reshape {
 
-// - (void)update {
-
-//   NSOpenGLContext* context = [self openGLContext];
-//   CGLContextObj cglContext = [context CGLContextObj];
-//   [context makeCurrentContext];
-//   CGLLockContext(cglContext);
-//   [context update];
-//   CGLUnlockContext(cglContext);
-
-// }
-
-
--(void)reshape {
-
-  NSOpenGLContext* context = [self openGLContext];
   CGLContextObj cglContext = [context CGLContextObj];
-  [context makeCurrentContext];
   CGLLockContext(cglContext);
+  [context makeCurrentContext];
 
   // support retina
   NSRect backing = [self convertRectToBacking:[self bounds]];
   CGFloat scale = [self convertSizeToBacking:CGSizeMake(1,1)].width;
-
   StrobeDisplay_initScene(engine, backing.size.width, backing.size.height, scale);
+
+  [context update];
+  StrobeDisplay_drawScene(engine);
+  [context flushBuffer];
 
   CGLUnlockContext(cglContext);
 
 }
+
+
+- (void)startAnimation {
+
+  if (displayLink && !CVDisplayLinkIsRunning(displayLink)) {
+    CVDisplayLinkStart(displayLink);
+  }
+
+}
+
+
+- (void)stopAnimation {
+
+  if (displayLink && CVDisplayLinkIsRunning(displayLink)) {
+    CVDisplayLinkStop(displayLink);
+  }
+
+}
+
+
+// - (void)unlockFocus {
+
+// }
+
+
+// - (void)lockFocus {
+
+
+
+// }
 
 
 - (BOOL)mouseDownCanMoveWindow {

@@ -2,6 +2,9 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface StrobeView : NSOpenGLView
+@interface StrobeView : NSView
+
+  - (void) startAnimation;
+  - (void) stopAnimation;
 
 @end

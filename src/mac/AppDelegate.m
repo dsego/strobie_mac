@@ -126,6 +126,11 @@
 
   Engine_setStrobes(engine, note, engine->config->samplerate);
 
+}
+
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+
   int err = Engine_setInputDevice(
     engine,
     engine->config->inputDevice,
@@ -142,6 +147,7 @@
     object:nil];
 
   [estimatePitchThread start];
+  [self.mainController.strobeView startAnimation];
 
 }
 
