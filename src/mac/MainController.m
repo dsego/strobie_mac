@@ -105,9 +105,5 @@
 }
 
 
--(IBAction)openStrobieWebChangelog:(id)sender {
-  openWebsiteInBrowser(@"http://strobie-app.com");
-}
-
 
 @end
