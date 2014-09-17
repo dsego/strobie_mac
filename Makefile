@@ -67,12 +67,16 @@ engine.a: src/engine/*.c
 	ar rcs engine.a *.o
 	rm *.o
 
-mac_pkg:
+mac_signed:
+	$(MAKE) mac_full
 	cp -r StrobieFull.app/ Strobie.app/
 	codesign \
 		--force --deep --sign  "3rd Party Mac Developer Application: Davorin Sego" \
 		--entitlements src/mac/Strobie.entitlements \
 		Strobie.app
+
+mac_pkg:
+	$(MAKE) mac_signed
 	productbuild \
 		--component Strobie.app /Applications \
 		--sign "3rd Party Mac Developer Installer: Davorin Sego" \
