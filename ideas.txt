@@ -1,59 +1,72 @@
 
 # future (no particular order)
 
-- save input name
-- move strobe view to a different octave range (e.g. 0-5, 1-6, 3-8, etc.)
-- octave font color from strobe peak value
-- Vagrant for cross-platform builds?
-- Add descriptions and advice to preferences
-- Resolution (samples per period, latency?)
-- play tone
-- sharp/flat indicator
-- Noise gate
-- keeping strobe phases in sync, how?
-- (red) line in the middle or rulers
-- tech info (input, samplerate, bits) ?
-- add/remove strobe bands
-- change options for each strobe band
-- choose preset ( 7 octaves, 4 harmonic bands, chords? )
-- Stretch tables
-- Partials, text box (drop down with combinations?)
-- Mute button
-- Sound output, drop-down box
-- Pitch standard -> combo box that lists historical pitch standards
-- Enable sound output, check box
-- Display sharps or flats, drop-down
-- Scale & temperament presets
-- info display (audio level, concert pitch, chromatic or chosen instrument)
-- auto gain (how?)
+
+
+
 - Tuner accuracy (strobe speed) adjustment (how?)
-- suspend button
-- Min audio level (threshold) for pitch recognition (e.g. -40dBFS), slider
-- MIDI input to switch modes/notes ?
-- Instrument selection (chromatic, std. guitar ...), combo box
-- proper hash (associative array) implementation for config
-- handle audio device changes while app is running (https://www.assembla.com/spaces/portaudio/tickets/158)
-- hsv to rgb vertex shader (or tone mapping)
+- Auto gain (how?)
+- experiment with differentials, demodulations and PLL, schmitt trigger & crossings
+- move strobe view to a different octave range (e.g. 0-5, 1-6, 3-8, etc.)
+- Resolution (samples per period, latency?)
+- keeping strobe phases in sync, how?
+- mirroring ring buffer (POSIX implementation using mmap - wikipedia)
 - incremental snac
 - write tech info on precision (sample rate drift)
-- "fix" stepper behavior (increment/decrement to next whole number or change step to 0.1) ?
-- mirroring ring buffer (POSIX implementation using mmap - wikipedia)
-- icons in preferences
-- reset preferences
-- quick help button (?) and/or menu item with a keyboard scheme view
-- add menu items
-- fsanitize
 - modified cepstrum
 - frequency domain low pass filter (multiply fft magnitudes by 1's in the
   low frequency range and a linear (or even a step) ramp down in the higher frequencies)
 - harmonic product spectrum
-- experiment with differentials, demodulations and PLL, schmitt trigger & crossings
 
 
-http://lists.canonical.org/pipermail/kragen-hacks/2012-February/000534.html
 http://arachnoid.com/phase_locked_loop/
 http://dsp.stackexchange.com/questions/572/harmonic-product-spectrum-limitations-in-pitch-detection
 http://software.intel.com/en-us/blogs/2013/01/06/benign-data-races-what-could-possibly-go-wrong
 http://www.drdobbs.com/cpp/volatile-the-multithreaded-programmers-b/184403766
 http://functionspace.org/articles/22
 http://www.mikeash.com/pyblog/friday-qa-2009-07-10-type-specifiers-in-c-part-3.html
+
+http://www.codeproject.com/Articles/3479/The-Bip-Buffer-The-Circular-Buffer-with-a-Twist
+http://en.wikipedia.org/wiki/Ring_buffer
+http://www.rane.com/note157.html
+
+
+
+MAYBE:
+
+- Display sharps or flats, drop-down
+- sharp/flat indicator
+- Add descriptions and advice to preferences
+- proper hash (associative array) implementation for config
+- change options for each strobe band
+- add/remove strobe bands
+- Mute button
+- play tone
+- Sound output, drop-down box
+- Enable sound output, check box
+- Noise gate
+- choose preset ( 7 octaves, 4 harmonic bands, chords? )
+- Stretch tables
+- Partials, text box (drop down with combinations?)
+- Scale & temperament presets
+- info display (audio level, concert pitch, chromatic or chosen instrument)
+- Min audio level (threshold) for pitch recognition (e.g. -40dBFS), slider
+- Instrument selection (chromatic, std. guitar ...), combo box
+- reset preferences
+- add menu items
+- quick help button (?) and/or menu item with a keyboard scheme view
+
+
+NOPE:
+
+- "fix" stepper behavior (increment/decrement to next whole number or change step to 0.1) ?
+- (red) line in the middle or rulers
+- tech info (input, samplerate, bits) ?
+- Pitch standard -> combo box that lists historical pitch standards
+- suspend button
+- MIDI input to switch modes/notes ?
+- hsv to rgb vertex shader (or tone mapping)
+- icons in preferences
+- main device and fall-back device?
+- octave font color from strobe peak value
+- handle audio device changes while app is running (https://www.assembla.com/spaces/portaudio/tickets/158)
