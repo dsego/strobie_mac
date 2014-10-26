@@ -43,10 +43,10 @@ CC := cc
 
 
 mac_full:
-	$(MAKE) mac_bundle BUNDLE="StrobieFull.app"
+	$(MAKE) mac_bundle BUNDLE="Strobie.app"
 
 mac_trial:
-	$(MAKE) mac_bundle BUNDLE="StrobieTrial.app" TRIAL_VERSION="-DTRIAL_VERSION"
+	$(MAKE) mac_bundle BUNDLE="Strobie.app" TRIAL_VERSION="-DTRIAL_VERSION"
 
 mac_bundle: engine.a
 	rm -rfd $(BUNDLE)
@@ -69,11 +69,11 @@ engine.a: src/engine/*.c
 
 mac_signed:
 	$(MAKE) mac_full
-	cp -r StrobieFull.app/ Strobie.app/
 	codesign \
-		--force --deep --sign  "3rd Party Mac Developer Application: Davorin Sego" \
-		--entitlements src/mac/Strobie.entitlements \
-		Strobie.app
+		--force --verify --deep --verbose --sign  "Developer ID Application: Davorin Sego" \
+  	--entitlements ./Strobie.app/Contents/Strobie.entitlements \
+  	./Strobie.app
+	 	#"3rd Party Mac Developer Application: Davorin Sego"
 
 mac_pkg:
 	$(MAKE) mac_signed
@@ -81,7 +81,9 @@ mac_pkg:
 		--component Strobie.app /Applications \
 		--sign "3rd Party Mac Developer Installer: Davorin Sego" \
 		--product src/mac/Info.plist Strobie.pkg
-	rm -rfd Strobie.app
+
+mac_test_signature:
+	spctl -a -v Strobie.app
 
 
 ###########
