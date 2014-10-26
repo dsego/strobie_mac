@@ -137,11 +137,11 @@ static inline void refreshShadow(int screenWidth, int screenHeight) {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shadowEbo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(shadowElements), shadowElements, GL_STATIC_DRAW);
 
-  GLint posAttrib = glGetAttribLocation(textureShader, "position");
+  GLint posAttrib = SHADER_POSITION_ATTRIBUTE_LOCATION; //glGetAttribLocation(textureShader, "position");
   glEnableVertexAttribArray(posAttrib);
   glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
 
-  GLint texAttrib = glGetAttribLocation(textureShader, "texcoord");
+  GLint texAttrib = SHADER_TEXCOORD_ATTRIBUTE_LOCATION; //glGetAttribLocation(textureShader, "texcoord");
   glEnableVertexAttribArray(texAttrib);
   glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 2 * sizeof(GLfloat));
 
