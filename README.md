@@ -14,6 +14,6 @@ When the pattern stops moving, the note is perfectly in tune.
 
 ### License
 
-Copyright ©️ 2025 Davorin Šego
-Licensed under the GPL v3
+Copyright ©️ 2025 Davorin Šego    
+Licensed under the GPL v3     
 https://www.gnu.org/licenses/gpl-3.0.en.html
