@@ -1,4 +1,10 @@
-# Strobie 
+> NOTE:
+> This is an older project of mine from more than a decade ago. Uploaded to Github just for reference.
+
+
+
+
+### `Strobie`
 
 A strobe tuner for your Mac.
 
@@ -12,7 +18,7 @@ When the pattern stops moving, the note is perfectly in tune.
 
 
 
-### License
+### `License`
 
 Copyright ©️ 2025 Davorin Šego    
 Licensed under the GPL v3     
